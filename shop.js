@@ -266,10 +266,37 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Show drop animation
                 showDrop(drop);
                 
-                // Update balance and save to localStorage
+                // Update balance locally and in the database
                 balance -= itemCost;
                 localStorage.setItem('balance', balance);
                 balanceDisplay.innerHTML = `Balance: $${balance}`;
+
+                // Update balance in the database
+                try {
+                    const username = localStorage.getItem('playerName');
+                    const response = await fetch('https://universal-backend-7wn9.onrender.com/api/update-balance', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            username,
+                            balance
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to update balance in database');
+                    }
+
+                    console.log('Balance updated in database:', balance);
+                } catch (error) {
+                    console.error('Error updating balance in database:', error);
+                    // Optionally revert the local balance if the database update fails
+                    balance += itemCost;
+                    localStorage.setItem('balance', balance);
+                    balanceDisplay.innerHTML = `Balance: $${balance}`;
+                }
                 
                 // Update button state
                 if (balance < itemCost) {
