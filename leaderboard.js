@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('Loading leaderboard...');
+    console.log('Config:', window.config); // Add debug log
+    
     const leaderboardBody = document.getElementById('leaderboard-body');
 
     if (!leaderboardBody) {
@@ -7,12 +10,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const response = await fetch('http://localhost:3000/api/leaderboard');
+        const apiUrl = window.config.API_URL;
+        console.log('Using API URL:', apiUrl); // Add debug log
+        
+        const response = await fetch(`${apiUrl}/api/leaderboard`);
         if (!response.ok) {
-            throw new Error('Failed to fetch leaderboard data');
+            throw new Error(`Failed to fetch leaderboard data: ${response.status}`);
         }
         
         const leaderboardData = await response.json();
+        console.log('Leaderboard data:', leaderboardData); // Add debug log
 
         // Clear existing entries
         leaderboardBody.innerHTML = '';

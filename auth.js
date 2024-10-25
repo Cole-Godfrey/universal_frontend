@@ -1,4 +1,17 @@
+// Add timestamp to see when this runs
+console.log('Auth file loaded at:', new Date().toISOString());
+console.log('Window object:', window);
+console.log('Config object:', window.config);
+
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('DOM Content Loaded at:', new Date().toISOString());
+    console.log('Config object in DOMContentLoaded:', window.config);
+
+    if (typeof window.config === 'undefined') {
+        console.error('Config is not defined! Check if config.js is loaded properly.');
+        return;
+    }
+
     const signupForm = document.getElementById('signupForm');
 
     signupForm.addEventListener('submit', async (e) => {
@@ -7,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (username) {
             try {
-                const response = await fetch(`${config.API_URL}/api/register`, {
+                const response = await fetch(`${window.config.API_URL}/api/register`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username })
@@ -16,8 +29,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (response.ok) {
                     const user = await response.json();
                     localStorage.setItem('playerName', user.username);
-                    localStorage.setItem('balance', user.balance);  // This will now be 1000 from the server
-                    localStorage.setItem('inventory', JSON.stringify([])); // Initialize empty inventory array
+                    localStorage.setItem('balance', user.balance);
+                    localStorage.setItem('inventory', JSON.stringify([]));
                     window.location.href = 'index.html';
                 } else {
                     const error = await response.json();

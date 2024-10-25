@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko Shop</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="shop.css">
+</head>
+<body>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="container">
+        <div class="shop-container">
+            <h1 class="shop-title">Shop</h1>
+            <div class="shop-display">
+                <button class="nav-button left-nav">←</button>
+                <div class="drop-rates">
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ffffff">ABSOLUTE</span>
+                        <span class="rate-chance">0.002%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ff99cc">IMMORTAL</span>
+                        <span class="rate-chance">0.003%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #00ffcc">ETERNAL</span>
+                        <span class="rate-chance">0.005%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #9900ff">INFINITE</span>
+                        <span class="rate-chance">0.01%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ffcc00">OMNIPOTENT</span>
+                        <span class="rate-chance">0.02%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ff3366">GODLY</span>
+                        <span class="rate-chance">0.03%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #00ff99">PRIMORDIAL</span>
+                        <span class="rate-chance">0.05%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #cc9900">ANCIENT</span>
+                        <span class="rate-chance">0.08%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #33ffff">ETHEREAL</span>
+                        <span class="rate-chance">0.1%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ff9933">TRANSCENDENT</span>
+                        <span class="rate-chance">0.2%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ff66ff">COSMIC</span>
+                        <span class="rate-chance">0.5%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #00ffff">CELESTIAL</span>
+                        <span class="rate-chance">1%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ffff00">DIVINE</span>
+                        <span class="rate-chance">2%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ff0000">MYTHICAL</span>
+                        <span class="rate-chance">3%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ffaa00">LEGENDARY</span>
+                        <span class="rate-chance">5%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #ff33cc">EPIC</span>
+                        <span class="rate-chance">8%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #9933ff">VERY RARE</span>
+                        <span class="rate-chance">10%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #0066ff">RARE</span>
+                        <span class="rate-chance">15%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #00ff00">UNCOMMON</span>
+                        <span class="rate-chance">25%</span>
+                    </div>
+                    <div class="rate-item">
+                        <span class="rate-rarity" style="color: #b0b0b0">COMMON</span>
+                        <span class="rate-chance">30%</span>
+                    </div>
+                </div>
+                <div class="shop-item-display">
+                    <div class="shop-item active" data-index="0">
+                        <div class="item-image basic-orb"></div>
+                        <h2>Basic Orb</h2>
+                        <p>A simple glowing sphere</p>
+                        <button class="buy-button">Buy - $100</button>
+                    </div>
+                    <div class="shop-item" data-index="1">
+                        <div class="item-image crystal-orb">
+                            <div class="crystal-facets"></div>
+                        </div>
+                        <h2>Crystal Orb</h2>
+                        <p>Shimmers with inner light</p>
+                        <button class="buy-button">Buy - $250</button>
+                    </div>
+                    <div class="shop-item" data-index="2">
+                        <div class="item-image plasma-orb">
+                            <div class="plasma-core"></div>
+                            <div class="plasma-streams"></div>
+                        </div>
+                        <h2>Plasma Orb</h2>
+                        <p>Crackling with energy</p>
+                        <button class="buy-button">Buy - $500</button>
+                    </div>
+                    <div class="shop-item" data-index="3">
+                        <div class="item-image nebula-orb">
+                            <div class="nebula-clouds"></div>
+                            <div class="nebula-stars"></div>
+                        </div>
+                        <h2>Nebula Orb</h2>
+                        <p>Contains swirling cosmic dust</p>
+                        <button class="buy-button">Buy - $1000</button>
+                    </div>
+                    <div class="shop-item" data-index="4">
+                        <div class="item-image void-orb">
+                            <div class="void-core"></div>
+                            <div class="void-tendrils"></div>
+                        </div>
+                        <h2>Void Orb</h2>
+                        <p>Darkness given form</p>
+                        <button class="buy-button">Buy - $2500</button>
+                    </div>
+                    <div class="shop-item" data-index="5">
+                        <div class="item-image phoenix-orb">
+                            <div class="phoenix-flames"></div>
+                            <div class="phoenix-embers"></div>
+                        </div>
+                        <h2>Phoenix Orb</h2>
+                        <p>Burning with eternal flame</p>
+                        <button class="buy-button">Buy - $5000</button>
+                    </div>
+                    <div class="shop-item" data-index="6">
+                        <div class="item-image quantum-orb">
+                            <div class="probability-waves"></div>
+                            <div class="quantum-particles">
+                                <div class="particle" style="--x1: 20px; --y1: -20px; --x2: -30px; --y2: 40px;"></div>
+                                <div class="particle" style="--x1: -30px; --y1: -40px; --x2: 40px; --y2: 20px;"></div>
+                                <div class="particle" style="--x1: 40px; --y1: 30px; --x2: -20px; --y2: -30px;"></div>
+                                <div class="particle" style="--x1: -20px; --y1: 40px; --x2: 30px; --y2: -40px;"></div>
+                            </div>
+                            <div class="superposition"></div>
+                        </div>
+                        <h2>Quantum Orb</h2>
+                        <p>Exists in multiple states</p>
+                        <button class="buy-button">Buy - $10000</button>
+                    </div>
+                    <div class="shop-item" data-index="7">
+                        <div class="item-image celestial-orb">
+                            <div class="celestial-aura"></div>
+                            <div class="divine-light"></div>
+                            <div class="zodiac-ring"></div>
+                            <div class="star-field"></div>
+                            <div class="constellations">
+                                <div class="constellation" style="top: 20%; left: 20%;"></div>
+                                <div class="constellation" style="top: 20%; right: 20%;"></div>
+                                <div class="constellation" style="bottom: 20%; left: 20%;"></div>
+                                <div class="constellation" style="bottom: 20%; right: 20%;"></div>
+                            </div>
+                        </div>
+                        <h2>Celestial Orb</h2>
+                        <p>Blessed by the stars</p>
+                        <button class="buy-button">Buy - $25000</button>
+                    </div>
+                    <div class="shop-item" data-index="8">
+                        <div class="item-image infinity-orb">
+                            <div class="energy-streams"></div>
+                            <div class="runes">
+                                <div class="rune" style="top: 20%; left: 20%;">∞</div>
+                                <div class="rune" style="top: 20%; right: 20%;">∞</div>
+                                <div class="rune" style="bottom: 20%; left: 20%;">∞</div>
+                                <div class="rune" style="bottom: 20%; right: 20%;">∞</div>
+                            </div>
+                            <div class="particles">
+                                <div class="particle" style="--x: 20px; --y: -20px;"></div>
+                                <div class="particle" style="--x: -20px; --y: 20px;"></div>
+                                <div class="particle" style="--x: -20px; --y: -20px;"></div>
+                                <div class="particle" style="--x: 20px; --y: 20px;"></div>
+                            </div>
+                        </div>
+                        <h2>Infinity Orb</h2>
+                        <p>Contains endless possibilities</p>
+                        <button class="buy-button">Buy - $50000</button>
+                    </div>
+                    <div class="shop-item" data-index="9">
+                        <div class="item-image cosmic-orb">
+                            <div class="nebula-clouds"></div>
+                            <div class="stars"></div>
+                            <div class="dust-particles"></div>
+                            <div class="shooting-stars">
+                                <div class="shooting-star"></div>
+                                <div class="shooting-star"></div>
+                                <div class="shooting-star"></div>
+                                <div class="shooting-star"></div>
+                            </div>
+                        </div>
+                        <h2>Cosmic Orb</h2>
+                        <p>The universe in sphere form</p>
+                        <button class="buy-button">Buy - $100000</button>
+                    </div>
+                </div>
+                <button class="nav-button right-nav">→</button>
+            </div>
+            <button class="menu-button back-button" onclick="window.location.href='index.html'">
+                <span>Back to Game</span>
+            </button>
+        </div>
+    </div>
+    <!-- Add items.js before shop.js -->
+    <script src="items.js"></script>
+    
+    <script src="shop.js"></script>
+</body>
+</html>

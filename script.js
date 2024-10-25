@@ -933,70 +933,97 @@ document.querySelector('.menu-button:nth-child(1)').addEventListener('click', ()
     window.location.href = 'inventory.html';
 });
 
-// Remove the duplicate updatePlayerBalance function and combine the functionality
+// Update the updatePlayerBalance function
 async function updatePlayerBalance(amount) {
     const playerName = localStorage.getItem('playerName');
     if (!playerName) {
         console.error('Player name not found in localStorage');
+        window.location.href = 'signup.html';
         return;
     }
 
-    // Update local balance
-    balance += amount;
-    localStorage.setItem('balance', balance);
-
-    // Update local leaderboard
-    updateLeaderboard(playerName, balance);
-
-    // Update server
     try {
-        const response = await fetch('http://localhost:3000/api/update-balance', {
+        if (!window.config) {
+            throw new Error('Config not loaded');
+        }
+
+        // Get current balance from server - use window.config.API_URL
+        const userResponse = await fetch(`${window.config.API_URL}/api/user/${playerName}`);
+        if (!userResponse.ok) {
+            throw new Error('Failed to fetch current balance');
+        }
+        const userData = await userResponse.json();
+        
+        // Calculate new balance
+        const newBalance = userData.balance + amount;
+
+        // Update server - use window.config.API_URL
+        const updateResponse = await fetch(`${window.config.API_URL}/api/update-balance`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 username: playerName,
-                balance: balance
+                balance: newBalance
             })
         });
 
-        if (!response.ok) {
+        if (!updateResponse.ok) {
             throw new Error('Failed to update balance on server');
         }
 
-        const result = await response.json();
+        const result = await updateResponse.json();
         console.log('Balance updated successfully:', result);
+        
+        // Update local display
+        balance = result.balance;
+        localStorage.setItem('balance', balance);
+        
+        // Update leaderboard
+        updateLeaderboard(playerName, balance);
+
     } catch (error) {
         console.error('Error updating balance:', error);
+        // Instead of continuing with local balance, redirect to signup
+        localStorage.clear();
+        window.location.href = 'signup.html';
     }
 }
 
-// Remove this line as it's causing an infinite loop
-// updatePlayerBalance(500); // Add 500 to the player's balance
-
-// Add this near the start of your script.js, after the balance declaration
+// Update the initialization code
 document.addEventListener('DOMContentLoaded', async () => {
+    console.log('DOM loaded, checking config:', window.config);
+    
     const playerName = localStorage.getItem('playerName');
-    if (playerName) {
-        try {
-            const response = await fetch('http://localhost:3000/api/update-balance', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username: playerName,
-                    balance: balance
-                })
-            });
+    if (!playerName) {
+        window.location.href = 'signup.html';
+        return;
+    }
 
-            if (!response.ok) {
-                throw new Error('Failed to initialize balance on server');
-            }
-        } catch (error) {
-            console.error('Error initializing balance:', error);
+    try {
+        if (!window.config) {
+            throw new Error('Config not loaded');
         }
+
+        // Get user data from server
+        const response = await fetch(`${window.config.API_URL}/api/user/${playerName}`);
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const userData = await response.json();
+        console.log('User data loaded:', userData);
+        
+        // Update local balance with server value
+        balance = userData.balance;
+        localStorage.setItem('balance', balance);
+
+    } catch (error) {
+        console.error('Error loading user data:', error);
+        // Instead of using local balance, redirect to signup
+        localStorage.clear();
+        window.location.href = 'signup.html';
     }
 });
 
