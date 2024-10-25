@@ -1,3 +1,3 @@
 const config = {
-    API_URL: 'https://your-render-backend-url.onrender.com'
+    API_URL: 'https://universal-backend-7wn9.onrender.com/'
 };
