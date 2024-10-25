@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="leaderboard.css">
+</head>
+<body>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="container">
+        <div class="leaderboard-container">
+            <h1 class="leaderboard-title">Leaderboard</h1>
+            <table class="leaderboard-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Player</th>
+                        <th>Score</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboard-body">
+                    <!-- Leaderboard entries will be populated by JavaScript -->
+                </tbody>
+            </table>
+            <button class="menu-button back-button" onclick="window.location.href='index.html'">
+                <span>Back to Game</span>
+            </button>
+        </div>
+    </div>
+    <script src="leaderboard.js"></script>
+</body>
+</html>

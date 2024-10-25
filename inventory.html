@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko Inventory</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="inventory.css">
+</head>
+<body>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="container">
+        <div class="inventory-container">
+            <h1 class="inventory-title">Inventory</h1>
+            <div class="balance-display" id="balanceDisplay">Balance: $0</div>
+            <div class="inventory-display">
+                <div class="inventory-filters">
+                    <input type="text" id="searchBar" placeholder="Search items..." />
+                    <select id="rarityFilter">
+                        <option value="ALL">All Rarities</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <select id="sortBy">
+                        <option value="RARITY_DESC">Rarity (Highest)</option>
+                        <option value="RARITY_ASC">Rarity (Lowest)</option>
+                        <option value="NAME_ASC">Name (A-Z)</option>
+                        <option value="NAME_DESC">Name (Z-A)</option>
+                    </select>
+                </div>
+                <div class="inventory-grid">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+                <div class="inventory-pagination">
+                    <button class="nav-button prev-page">←</button>
+                    <span class="page-info">Page 1 of 1</span>
+                    <button class="nav-button next-page">→</button>
+                </div>
+            </div>
+            <button class="menu-button back-button" onclick="window.location.href='index.html'">
+                <span>Back to Game</span>
+            </button>
+        </div>
+    </div>
+    <script src="items.js"></script>
+    <script src="inventory.js"></script>
+</body>
+</html>

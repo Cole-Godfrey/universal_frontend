@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trade - Plinko Game</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="trade.css">
+</head>
+<body>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="container">
+        <div class="trade-container">
+            <div class="trade-section">
+                <h2>Your Items</h2>
+                <div id="yourItems" class="items-grid"></div>
+                <div class="selected-items" id="yourSelectedItems"></div>
+            </div>
+            <div class="trade-controls">
+                <div class="player-search">
+                    <input type="text" id="tradePartner" placeholder="Enter player name">
+                    <button id="findPlayer" class="find-button">Find Player</button>
+                </div>
+                <div id="searchMessage" class="search-message"></div>
+                <button id="proposeTrade" disabled>Propose Trade</button>
+                <button id="cancelTrade">Cancel</button>
+            </div>
+            <div class="trade-section">
+                <h2>Partner's Items</h2>
+                <div id="partnerItems" class="items-grid"></div>
+                <div class="selected-items" id="partnerSelectedItems"></div>
+            </div>
+        </div>
+    </div>
+    <script src="items.js"></script>
+    <script src="trade.js"></script>
+</body>
+</html>

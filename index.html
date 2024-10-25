@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plinko Game</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="container">
+        <canvas id="plinkoCanvas"></canvas>
+        <div class="menu">
+            <button class="menu-button" onclick="window.location.href='inventory.html'"><span>Inventory</span></button>
+            <button class="menu-button"><span>Shop</span></button>
+            <button class="menu-button" onclick="window.location.href='leaderboard.html'"><span>Leaderboard</span></button>
+            <button class="menu-button" onclick="window.location.href='trade.html'"><span>Trade</span></button>
+        </div>
+    </div>
+    <script>
+        // Check if playerName is set, if not redirect to signup
+        if (!localStorage.getItem('playerName')) {
+            window.location.href = 'signup.html';
+        }
+    </script>
+    <script src="leaderboard.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

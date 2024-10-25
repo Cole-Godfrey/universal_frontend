@@ -1,0 +1,409 @@
+.trade-container {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px;
+    background: rgba(0, 0, 50, 0.9); /* Darker blue background */
+    border-radius: 12px;
+    margin: 20px;
+    box-shadow: 0 0 40px rgba(0, 150, 255, 0.3); /* More pronounced shadow */
+}
+
+.trade-title {
+    color: #e0e0e0; /* Softer white */
+    font-size: 38px;
+    margin-bottom: 30px;
+    text-align: center;
+    text-shadow: 0 0 12px rgba(138, 43, 226, 0.9);
+    text-transform: uppercase;
+    letter-spacing: 4px;
+}
+
+.trade-display {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.trade-section {
+    flex: 1;
+    margin: 0 12px;
+    background: rgba(10, 10, 60, 0.9); /* Darker blue background */
+    border-radius: 12px;
+    padding: 22px;
+    box-shadow: 0 0 20px rgba(0, 150, 255, 0.3); /* More pronounced shadow */
+}
+
+.trade-section h2 {
+    color: #00e5ff; /* Brighter light blue text */
+    font-size: 26px;
+    margin-bottom: 22px;
+    text-align: center;
+    text-shadow: 0 0 6px rgba(0, 150, 255, 0.9); /* More pronounced text shadow */
+}
+
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 12px;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 6px;
+    min-height: 220px;
+    overflow-y: auto;
+}
+
+.selected-items {
+    margin-top: 20px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    min-height: 100px;
+}
+
+.trade-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 16px;
+    background: rgba(20, 10, 50, 0.9);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 1px solid rgba(0, 150, 255, 0.5); /* More pronounced border */
+}
+
+.trade-item:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 18px rgba(0, 150, 255, 0.4); /* More pronounced shadow on hover */
+}
+
+.trade-item.selected {
+    border: 2px solid rgba(0, 150, 255, 0.7);
+    box-shadow: 0 0 18px rgba(0, 150, 255, 0.4);
+}
+
+.trade-controls {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+    padding: 20px;
+}
+
+.trade-status {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.your-offer, .their-offer {
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+    padding: 15px;
+    min-height: 150px;
+    width: 200px;
+}
+
+.your-offer h3, .their-offer h3 {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 10px;
+    font-size: 18px;
+    text-shadow: 0 0 5px rgba(138, 43, 226, 0.8);
+}
+
+.offer-items {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    min-height: 100px;
+}
+
+.trade-button {
+    background: linear-gradient(45deg, #5a3a9a, #3a2a5a);
+    color: white;
+    border: 1px solid rgba(0, 150, 255, 0.5);
+    padding: 12px 24px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+    margin: 6px 0;
+}
+
+.trade-button:hover:not(:disabled) {
+    background: linear-gradient(45deg, #6a4aaa, #4a3a6a);
+    box-shadow: 0 0 18px rgba(0, 150, 255, 0.5);
+}
+
+.trade-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.player-select {
+    margin-bottom: 20px;
+}
+
+.player-select select {
+    width: 100%;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    border-radius: 5px;
+}
+
+/* Scrollbar styling */
+.inventory-grid::-webkit-scrollbar {
+    width: 8px;
+}
+
+.inventory-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb {
+    background: rgba(138, 43, 226, 0.4);
+    border-radius: 4px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb:hover {
+    background: rgba(138, 43, 226, 0.6);
+}
+
+#tradePartner {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    transition: all 0.3s ease;
+    height: 42px; /* Match the height of the button */
+    box-sizing: border-box;
+    margin: 0; /* Remove any default margin */
+}
+
+#proposeTrade, #cancelTrade {
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+#cancelTrade {
+    background: #f44336;
+}
+
+/* Add these styles */
+.pending-trades {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border-radius: 8px;
+}
+
+.pending-trade {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 15px;
+    margin-bottom: 10px;
+    color: #e0e0e0; /* Change text color to a softer white */
+}
+
+.trade-items {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin: 15px 0;
+}
+
+.trade-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.trade-actions button {
+    padding: 8px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.trade-actions button:first-child {
+    background: #4CAF50;
+    color: white;
+}
+
+.trade-actions button:last-child {
+    background: #f44336;
+    color: white;
+}
+
+.trade-actions button:hover {
+    filter: brightness(1.1);
+}
+
+/* Add item styling */
+.item-icon-container {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.item-icon {
+    font-size: 24px;
+    animation: iconFloat 2s ease-in-out infinite;
+}
+
+.item-name {
+    color: #fff;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.item-rarity {
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+/* Add rarity-based glow effects */
+.trade-item[data-rarity="ABSOLUTE"] {
+    animation: absoluteGlow 2s infinite;
+}
+
+.trade-item[data-rarity="IMMORTAL"] {
+    animation: immortalGlow 3s infinite;
+}
+
+.trade-item[data-rarity="ETERNAL"] {
+    animation: eternalGlow 4s infinite;
+}
+
+@keyframes absoluteGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+    }
+}
+
+@keyframes immortalGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 153, 204, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 153, 204, 0.8);
+    }
+}
+
+@keyframes eternalGlow {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(0, 255, 204, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(0, 255, 204, 0.8);
+    }
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+/* Add special item class styles */
+[class*="eternal-"] .item-icon { text-shadow: 0 0 20px #00ffcc; }
+[class*="immortal-"] .item-icon { text-shadow: 0 0 20px #ff99cc; }
+[class*="infinite-"] .item-icon { text-shadow: 0 0 20px #9900ff; }
+[class*="absolute-"] .item-icon { text-shadow: 0 0 20px white; }
+
+/* Add player search styles */
+.player-search {
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: stretch; /* Stretch items to fill the container */
+    gap: 10px;
+    margin-bottom: 10px;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 8px;
+}
+
+.find-button {
+    padding: 10px 20px;
+    background: linear-gradient(45deg, #5a3a9a, #3a2a5a);
+    color: white;
+    border: 1px solid rgba(0, 150, 255, 0.5);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    height: 42px; /* Ensure the button height matches the text box */
+    box-sizing: border-box;
+    flex-shrink: 0;
+}
+
+.find-button:hover {
+    background: linear-gradient(45deg, #6a4aaa, #4a3a6a);
+    box-shadow: 0 0 18px rgba(0, 150, 255, 0.5);
+}
+
+.search-message {
+    min-height: 22px;
+    margin-bottom: 12px;
+    text-align: center;
+}
+
+.search-message .error {
+    color: #ff5555;
+}
+
+.search-message .success {
+    color: #4CAF50;
+}
+
+.search-message .searching {
+    color: #ffaa00;
+}
+
+.search-message .info {
+    color: #ffaa00; /* Use a different color, e.g., orange */
+}
+
+.no-items {
+    color: #999;
+    text-align: center;
+    padding: 22px;
+    font-style: italic;
+}
+
+/* Update input styling */
+#tradePartner {
+    flex: 1;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    background: rgba(0, 0, 0, 0.3);
+    color: white;
+    transition: all 0.3s ease;
+    height: 42px; /* Match the height of the button */
+    box-sizing: border-box;
+    margin: 0; /* Remove any default margin */
+}
+
+#tradePartner:focus {
+    outline: none;
+    border-color: rgba(0, 150, 255, 0.9);
+    box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
+}
