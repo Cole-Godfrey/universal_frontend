@@ -1386,7 +1386,7 @@ async function addItemToInventory(item) {
 
         // Update the database - Remove 'plinko-backend' from the URL
         const username = localStorage.getItem('playerName');
-        const response = await fetch('http://localhost:3000/api/update-inventory', {
+        const response = await fetch('https://universal-backend-7wn9.onrender.com/api/update-inventory', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
