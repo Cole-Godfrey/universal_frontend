@@ -522,3 +522,41 @@ button:hover {
     -moz-appearance: textfield;
 }
 
+.signup-container {
+    position: relative;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.signup-form input,
+.signup-form button {
+    position: relative;
+    z-index: 11;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background: #fff;
+}
+
+/* Ensure shooting stars don't interfere with interaction */
+.shooting-star {
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Ensure the main container is properly positioned */
+.container {
+    position: relative;
+    z-index: 5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
