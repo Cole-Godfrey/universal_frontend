@@ -150,8 +150,11 @@ class Inventory {
 
     async sellItem(item, itemValue) {
         const username = localStorage.getItem('playerName');
+        console.log('Attempting to sell item:', { item, username });
+        
         try {
             // Call the server to update the inventory
+            console.log('Sending sell request to server...');
             const response = await fetch('https://universal-backend-7wn9.onrender.com/api/sell-item', {
                 method: 'POST',
                 headers: {
@@ -163,27 +166,35 @@ class Inventory {
                 })
             });
 
+            console.log('Server response status:', response.status);
+            const result = await response.json();
+            console.log('Server response:', result);
+
             if (!response.ok) {
-                throw new Error('Failed to update inventory on server');
+                throw new Error(result.error || 'Failed to update inventory on server');
             }
 
-            const result = await response.json();
             if (!result.success) {
                 throw new Error(result.error || 'Failed to sell item');
             }
 
             // Update local inventory with the server's version
+            console.log('Updating local inventory with server response');
             this.items = result.inventory;
+            console.log('New local inventory:', this.items);
 
             // Update balance
+            console.log('Fetching updated user data...');
             const userResponse = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
             if (!userResponse.ok) {
                 throw new Error('Failed to fetch user data from server');
             }
             const userData = await userResponse.json();
             const newBalance = userData.balance + itemValue;
+            console.log('Updating balance to:', newBalance);
 
             // Update balance on the server
+            console.log('Sending balance update to server...');
             const balanceResponse = await fetch('https://universal-backend-7wn9.onrender.com/api/update-balance', {
                 method: 'POST',
                 headers: {
@@ -200,9 +211,14 @@ class Inventory {
             }
 
             // Update local display
+            console.log('Updating local display...');
             this.displayInventory();
             this.updateBalance(itemValue);
             alert(`Sold ${item.name} for $${itemValue.toLocaleString()}`);
+            
+            // Verify the item was removed
+            console.log('Final inventory check:', this.items);
+            
         } catch (error) {
             console.error('Error selling item:', error);
             alert('Failed to sell item. Please try again later.');
