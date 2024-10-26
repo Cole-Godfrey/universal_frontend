@@ -6,6 +6,7 @@ class Inventory {
         this.currentFilter = 'ALL';
         this.currentSort = 'RARITY_DESC';
         this.searchQuery = '';
+        this.currentView = 'items'; // 'items' or 'sets'
         
         this.loadInventory();
         this.initializeFilters();
@@ -74,9 +75,9 @@ class Inventory {
             }
         });
 
-        document.getElementById('viewMode').addEventListener('change', (e) => {
-            const mode = e.target.value;
-            if (mode === 'SETS') {
+        document.getElementById('viewToggle').addEventListener('change', (e) => {
+            this.currentView = e.target.value;
+            if (this.currentView === 'sets') {
                 this.displaySets();
             } else {
                 this.displayInventory();
@@ -251,81 +252,77 @@ class Inventory {
         const grid = document.querySelector('.inventory-grid');
         grid.innerHTML = '';
         
-        Object.entries(window.ItemSystem.SETS).forEach(([setId, setData]) => {
+        Object.entries(window.ItemSystem.SETS).forEach(([setName, setData]) => {
             const setElement = document.createElement('div');
             setElement.className = 'set-container';
             
             const setHeader = document.createElement('div');
             setHeader.className = 'set-header';
             setHeader.innerHTML = `
-                <h3>${setData.name}</h3>
-                <span class="set-reward">Complete Reward: $${setData.reward.toLocaleString()}</span>
+                <h3>${setName}</h3>
+                <p>${setData.description}</p>
+                <p class="set-reward">Reward: $${setData.reward.toLocaleString()}</p>
             `;
             
             const setItems = document.createElement('div');
             setItems.className = 'set-items';
             
             const ownedItems = new Set(this.items.map(item => item.name));
-            const allItemsOwned = setData.items.every(itemName => ownedItems.has(itemName));
+            let allItemsOwned = true;
             
             setData.items.forEach(itemName => {
-                const itemOwned = ownedItems.has(itemName);
                 const itemElement = document.createElement('div');
-                itemElement.className = `set-item ${itemOwned ? 'owned' : 'missing'}`;
+                const owned = ownedItems.has(itemName);
+                itemElement.className = `set-item ${owned ? 'owned' : 'missing'}`;
                 
-                const item = window.ItemSystem.ITEMS.find(i => i.name === itemName);
+                if (!owned) allItemsOwned = false;
+                
                 itemElement.innerHTML = `
-                    <div class="item-icon" style="color: ${itemOwned ? item.color : '#666'}">${item.icon}</div>
+                    <div class="item-icon">${owned ? '✓' : '×'}</div>
                     <div class="item-name">${itemName}</div>
-                    <div class="item-status">${itemOwned ? 'Owned' : 'Missing'}</div>
                 `;
                 
                 setItems.appendChild(itemElement);
             });
             
-            const completeButton = document.createElement('button');
-            completeButton.className = 'complete-set-button';
-            completeButton.textContent = 'Complete Set';
-            completeButton.disabled = !allItemsOwned;
-            completeButton.addEventListener('click', () => this.completeSet(setId, setData));
+            const claimButton = document.createElement('button');
+            claimButton.className = 'claim-set-button';
+            claimButton.textContent = 'Claim Reward';
+            claimButton.disabled = !allItemsOwned;
+            
+            if (allItemsOwned) {
+                claimButton.addEventListener('click', () => this.claimSetReward(setName, setData));
+            }
             
             setElement.appendChild(setHeader);
             setElement.appendChild(setItems);
-            setElement.appendChild(completeButton);
+            setElement.appendChild(claimButton);
             grid.appendChild(setElement);
         });
     }
 
-    async completeSet(setId, setData) {
+    async claimSetReward(setName, setData) {
         const username = localStorage.getItem('playerName');
         try {
-            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/complete-set', {
+            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/claim-set', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
                     username,
-                    setId,
-                    items: setData.items
+                    setName,
+                    reward: setData.reward
                 })
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to complete set');
-            }
+            if (!response.ok) throw new Error('Failed to claim set reward');
 
-            // Remove items from inventory
-            this.items = this.items.filter(item => !setData.items.includes(item.name));
-            
-            // Update balance
             this.updateBalance(setData.reward);
-            
-            alert(`Completed ${setData.name} set! Received $${setData.reward.toLocaleString()}`);
-            this.displaySets();
+            alert(`Claimed ${setName} set reward: $${setData.reward.toLocaleString()}`);
         } catch (error) {
-            console.error('Error completing set:', error);
-            alert('Failed to complete set. Please try again later.');
+            console.error('Error claiming set reward:', error);
+            alert('Failed to claim set reward. Please try again later.');
         }
     }
 }

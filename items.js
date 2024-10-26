@@ -166,6 +166,26 @@ const ITEMS = {
     ]
 };
 
+// Add at the top of the file, after RARITIES definition
+const SETS = {
+    'Celestial Collection': {
+        description: 'Ancient artifacts from the heavens',
+        items: ['Celestial Crown', 'Cosmic Scepter', 'Divine Chalice'],
+        reward: 100000
+    },
+    'Elemental Mastery': {
+        description: 'Control the fundamental forces',
+        items: ['Fire Crystal', 'Water Essence', 'Earth Stone', 'Wind Fragment'],
+        reward: 50000
+    },
+    'Royal Treasury': {
+        description: 'Symbols of ultimate power',
+        items: ['Golden Crown', 'Royal Scepter', 'Imperial Orb'],
+        reward: 75000
+    },
+    // Add more sets as needed
+};
+
 function rollRarity(weights = {}) {
     const roll = Math.random() * 100;
     let cumulativeChance = 0;
@@ -223,30 +243,6 @@ function generateDrop(weights = {}) {
 window.ItemSystem = {
     generateDrop,
     RARITIES,
-    ITEMS
-};
-
-// Add this after the RARITIES definition
-window.ItemSystem.SETS = {
-    CELESTIAL_COLLECTION: {
-        name: "Celestial Collection",
-        items: ["Sun Emblem", "Moon Crystal", "Star Fragment", "Nebula Shard"],
-        reward: 50000
-    },
-    ELEMENTAL_MASTERY: {
-        name: "Elemental Mastery",
-        items: ["Fire Stone", "Water Gem", "Earth Crystal", "Wind Essence"],
-        reward: 25000
-    },
-    ANCIENT_RELICS: {
-        name: "Ancient Relics",
-        items: ["Golden Scarab", "Crystal Skull", "Jade Dragon", "Ruby Phoenix"],
-        reward: 75000
-    },
-    MYTHICAL_BEASTS: {
-        name: "Mythical Beasts",
-        items: ["Dragon Scale", "Phoenix Feather", "Unicorn Horn", "Griffin Claw"],
-        reward: 100000
-    }
-    // Add more sets as needed to include all items
+    ITEMS,
+    SETS
 };

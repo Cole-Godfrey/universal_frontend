@@ -23,6 +23,12 @@
         <div class="inventory-container">
             <h1 class="inventory-title">Inventory</h1>
             <div class="balance-display" id="balanceDisplay">Balance: $0</div>
+            <div class="view-toggle">
+                <select id="viewToggle">
+                    <option value="items">Items</option>
+                    <option value="sets">Sets</option>
+                </select>
+            </div>
             <div class="inventory-display">
                 <div class="inventory-filters">
                     <input type="text" id="searchBar" placeholder="Search items..." />
@@ -35,10 +41,6 @@
                         <option value="RARITY_ASC">Rarity (Lowest)</option>
                         <option value="NAME_ASC">Name (A-Z)</option>
                         <option value="NAME_DESC">Name (Z-A)</option>
-                    </select>
-                    <select id="viewMode">
-                        <option value="GRID">Grid View</option>
-                        <option value="SETS">Sets View</option>
                     </select>
                 </div>
                 <div class="inventory-grid">
