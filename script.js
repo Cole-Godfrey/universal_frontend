@@ -506,7 +506,7 @@ function calculateTrajectoryPoints(startX, startY, velocityX, velocityY, points 
     return trajectoryPoints;
 }
 
-// Update the draw function - replace the existing aim line code with this:
+// Update the draw function to position the wager above the cannon
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -525,32 +525,28 @@ function draw() {
     
     // Draw curved line through trajectory points
     for (let i = 1; i < trajectoryPoints.length; i++) {
-        // Create gradient for fading trajectory
         const gradient = ctx.createLinearGradient(
             trajectoryPoints[i-1].x, trajectoryPoints[i-1].y,
             trajectoryPoints[i].x, trajectoryPoints[i].y
         );
-        const alpha = 1 - (i / trajectoryPoints.length); // Fade out along the trajectory
+        const alpha = 1 - (i / trajectoryPoints.length);
         gradient.addColorStop(0, `rgba(138, 43, 226, ${alpha * 0.4})`);
         gradient.addColorStop(1, `rgba(138, 43, 226, ${alpha * 0.2})`);
         
         ctx.strokeStyle = gradient;
-        ctx.lineWidth = 2 * (1 - i / trajectoryPoints.length); // Line gets thinner
+        ctx.lineWidth = 2 * (1 - i / trajectoryPoints.length);
         
         ctx.beginPath();
         ctx.moveTo(trajectoryPoints[i-1].x, trajectoryPoints[i-1].y);
         ctx.lineTo(trajectoryPoints[i].x, trajectoryPoints[i].y);
         ctx.stroke();
         
-        // Add small dots at each trajectory point
         ctx.beginPath();
         ctx.arc(trajectoryPoints[i].x, trajectoryPoints[i].y, 1 * (1 - i / trajectoryPoints.length), 0, Math.PI * 2);
         ctx.fillStyle = `rgba(138, 43, 226, ${alpha * 0.5})`;
         ctx.fill();
     }
     
-    // Rest of the draw function remains the same...
-
     // Draw cannon with space theme
     ctx.save();
     ctx.translate(canvas.width/2, 50);
@@ -656,7 +652,7 @@ function draw() {
     ctx.fillText(` $${balance}`, 100, 30);
     ctx.restore();
     
-    // Draw wager above cannon - moved higher up
+    // Draw wager above cannon
     ctx.save();
     ctx.textAlign = 'center';
     
@@ -665,12 +661,12 @@ function draw() {
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 18px Arial';
-    ctx.fillText('Wager:', canvas.width/2, 15);  // Changed from 20 to 15
+    ctx.fillText('Wager:', canvas.width/2, 10);  // Adjusted to be above the cannon
     
-    // Draw wager input box with animated border - moved higher
+    // Draw wager input box with animated border
     const borderGlow = Math.sin(animationTime * 3) * 0.2 + 0.8;
     ctx.fillStyle = isEditingWager ? 'rgba(138, 43, 226, 0.3)' : 'rgba(0, 0, 0, 0.5)';
-    wagerInputPosition = { x: canvas.width/2, y: 30 };  // Changed from 35 to 30
+    wagerInputPosition = { x: canvas.width/2, y: 25 };  // Adjusted to be above the cannon
     ctx.fillRect(wagerInputPosition.x - 50, wagerInputPosition.y - 12, 100, 24);
     
     // Draw wager input border with glow

@@ -62,9 +62,6 @@ const ITEMS = {
     LEGENDARY: [
         { name: "Dragon's Heart", icon: "❤️" },
         { name: "Phoenix Egg", icon: "🥚" },
-        { name: "Phoenix Feather", icon: "🔥" },
-        { name: "Fire Core", icon: "🔥" },
-        { name: "Magma Shard", icon: "🌋" },
         { name: "Kraken's Eye", icon: "👁️" },
         { name: "Titan's Strength", icon: "💪" },
         { name: "Giant's Soul", icon: "👻" }
@@ -92,11 +89,8 @@ const ITEMS = {
     ],
     COSMIC: [
         { name: "Black Hole Fragment", icon: "⚫" },
-        { name: "Dark Matter", icon: "🌑" },
-        { name: "Void Crystal", icon: "💎" },
-        { name: "Shadow Essence", icon: "👻" },
-        { name: "Null Shard", icon: "🌀" },
         { name: "Supernova Core", icon: "💥" },
+        { name: "Dark Matter", icon: "🌑" },
         { name: "Quantum Crystal", icon: "💠" },
         { name: "Space-Time Shard", icon: "🌀" }
     ],
@@ -172,34 +166,6 @@ const ITEMS = {
     ]
 };
 
-// Add after ITEMS definition
-const ITEM_SETS = {
-    CELESTIAL_HARMONY: {
-        name: "Celestial Harmony",
-        items: ["Star Core", "Nebula Fragment", "Galaxy Shard", "Constellation Map", "Astral Essence"],
-        bonus: "Increases drop rates by 10%",
-        color: "#00ffff",
-        requiredCount: 5,
-        description: "A collection of celestial artifacts that resonate with cosmic energy."
-    },
-    ETERNAL_FLAME: {
-        name: "Eternal Flame",
-        items: ["Dragon's Heart", "Phoenix Egg", "Phoenix Feather", "Fire Core", "Magma Shard"],
-        bonus: "Increases balance gains by 15%",
-        color: "#ff3300",
-        requiredCount: 5,
-        description: "Ancient relics of eternal fire that burn with endless power."
-    },
-    VOID_WALKER: {
-        name: "Void Walker",
-        items: ["Black Hole Fragment", "Dark Matter", "Void Crystal", "Shadow Essence", "Null Shard"],
-        bonus: "Reduces orb costs by 20%",
-        color: "#9900ff",
-        requiredCount: 5,
-        description: "Mysterious artifacts from the void that bend reality itself."
-    }
-};
-
 function rollRarity(weights = {}) {
     const roll = Math.random() * 100;
     let cumulativeChance = 0;
@@ -257,6 +223,5 @@ function generateDrop(weights = {}) {
 window.ItemSystem = {
     generateDrop,
     RARITIES,
-    ITEMS,
-    ITEM_SETS
+    ITEMS
 };
