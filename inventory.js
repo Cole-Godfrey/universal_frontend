@@ -198,15 +198,50 @@ class Inventory {
         }
     }
 
+    calculateBaseValue(item) {
+        // Base values for each rarity
+        const BASE_VALUES = {
+            COMMON: 5,
+            UNCOMMON: 15,
+            RARE: 40,
+            VERY_RARE: 80,
+            EPIC: 150,
+            LEGENDARY: 300,
+            MYTHICAL: 600,
+            DIVINE: 1200,
+            CELESTIAL: 2500,
+            COSMIC: 5000,
+            TRANSCENDENT: 10000,
+            ETHEREAL: 20000,
+            ANCIENT: 40000,
+            PRIMORDIAL: 80000,
+            GODLY: 160000,
+            OMNIPOTENT: 320000,
+            INFINITE: 640000,
+            ETERNAL: 1280000,
+            IMMORTAL: 2560000,
+            ABSOLUTE: 5120000
+        };
+
+        return BASE_VALUES[item.rarity] || 0;
+    }
+
     calculateItemValue(item) {
         const baseValue = this.calculateBaseValue(item);
         const rarityBonus = RARITY_SELL_BONUSES[item.rarity] || 1.0;
-        return Math.floor(baseValue * rarityBonus);
+        
+        // Add random variation (±10%)
+        const variation = 0.9 + (Math.random() * 0.2);
+        
+        // Calculate final value with bonus and variation
+        return Math.floor(baseValue * rarityBonus * variation);
     }
 
     calculateItemWorth(item) {
-        // Make the worth value the same as the sell value
-        return this.calculateItemValue(item);
+        // Worth is base value without variation
+        const baseValue = this.calculateBaseValue(item);
+        const rarityBonus = RARITY_SELL_BONUSES[item.rarity] || 1.0;
+        return Math.floor(baseValue * rarityBonus);
     }
 
     updateBalance(amount) {
