@@ -750,205 +750,103 @@ function draw() {
     // Update animation time
     animationTime += ANIMATION_SPEED;
 
-    // Draw slots with rewards
+    // Add this function to create glowing text effect
+    function drawGlowingText(ctx, text, x, y, color, glowColor, glowSize) {
+        ctx.save();
+        ctx.shadowColor = glowColor;
+        ctx.shadowBlur = glowSize;
+        ctx.fillStyle = color;
+        ctx.fillText(text, x, y);
+        ctx.restore();
+    }
+
+    // Update the slot drawing code in the draw function
     for (let i = 0; i < COLS; i++) {
         const dividerX = i * SLOT_WIDTH;
         const multiplier = SLOT_REWARDS[i] / CHIP_COST;
         
-        // Unique background colors for each multiplier
-        let bgColor;
+        // Create pulsing animation for slots
+        const pulseIntensity = Math.sin(animationTime * 2 + i) * 0.2 + 0.8;
+        
+        // Unique background colors and effects for each multiplier
+        let bgColor, glowColor;
         switch(multiplier) {
-            case 50: bgColor = '#660000'; break;  // Dark red
-            case 25: bgColor = '#663300'; break;  // Dark orange
-            case 10: bgColor = '#666600'; break;  // Dark yellow
-            case 5: bgColor = '#006600'; break;   // Dark green
-            case 2: bgColor = '#006633'; break;   // Dark teal
-            case 1: bgColor = '#006666'; break;   // Dark cyan
-            case 0.5: bgColor = '#000066'; break; // Dark blue
-            case 0.25: bgColor = '#330066'; break;// Dark purple
-            case 0: bgColor = '#333333'; break;   // Dark gray
-            default: bgColor = '#000000'; break;
+            case 50:
+                // Create plasma effect for 50x slots
+                const plasmaGradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
+                                                              dividerX + SLOT_WIDTH, canvas.height);
+                plasmaGradient.addColorStop(0, `hsla(${animationTime * 100}, 100%, 50%, ${pulseIntensity})`);
+                plasmaGradient.addColorStop(0.5, `hsla(${animationTime * 100 + 120}, 100%, 50%, ${pulseIntensity})`);
+                plasmaGradient.addColorStop(1, `hsla(${animationTime * 100 + 240}, 100%, 50%, ${pulseIntensity})`);
+                bgColor = plasmaGradient;
+                glowColor = '#ff0000';
+                break;
+            case 25:
+                bgColor = `rgba(255, 165, 0, ${pulseIntensity * 0.5})`;
+                glowColor = '#ffa500';
+                break;
+            case 10:
+                bgColor = `rgba(255, 255, 0, ${pulseIntensity * 0.4})`;
+                glowColor = '#ffff00';
+                break;
+            case 5:
+                bgColor = `rgba(0, 255, 0, ${pulseIntensity * 0.3})`;
+                glowColor = '#00ff00';
+                break;
+            case 2:
+                bgColor = `rgba(0, 255, 255, ${pulseIntensity * 0.25})`;
+                glowColor = '#00ffff';
+                break;
+            case 1:
+                bgColor = `rgba(128, 128, 255, ${pulseIntensity * 0.2})`;
+                glowColor = '#8080ff';
+                break;
+            case 0.5:
+                bgColor = `rgba(128, 0, 255, ${pulseIntensity * 0.15})`;
+                glowColor = '#8000ff';
+                break;
+            case 0.25:
+                bgColor = `rgba(64, 0, 128, ${pulseIntensity * 0.1})`;
+                glowColor = '#400080';
+                break;
+            case 0:
+                bgColor = `rgba(32, 32, 32, ${pulseIntensity * 0.1})`;
+                glowColor = '#202020';
+                break;
         }
+
+        // Draw slot background with glow effect
+        ctx.fillStyle = bgColor;
+        ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
         
-        // Draw background
-        if (multiplier === 50) {
-            // Fire/plasma effect for 50x background
-            const time = animationTime * 0.4;
-            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
-                                                    dividerX + SLOT_WIDTH, canvas.height);
-            
-            // Intense fire colors
-            const intensity = Math.sin(time) * 0.2 + 0.8;
-            gradient.addColorStop(0, 'hsla(' + (20 + Math.sin(time) * 20) + ', 100%, ' + (50 * intensity) + '%, 1)');
-            gradient.addColorStop(0.3, 'hsla(30, 100%, ' + (60 * intensity) + '%, 1)');
-            gradient.addColorStop(0.6, 'hsla(40, 100%, ' + (40 * intensity) + '%, 1)');
-            gradient.addColorStop(1, 'hsla(10, 100%, ' + (30 * intensity) + '%, 1)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add plasma/fire particles
-            ctx.save();
-            const particleCount = 8;
-            for(let i = 0; i < particleCount; i++) {
-                const particleTime = time + i;
-                const x = dividerX + SLOT_WIDTH/2 + Math.sin(particleTime * 2 + i) * (SLOT_WIDTH * 0.4);
-                const y = canvas.height - DIVIDER_HEIGHT * (0.2 + 0.8 * Math.abs(Math.sin(particleTime + i)));
-                const size = (Math.sin(particleTime) * 0.5 + 1.5) * 2;
+        // Add particle effects for high multipliers
+        if (multiplier >= 10) {
+            for (let j = 0; j < 3; j++) {
+                const particleX = dividerX + Math.random() * SLOT_WIDTH;
+                const particleY = canvas.height - DIVIDER_HEIGHT + Math.random() * DIVIDER_HEIGHT;
+                const particleSize = Math.random() * 2 + 1;
                 
                 ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
-                const particleIntensity = Math.sin(particleTime) * 0.5 + 0.5;
-                ctx.fillStyle = `hsla(${30 + Math.sin(particleTime) * 20}, 100%, 70%, ${particleIntensity})`;
-                ctx.fill();
-            }
-            
-            // Add glow overlay
-            ctx.globalAlpha = Math.abs(Math.sin(time)) * 0.3 + 0.2;
-            ctx.fillStyle = `hsla(30, 100%, 50%, 0.3)`;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            ctx.restore();
-        } else if (multiplier === 25) {
-            // New animation for 25x background - electric/plasma effect
-            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
-                                                    dividerX + SLOT_WIDTH, canvas.height);
-            
-            // Electric blue theme
-            const time = animationTime * 0.5;
-            const brightness = Math.sin(time) * 10 + 20;  // Pulsing brightness
-            gradient.addColorStop(0, 'hsla(220, 100%, ' + brightness + '%, 1)');
-            gradient.addColorStop(0.5, 'hsla(200, 100%, ' + (brightness + 5) + '%, 1)');
-            gradient.addColorStop(1, 'hsla(240, 100%, ' + brightness + '%, 1)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add electric glow effect
-            ctx.save();
-            ctx.globalAlpha = Math.abs(Math.sin(time * 2)) * 0.3 + 0.1;
-            ctx.fillStyle = `hsla(210, 100%, 50%, 0.3)`;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add some "sparks"
-            const sparkCount = 3;
-            ctx.globalAlpha = Math.abs(Math.sin(time * 3)) * 0.5 + 0.5;
-            for(let i = 0; i < sparkCount; i++) {
-                const sparkX = dividerX + (Math.sin(time * (i + 1)) + 1) * SLOT_WIDTH/2;
-                const sparkY = canvas.height - DIVIDER_HEIGHT * (Math.cos(time * (i + 2)) + 1) / 2;
-                ctx.beginPath();
-                ctx.arc(sparkX, sparkY, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'white';
-                ctx.fill();
-            }
-            ctx.restore();
-        } else {
-            // Normal background for other multipliers
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-        }
-        
-        // Draw dividers
-        ctx.fillStyle = '#666';
-        ctx.fillRect(dividerX - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
-        
-        // Draw multiplier text with unique colors and animation for edges
-        let textColor;
-        switch(multiplier) {
-            case 50: textColor = '#ff0000'; break;  // Bright red
-            case 25: textColor = '#ffa500'; break;  // Orange
-            case 10: textColor = '#ffff00'; break;  // Yellow
-            case 5: textColor = '#00ff00'; break;   // Green
-            case 2: textColor = '#00ff99'; break;   // Bright teal
-            case 1: textColor = '#00ffff'; break;   // Cyan
-            case 0.5: textColor = '#0099ff'; break; // Light blue
-            case 0.25: textColor = '#9933ff'; break;// Purple
-            case 0: textColor = '#ffffff'; break;   // White
-            default: textColor = '#ffffff'; break;
-        }
-        
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'center';
-        const rewardX = dividerX + (SLOT_WIDTH / 2);
-        
-        // Animate edge multipliers (50x)
-        if (multiplier === 50) {
-            const time = animationTime * 0.8;
-            const scale = 1 + Math.sin(time) * 0.15;
-            
-            ctx.save();
-            ctx.translate(rewardX, canvas.height - 15);
-            ctx.scale(scale, scale);
-            
-            // Multiple layers of text for intense effect
-            for(let i = 0; i < 3; i++) {
-                const layerOffset = i * 2;
-                const hue = 30 + Math.sin(time * 2) * 20;
-                const alpha = (3 - i) / 3;
-                
-                ctx.shadowColor = `hsla(${hue}, 100%, 50%, ${alpha})`;
-                ctx.shadowBlur = (15 - layerOffset) * (Math.sin(time * 2) * 0.5 + 1);
-                ctx.fillStyle = `hsla(${hue}, 100%, ${60 + layerOffset * 10}%, ${alpha})`;
-                ctx.fillText(`${multiplier}x`, 0, 10);
-            }
-            
-            // Add orbiting fire particles
-            const orbitCount = 5;
-            for(let i = 0; i < orbitCount; i++) {
-                const orbitAngle = (time * 3 + i * (Math.PI * 2 / orbitCount)) % (Math.PI * 2);
-                const orbitRadius = 15 + Math.sin(time * 2) * 3;
-                const particleX = Math.cos(orbitAngle) * orbitRadius;
-                const particleY = Math.sin(orbitAngle) * orbitRadius;
-                
-                ctx.beginPath();
-                const particleSize = 1.5 + Math.sin(time * 3 + i) * 0.5;
                 ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${30 + Math.sin(time + i) * 30}, 100%, 70%, ${0.8})`;
+                ctx.fillStyle = glowColor;
                 ctx.fill();
             }
-            
-            ctx.restore();
-        } else if (multiplier === 25) {
-            // Electric text effect for 25x
-            const time = animationTime * 0.8;
-            const scale = 1 + Math.sin(time * 2) * 0.05;  // Subtle pulse
-            
+        }
+
+        // Draw multiplier text with enhanced effects
+        const textX = dividerX + (SLOT_WIDTH / 2);
+        const textY = canvas.height - DIVIDER_HEIGHT / 2;
+        
+        if (multiplier >= 25) {
+            // Special animation for high multipliers
+            const scale = 1 + Math.sin(animationTime * 3) * 0.2;
             ctx.save();
-            ctx.translate(rewardX, canvas.height - 15);
+            ctx.translate(textX, textY);
             ctx.scale(scale, scale);
-            
-            // Electric blue color scheme
-            const baseColor = `hsla(210, 100%, 70%, ${Math.abs(Math.sin(time)) * 0.5 + 0.5})`;
-            const glowColor = `hsla(210, 100%, 50%, ${Math.abs(Math.sin(time * 2)) * 0.8 + 0.2})`;
-            
-            // Multiple layers of text for electric effect
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = baseColor;
-            ctx.fillText(`${multiplier}x`, 0, 10);
-            
-            // Add extra glow layers
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'white';
-            ctx.fillText(`${multiplier}x`, 0, 10);
-            
-            // Add "electric" dots around text
-            const radius = 12;
-            const dotCount = 3;
-            for(let i = 0; i < dotCount; i++) {
-                const angle = (time * 2 + i * Math.PI * 2 / dotCount) % (Math.PI * 2);
-                const dotX = Math.cos(angle) * radius;
-                const dotY = Math.sin(angle) * radius;
-                ctx.beginPath();
-                ctx.arc(dotX, dotY, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(135, 206, 250, 0.8)';  // Light blue
-                ctx.fill();
-            }
-            
+            drawGlowingText(ctx, `${multiplier}x`, 0, 0, '#ffffff', glowColor, 15 * pulseIntensity);
             ctx.restore();
         } else {
-            // Normal text for other multipliers
-            ctx.fillStyle = textColor;
-            ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
+            drawGlowingText(ctx, `${multiplier}x`, textX, textY, '#ffffff', glowColor, 5 * pulseIntensity);
         }
     }
 
@@ -1167,4 +1065,87 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'signup.html';
     }
 });
+
+// Add background effects
+function drawBackground() {
+    ctx.save();
+    
+    // Create starfield effect
+    for (let i = 0; i < 50; i++) {
+        const x = Math.random() * canvas.width;
+        const y = Math.random() * canvas.height;
+        const size = Math.random() * 2;
+        const brightness = Math.random() * 0.5 + 0.5;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255, 255, 255, ${brightness})`;
+        ctx.fill();
+    }
+    
+    // Add nebula effect
+    const gradient = ctx.createRadialGradient(
+        canvas.width/2, canvas.height/2, 0,
+        canvas.width/2, canvas.height/2, canvas.width/2
+    );
+    gradient.addColorStop(0, 'rgba(138, 43, 226, 0)');
+    gradient.addColorStop(0.5, `rgba(138, 43, 226, ${Math.sin(animationTime) * 0.1})`);
+    gradient.addColorStop(1, 'rgba(138, 43, 226, 0)');
+    
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.restore();
+}
+
+// Add at the start of the draw function
+drawBackground();
+
+// Add power-up system
+const powerUps = {
+    MULTI_BALL: { name: 'Multi-Ball', duration: 10000, active: false },
+    MEGA_MULTIPLIER: { name: 'Mega Multiplier', duration: 5000, active: false },
+    SLOW_TIME: { name: 'Slow Time', duration: 8000, active: false }
+};
+
+// Random chance to trigger power-up on win
+function checkPowerUpTrigger(netResult) {
+    if (netResult > currentWager * 2 && Math.random() < 0.1) {
+        const powerUpTypes = Object.keys(powerUps);
+        const randomPowerUp = powerUpTypes[Math.floor(Math.random() * powerUpTypes.length)];
+        activatePowerUp(randomPowerUp);
+    }
+}
+
+function activatePowerUp(type) {
+    powerUps[type].active = true;
+    showResultMessage(`POWER UP: ${powerUps[type].name}!`, '#ffd700', true);
+    
+    setTimeout(() => {
+        powerUps[type].active = false;
+    }, powerUps[type].duration);
+}
+
+// Apply power-up effects in the game logic
+if (powerUps.MULTI_BALL.active) {
+    // Spawn additional balls
+    for (let i = 0; i < 2; i++) {
+        const angle = cannonAngle + (Math.random() - 0.5) * 0.2;
+        const chip = new Chip(cannonTipX, cannonTipY);
+        chip.velocity.x = Math.cos(angle) * INITIAL_VELOCITY;
+        chip.velocity.y = Math.sin(angle) * INITIAL_VELOCITY;
+        chips.push(chip);
+    }
+}
+
+if (powerUps.MEGA_MULTIPLIER.active) {
+    netResult *= 2;
+}
+
+if (powerUps.SLOW_TIME.active) {
+    // Reduce gravity and increase air resistance
+    this.velocity.y += GRAVITY * 0.5;
+    this.velocity.x *= AIR_RESISTANCE * 1.2;
+    this.velocity.y *= AIR_RESISTANCE * 1.2;
+}
 
