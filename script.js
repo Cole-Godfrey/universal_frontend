@@ -14,7 +14,7 @@ const BASE_COLS = 17;  // Match COLS
 const SLOT_WIDTH = canvas.width / COLS;
 const VERTICAL_SPACING = canvas.height / (ROWS + 2);
 const CHIP_COST = 50;
-const SLOT_REWARDS = [25, 12.5, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 12.5, 25].map(x => x * CHIP_COST);
+const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
 let balance = parseInt(localStorage.getItem('balance')) || 1000;  // Changed from 10000000 to 1000
 
 // Game state
@@ -343,9 +343,9 @@ class Chip {
                     
             updatePlayerBalance(netResult);
                     
-            if (netResult > this.totalCost * 5) {  // Changed from 10 to 5 since max multiplier is now 25
+            if (netResult > this.totalCost * 10) {
                     showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
-            } else if (netResult > this.totalCost * 2.5) {  // Changed from 5 to 2.5
+            } else if (netResult > this.totalCost * 5) {
                     showResultMessage(`BIG WIN: $${netResult}!`, '#ffd700', true);
             } else if (netResult > 0) {
                     showResultMessage(`Won $${netResult}`, '#4CAF50');
@@ -833,20 +833,20 @@ function draw() {
         // Unique background colors for each multiplier
         let bgColor;
         switch(multiplier) {
-            case 25: bgColor = '#660000'; break;   // Dark red (was 50)
-            case 12.5: bgColor = '#663300'; break; // Dark orange (was 25)
-            case 10: bgColor = '#666600'; break;   // Dark yellow
-            case 5: bgColor = '#006600'; break;    // Dark green
-            case 2: bgColor = '#006633'; break;    // Dark teal
-            case 1: bgColor = '#006666'; break;    // Dark cyan
-            case 0.5: bgColor = '#000066'; break;  // Dark blue
-            case 0.25: bgColor = '#330066'; break; // Dark purple
-            case 0: bgColor = '#660000'; break;    // Changed to dark red for emphasis
+            case 50: bgColor = '#660000'; break;  // Dark red
+            case 25: bgColor = '#663300'; break;  // Dark orange
+            case 10: bgColor = '#666600'; break;  // Dark yellow
+            case 5: bgColor = '#006600'; break;   // Dark green
+            case 2: bgColor = '#006633'; break;   // Dark teal
+            case 1: bgColor = '#006666'; break;   // Dark cyan
+            case 0.5: bgColor = '#000066'; break; // Dark blue
+            case 0.25: bgColor = '#330066'; break;// Dark purple
+            case 0: bgColor = '#333333'; break;   // Dark gray
             default: bgColor = '#000000'; break;
         }
         
         // Draw background
-        if (multiplier === 25) {
+        if (multiplier === 50) {
             // Fire/plasma effect for 50x background
             const time = animationTime * 0.4;
             const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
@@ -883,7 +883,7 @@ function draw() {
             ctx.fillStyle = `hsla(30, 100%, 50%, 0.3)`;
             ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
             ctx.restore();
-        } else if (multiplier === 12.5) {
+        } else if (multiplier === 25) {
             // New animation for 25x background - electric/plasma effect
             const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
                                                     dividerX + SLOT_WIDTH, canvas.height);
@@ -929,15 +929,15 @@ function draw() {
         // Draw multiplier text with unique colors and animation for edges
         let textColor;
         switch(multiplier) {
-            case 25: textColor = '#ffa500'; break;  // Orange (was 50)
-            case 12.5: textColor = '#ffff00'; break; // Yellow (was 25)
-            case 10: textColor = '#ffff00'; break;   // Yellow
-            case 5: textColor = '#00ff00'; break;    // Green
-            case 2: textColor = '#00ff99'; break;    // Bright teal
-            case 1: textColor = '#00ffff'; break;    // Cyan
-            case 0.5: textColor = '#0099ff'; break;  // Light blue
-            case 0.25: textColor = '#9933ff'; break; // Purple
-            case 0: textColor = '#ff0000'; break;    // Changed to red for emphasis
+            case 50: textColor = '#ff0000'; break;  // Bright red
+            case 25: textColor = '#ffa500'; break;  // Orange
+            case 10: textColor = '#ffff00'; break;  // Yellow
+            case 5: textColor = '#00ff00'; break;   // Green
+            case 2: textColor = '#00ff99'; break;   // Bright teal
+            case 1: textColor = '#00ffff'; break;   // Cyan
+            case 0.5: textColor = '#0099ff'; break; // Light blue
+            case 0.25: textColor = '#9933ff'; break;// Purple
+            case 0: textColor = '#ffffff'; break;   // White
             default: textColor = '#ffffff'; break;
         }
         
@@ -946,27 +946,82 @@ function draw() {
         const rewardX = dividerX + (SLOT_WIDTH / 2);
         
         // Animate edge multipliers (50x)
-        if (multiplier === 25) {
-            // Keep existing 50x animation code but update values to 25x
-            // ... (existing animation code remains the same)
-        } else if (multiplier === 12.5) {
-            // Keep existing 25x animation code but update values to 12.5x
-            // ... (existing animation code remains the same)
-        } else if (multiplier === 0) {
-            // Add special larger styling for 0x multiplier
-            ctx.font = 'bold 20px Arial';  // Increased from 14px
-            ctx.fillStyle = textColor;
-            ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
-            ctx.shadowBlur = 15;
-            ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
-            
-            // Add pulsing effect for 0x
+        if (multiplier === 50) {
             const time = animationTime * 0.8;
-            const pulseScale = 1 + Math.sin(time * 2) * 0.1;
-            ctx.scale(pulseScale, pulseScale);
+            const scale = 1 + Math.sin(time) * 0.15;
+            
+            ctx.save();
+            ctx.translate(rewardX, canvas.height - 15);
+            ctx.scale(scale, scale);
+            
+            // Multiple layers of text for intense effect
+            for(let i = 0; i < 3; i++) {
+                const layerOffset = i * 2;
+                const hue = 30 + Math.sin(time * 2) * 20;
+                const alpha = (3 - i) / 3;
+                
+                ctx.shadowColor = `hsla(${hue}, 100%, 50%, ${alpha})`;
+                ctx.shadowBlur = (15 - layerOffset) * (Math.sin(time * 2) * 0.5 + 1);
+                ctx.fillStyle = `hsla(${hue}, 100%, ${60 + layerOffset * 10}%, ${alpha})`;
+                ctx.fillText(`${multiplier}x`, 0, 10);
+            }
+            
+            // Add orbiting fire particles
+            const orbitCount = 5;
+            for(let i = 0; i < orbitCount; i++) {
+                const orbitAngle = (time * 3 + i * (Math.PI * 2 / orbitCount)) % (Math.PI * 2);
+                const orbitRadius = 15 + Math.sin(time * 2) * 3;
+                const particleX = Math.cos(orbitAngle) * orbitRadius;
+                const particleY = Math.sin(orbitAngle) * orbitRadius;
+                
+                ctx.beginPath();
+                const particleSize = 1.5 + Math.sin(time * 3 + i) * 0.5;
+                ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
+                ctx.fillStyle = `hsla(${30 + Math.sin(time + i) * 30}, 100%, 70%, ${0.8})`;
+                ctx.fill();
+            }
+            
+            ctx.restore();
+        } else if (multiplier === 25) {
+            // Electric text effect for 25x
+            const time = animationTime * 0.8;
+            const scale = 1 + Math.sin(time * 2) * 0.05;  // Subtle pulse
+            
+            ctx.save();
+            ctx.translate(rewardX, canvas.height - 15);
+            ctx.scale(scale, scale);
+            
+            // Electric blue color scheme
+            const baseColor = `hsla(210, 100%, 70%, ${Math.abs(Math.sin(time)) * 0.5 + 0.5})`;
+            const glowColor = `hsla(210, 100%, 50%, ${Math.abs(Math.sin(time * 2)) * 0.8 + 0.2})`;
+            
+            // Multiple layers of text for electric effect
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = baseColor;
+            ctx.fillText(`${multiplier}x`, 0, 10);
+            
+            // Add extra glow layers
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = 'white';
+            ctx.fillText(`${multiplier}x`, 0, 10);
+            
+            // Add "electric" dots around text
+            const radius = 12;
+            const dotCount = 3;
+            for(let i = 0; i < dotCount; i++) {
+                const angle = (time * 2 + i * Math.PI * 2 / dotCount) % (Math.PI * 2);
+                const dotX = Math.cos(angle) * radius;
+                const dotY = Math.sin(angle) * radius;
+                ctx.beginPath();
+                ctx.arc(dotX, dotY, 1, 0, Math.PI * 2);
+                ctx.fillStyle = 'rgba(135, 206, 250, 0.8)';  // Light blue
+                ctx.fill();
+            }
+            
+            ctx.restore();
         } else {
             // Normal text for other multipliers
-            ctx.font = '14px Arial';
             ctx.fillStyle = textColor;
             ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
         }
