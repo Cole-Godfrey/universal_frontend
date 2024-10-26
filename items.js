@@ -226,22 +226,56 @@ window.ItemSystem = {
     ITEMS
 };
 
-// Add this to your ItemSystem or create a new section
+// Add this to your ItemSystem section, replacing the previous SETS definition
 window.ItemSystem.SETS = {
-    "Celestial Collection": {
-        items: ["Celestial Crown", "Celestial Staff", "Celestial Robe"],
-        reward: 50000,
-        description: "A set of divine items from the heavens"
+    "Dragon's Legacy": {
+        items: ["Dragon Scale", "Dragon's Heart"],
+        reward: 100000,
+        description: "Ancient artifacts of dragon origin"
     },
-    "Ancient Artifacts": {
-        items: ["Ancient Scroll", "Ancient Medallion", "Ancient Sword"],
-        reward: 25000,
-        description: "Powerful relics from a forgotten age"
+    "Cosmic Explorer": {
+        items: ["Black Hole Fragment", "Galaxy Shard", "Space-Time Shard"],
+        reward: 250000,
+        description: "Remnants of the vast cosmos"
     },
-    "Cosmic Bundle": {
-        items: ["Cosmic Ring", "Cosmic Amulet", "Cosmic Scepter"],
+    "Divine Authority": {
+        items: ["Angel's Blessing", "Divine Grace", "Holy Relic"],
+        reward: 150000,
+        description: "Sacred items of divine power"
+    },
+    "Nature's Essence": {
+        items: ["World Tree Leaf", "Mystic Leaf", "Earth Core"],
         reward: 75000,
-        description: "Items infused with cosmic energy"
+        description: "Pure manifestations of natural energy"
+    },
+    "Ocean's Might": {
+        items: ["Mermaid's Pearl", "Kraken's Eye", "Ocean's Breath"],
+        reward: 120000,
+        description: "Treasures from the depths of the sea"
+    },
+    "Eternal Power": {
+        items: ["Time's End", "Eternal Flame", "Forever Crystal"],
+        reward: 500000,
+        description: "Artifacts of unending power"
+    },
+    "Reality's Edge": {
+        items: ["Reality Stone", "Reality Warper", "Reality's Edge"],
+        reward: 400000,
+        description: "Items that bend the fabric of existence"
+    },
+    "Celestial Authority": {
+        items: ["Star Core", "Sun Fragment", "Moon Stone"],
+        reward: 200000,
+        description: "Celestial objects of immense power"
+    },
+    "Time Master": {
+        items: ["Time Shard", "Time's Beginning", "Space-Time Shard"],
+        reward: 300000,
+        description: "Artifacts that control the flow of time"
+    },
+    "Ultimate Creation": {
+        items: ["Everything", "The One", "Creation Core"],
+        reward: 1000000,
+        description: "The most powerful combination of items in existence"
     }
-    // Add more sets as needed
 };
