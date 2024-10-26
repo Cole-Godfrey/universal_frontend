@@ -167,7 +167,15 @@ class Inventory {
                 throw new Error('Failed to update inventory on server');
             }
 
-            // Fetch the current balance from the server
+            const result = await response.json();
+            if (!result.success) {
+                throw new Error(result.error || 'Failed to sell item');
+            }
+
+            // Update local inventory with the server's version
+            this.items = result.inventory;
+
+            // Update balance
             const userResponse = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
             if (!userResponse.ok) {
                 throw new Error('Failed to fetch user data from server');
@@ -191,8 +199,7 @@ class Inventory {
                 throw new Error('Failed to update balance on server');
             }
 
-            // Remove sold item from local inventory
-            this.items = this.items.filter(i => i !== item);
+            // Update local display
             this.displayInventory();
             this.updateBalance(itemValue);
             alert(`Sold ${item.name} for $${itemValue.toLocaleString()}`);
@@ -280,6 +287,7 @@ class Inventory {
     }
 
     switchTab(tabName) {
+        console.log('Switching to tab:', tabName);
         this.currentTab = tabName;
         
         // Update tab buttons
@@ -289,47 +297,66 @@ class Inventory {
         
         // Update visibility of content
         const inventoryDisplay = document.querySelector('.inventory-display');
-        let setsContainer = document.querySelector('.sets-container');
+        if (!inventoryDisplay) {
+            console.error('Could not find inventory display!');
+            return;
+        }
         
         if (tabName === 'items') {
+            console.log('Showing items tab');
             inventoryDisplay.style.display = 'block';
+            const setsContainer = document.querySelector('.sets-container');
             if (setsContainer) {
                 setsContainer.style.display = 'none';
             }
         } else {
+            console.log('Showing sets tab');
             inventoryDisplay.style.display = 'none';
-            // Always create or update sets container when switching to sets tab
             this.displaySets();
-            setsContainer = document.querySelector('.sets-container');
-            if (setsContainer) {
-                setsContainer.style.display = 'block';
-            }
         }
     }
 
     displaySets() {
-        console.log('Displaying sets...'); // Debug log
-        console.log('Item Sets:', window.ItemSystem.ITEM_SETS); // Debug log
-        console.log('Current inventory:', this.items); // Debug log
+        console.log('displaySets called');
+        if (!window.ItemSystem || !window.ItemSystem.ITEM_SETS) {
+            console.error('ItemSystem or ITEM_SETS not found!');
+            return;
+        }
 
         let setsContainer = document.querySelector('.sets-container');
         if (!setsContainer) {
-            console.log('Creating new sets container...'); // Debug log
+            console.log('Creating new sets container');
             setsContainer = document.createElement('div');
             setsContainer.className = 'sets-container';
+            setsContainer.style.display = 'block'; // Force display block
+            
             // Insert after the inventory display
-            const inventoryDisplay = document.querySelector('.inventory-display');
-            inventoryDisplay.parentNode.insertBefore(setsContainer, inventoryDisplay.nextSibling);
+            const inventoryContainer = document.querySelector('.inventory-container');
+            if (!inventoryContainer) {
+                console.error('Could not find inventory container!');
+                return;
+            }
+            inventoryContainer.appendChild(setsContainer);
+        } else {
+            console.log('Found existing sets container');
+            setsContainer.style.display = 'block'; // Force display block
         }
-        
+
         // Clear existing content
         setsContainer.innerHTML = '';
-        
-        // Make sure sets container is visible
-        setsContainer.style.display = 'block';
-        
+
+        // Add a title to the sets container
+        const setsTitle = document.createElement('h2');
+        setsTitle.textContent = 'Item Sets';
+        setsTitle.style.color = '#00d4ff';
+        setsTitle.style.marginBottom = '20px';
+        setsContainer.appendChild(setsTitle);
+
+        let setCount = 0;
         Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
-            console.log('Processing set:', setId); // Debug log
+            console.log('Creating set element for:', setId);
+            setCount++;
+            
             const setElement = document.createElement('div');
             setElement.className = 'set-info';
             
@@ -337,7 +364,7 @@ class Inventory {
                 setInfo.items.includes(item.name)
             );
             
-            console.log('Owned items for set:', ownedItems); // Debug log
+            console.log('Owned items for', setId, ':', ownedItems);
             
             const isComplete = ownedItems.length >= setInfo.requiredCount;
             
@@ -360,11 +387,18 @@ class Inventory {
             setsContainer.appendChild(setElement);
         });
 
-        console.log('Sets display complete'); // Debug log
+        console.log(`Created ${setCount} set elements`);
+
+        // If no sets were created, show a message
+        if (setCount === 0) {
+            setsContainer.innerHTML = '<p style="color: #999; text-align: center;">No item sets available</p>';
+        }
     }
 }
 
 // Initialize inventory when page loads
 document.addEventListener('DOMContentLoaded', () => {
+    console.log('ItemSystem:', window.ItemSystem); // Add this line
+    console.log('ITEM_SETS:', window.ItemSystem.ITEM_SETS); // Add this line
     window.inventory = new Inventory();
 });
