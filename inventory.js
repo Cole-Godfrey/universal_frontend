@@ -15,7 +15,7 @@ class Inventory {
     async loadInventory() {
         const username = localStorage.getItem('playerName');
         try {
-            const response = await fetch(`https://universal-backend-7wn9.onrender.com/user/${username}`);
+            const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch inventory from server');
             }
