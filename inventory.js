@@ -298,9 +298,14 @@ class Inventory {
     }
 
     getItemIcon(itemName) {
-        // You'll need to implement this to return the correct icon for each item
-        // This could be stored in your items data
-        return '🎁'; // Default icon
+        // Search through all rarities and their items to find the matching item
+        for (const [rarity, items] of Object.entries(window.ItemSystem.ITEMS)) {
+            const item = items.find(item => item.name === itemName);
+            if (item) {
+                return item.icon;
+            }
+        }
+        return '🎁'; // Default icon if item not found
     }
 
     async claimSetReward(setName, setData) {
