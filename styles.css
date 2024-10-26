@@ -142,10 +142,10 @@ body::after {
 }
 
 .container {
-    position: relative;  /* Change from absolute to relative */
-    transform: none;     /* Remove the transform */
-    top: auto;          /* Remove top positioning */
-    left: auto;         /* Remove left positioning */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     text-align: center;
     width: 95%;
     max-width: 1800px;
@@ -531,6 +531,8 @@ button:hover {
     width: 100%;
     max-width: 400px;
     margin: 0 auto;
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    box-shadow: 0 0 30px rgba(138, 43, 226, 0.2);
 }
 
 .signup-form input,
@@ -542,7 +544,23 @@ button:hover {
     margin: 10px 0;
     border: 1px solid #444;
     border-radius: 5px;
+}
+
+.signup-form input {
     background: #fff;
+    color: #000;
+}
+
+.signup-form button {
+    background: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.signup-form button:hover {
+    background-color: #45a049;
 }
 
 /* Ensure shooting stars don't interfere with interaction */
@@ -555,6 +573,18 @@ button:hover {
 .container {
     position: relative;
     z-index: 5;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Add separate signup styles that won't affect the main game */
+.signup-page .container {
+    position: relative;
+    transform: none;
+    top: 0;
+    left: 0;
     min-height: 100vh;
     display: flex;
     align-items: center;
