@@ -2,19 +2,19 @@
     position: relative;
     background: rgba(0, 0, 50, 0.8); /* Dark blue background */
     border-radius: 15px;
-    padding: 30px;
+    padding: 20px;
     backdrop-filter: blur(10px);
     border: 2px solid rgba(0, 150, 255, 0.4); /* Blue border */
     box-shadow: 0 0 30px rgba(0, 150, 255, 0.2); /* Blue shadow */
-    width: 80%;
-    max-width: 1200px;
+    width: 70%; /* Reduced from 80% */
+    max-width: 1000px; /* Reduced from 1200px */
     margin: 0 auto;
 }
 
 .inventory-title {
     color: #00d4ff; /* Light blue text */
-    font-size: 36px;
-    margin-bottom: 30px;
+    font-size: 28px; /* Reduced from 36px */
+    margin-bottom: 20px; /* Reduced from 30px */
     text-align: center;
     text-shadow: 0 0 10px rgba(0, 150, 255, 0.8); /* Blue text shadow */
     text-transform: uppercase;
@@ -68,22 +68,23 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 20px;
     padding: 20px;
-    height: 300px; /* Reduced height for the inventory grid */
-    overflow-y: auto;
+    height: 400px; /* Reduced from 500px */
+    overflow-y: auto; /* Enable vertical scrolling */
     border: 1px solid rgba(0, 150, 255, 0.4);
     border-radius: 10px;
     background: rgba(0, 0, 50, 0.5);
+    margin: 15px 0; /* Reduced from 20px */
 }
 
 .inventory-item {
     background: rgba(10, 10, 50, 0.8); /* Darker blue background */
     border-radius: 10px;
-    padding: 10px; /* Reduced padding for item boxes */
+    padding: 8px; /* Reduced padding for item boxes */
     text-align: center;
     border: 1px solid rgba(0, 150, 255, 0.4); /* Blue border */
     transition: all 0.3s ease;
     cursor: pointer;
-    height: 120px; /* Set a fixed height for item boxes */
+    height: 100px; /* Reduced from 120px */
 }
 
 .inventory-item:hover {
@@ -181,11 +182,11 @@
 
 .balance-display {
     color: #00d4ff; /* Light blue text */
-    font-size: 20px;
-    margin-bottom: 20px;
+    font-size: 18px; /* Reduced from 20px */
+    margin-bottom: 15px; /* Reduced from 20px */
     text-align: center;
     text-shadow: 0 0 10px rgba(0, 150, 255, 0.8); /* Blue text shadow */
-    padding: 10px;
+    padding: 8px; /* Reduced from 10px */
     background: rgba(0, 0, 50, 0.5); /* Dark blue background */
     border-radius: 10px;
     border: 1px solid rgba(0, 150, 255, 0.4); /* Blue border */
@@ -246,12 +247,13 @@
     grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
     padding: 20px;
+    /* Remove height constraint from container */
 }
 
 .set-box {
     background: rgba(10, 10, 50, 0.8);
     border-radius: 10px;
-    padding: 15px;
+    padding: 12px; /* Reduced from 15px */
     border: 1px solid rgba(0, 150, 255, 0.4);
 }
 
@@ -327,12 +329,12 @@
 
 /* Update the sets-display and sets-container styles */
 .sets-display {
-    height: 500px; /* Set a fixed height for the sets display area */
+    height: 400px; /* Reduced from 500px */
     overflow-y: auto; /* Enable vertical scrolling */
     border: 1px solid rgba(0, 150, 255, 0.4);
     border-radius: 10px;
     background: rgba(0, 0, 50, 0.5);
-    margin: 20px 0;
+    margin: 15px 0; /* Reduced from 20px */
 }
 
 /* Add scrollbar styling for the sets display */
@@ -381,3 +383,45 @@
     border-color: rgba(0, 150, 255, 0.8);
     box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
 }
+
+/* Update the inventory-grid and sets-display styles */
+.inventory-grid, .sets-display {
+    height: 400px; /* Reduced from 500px */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    border-radius: 10px;
+    background: rgba(0, 0, 50, 0.5);
+    margin: 15px 0; /* Reduced from 20px */
+}
+
+/* Add scrollbar styling for both inventory-grid and sets-display */
+.inventory-grid::-webkit-scrollbar,
+.sets-display::-webkit-scrollbar {
+    width: 8px;
+}
+
+.inventory-grid::-webkit-scrollbar-track,
+.sets-display::-webkit-scrollbar-track {
+    background: rgba(0, 0, 50, 0.3);
+    border-radius: 4px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb,
+.sets-display::-webkit-scrollbar-thumb {
+    background: rgba(0, 150, 255, 0.4);
+    border-radius: 4px;
+}
+
+.inventory-grid::-webkit-scrollbar-thumb:hover,
+.sets-display::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 150, 255, 0.6);
+}
+
+/* Add iOS scrolling support */
+@supports (-webkit-touch-callout: none) {
+    .inventory-grid,
+    .sets-display {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
