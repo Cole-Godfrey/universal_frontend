@@ -38,7 +38,10 @@ const INITIAL_VELOCITY = 12;  // Reduced from 15
 let mouseX = canvas.width/2;
 let mouseY = 0;
 
-// Add mouse move listener
+// Update these constants for cannon positioning
+const CANNON_Y = 150;  // Changed from 50 to 150 - moves cannon down
+
+// Update all references to cannon Y position
 canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     mouseX = e.clientX - rect.left;
@@ -46,7 +49,7 @@ canvas.addEventListener('mousemove', (e) => {
     
     // Calculate angle between cannon and mouse
     const dx = mouseX - canvas.width/2;
-    const dy = mouseY - 50;  // Cannon Y position
+    const dy = mouseY - CANNON_Y;  // Updated to use CANNON_Y
     cannonAngle = Math.atan2(dy, dx);
     
     // Limit the angle between 0 and 180 degrees (pointing downward only)
@@ -438,7 +441,7 @@ canvas.addEventListener('click', (e) => {
                 // Valid shot - proceed with chip creation
                 balance -= currentWager;
                 const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-                const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+                const cannonTipY = CANNON_Y + Math.sin(cannonAngle) * CANNON_LENGTH;  // Updated to use CANNON_Y
                 const chip = new Chip(cannonTipX, cannonTipY);
                 chips.push(chip);
             }
@@ -516,7 +519,7 @@ function draw() {
     
     // Calculate trajectory points
     const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-    const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+    const cannonTipY = CANNON_Y + Math.sin(cannonAngle) * CANNON_LENGTH;  // Updated to use CANNON_Y
     const trajectoryPoints = calculateTrajectoryPoints(cannonTipX, cannonTipY, initialVelX, initialVelY);
     
     // Draw trajectory line
@@ -549,7 +552,7 @@ function draw() {
     
     // Draw cannon with space theme
     ctx.save();
-    ctx.translate(canvas.width/2, 50);
+    ctx.translate(canvas.width/2, CANNON_Y);  // Updated to use CANNON_Y
     ctx.rotate(cannonAngle);
     
     // Draw energy core glow
