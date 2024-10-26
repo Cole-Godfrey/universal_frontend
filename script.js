@@ -46,7 +46,7 @@ canvas.addEventListener('mousemove', (e) => {
     
     // Calculate angle between cannon and mouse
     const dx = mouseX - canvas.width/2;
-    const dy = mouseY - 50;  // Cannon Y position
+    const dy = mouseY - CANNON_Y;  // Using CANNON_Y
     cannonAngle = Math.atan2(dy, dx);
     
     // Limit the angle between 0 and 180 degrees (pointing downward only)
@@ -438,7 +438,7 @@ canvas.addEventListener('click', (e) => {
                 // Valid shot - proceed with chip creation
                 balance -= currentWager;
                 const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-                const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+                const cannonTipY = CANNON_Y + Math.sin(cannonAngle) * CANNON_LENGTH;
                 const chip = new Chip(cannonTipX, cannonTipY);
                 chips.push(chip);
             }
@@ -507,9 +507,9 @@ function calculateTrajectoryPoints(startX, startY, velocityX, velocityY, points 
 }
 
 // Update these constants near the top of the file
-const CANNON_Y = 100;  // Changed from 50 to 100
+const CANNON_Y = 50;  // Changed from 100 back to 50
 
-// Update the draw function's cannon and wager positioning
+// Update the draw function's cannon positioning
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -519,7 +519,7 @@ function draw() {
     
     // Calculate trajectory points
     const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-    const cannonTipY = CANNON_Y + Math.sin(cannonAngle) * CANNON_LENGTH;
+    const cannonTipY = CANNON_Y + Math.sin(cannonAngle) * CANNON_LENGTH;  // Using CANNON_Y
     const trajectoryPoints = calculateTrajectoryPoints(cannonTipX, cannonTipY, initialVelX, initialVelY);
     
     // Draw trajectory line
@@ -552,7 +552,7 @@ function draw() {
     
     // Draw cannon with space theme
     ctx.save();
-    ctx.translate(canvas.width/2, CANNON_Y);  // Changed from 50 to CANNON_Y
+    ctx.translate(canvas.width/2, CANNON_Y);  // Using CANNON_Y
     ctx.rotate(cannonAngle);
     
     // Draw energy core glow
@@ -659,17 +659,17 @@ function draw() {
     ctx.save();
     ctx.textAlign = 'center';
     
-    // Add glow effect for wager label
+    // Update wager label position
     ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 18px Arial';
-    ctx.fillText('Wager:', canvas.width/2, CANNON_Y - 40);  // Adjusted relative to new CANNON_Y
+    ctx.fillText('Wager:', canvas.width/2, CANNON_Y - 40);  // Using CANNON_Y
     
     // Draw wager input box with animated border
     const borderGlow = Math.sin(animationTime * 3) * 0.2 + 0.8;
     ctx.fillStyle = isEditingWager ? 'rgba(138, 43, 226, 0.3)' : 'rgba(0, 0, 0, 0.5)';
-    wagerInputPosition = { x: canvas.width/2, y: CANNON_Y - 25 };  // Adjusted relative to new CANNON_Y
+    wagerInputPosition = { x: canvas.width/2, y: CANNON_Y - 25 };  // Using CANNON_Y
     ctx.fillRect(wagerInputPosition.x - 50, wagerInputPosition.y - 12, 100, 24);
     
     // Draw wager input border with glow
