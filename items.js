@@ -166,35 +166,6 @@ const ITEMS = {
     ]
 };
 
-// Add at the top of the file, after RARITIES definition
-const SETS = {
-    'Elemental Collection': {
-        description: 'Master the elements of nature',
-        items: ['Storm Crystal', "Ocean's Breath", 'Earth Core', "World Tree Leaf"],
-        reward: 100000
-    },
-    'Cosmic Powers': {
-        description: 'Harness the power of the cosmos',
-        items: ['Star Core', 'Nebula Fragment', 'Galaxy Shard', 'Black Hole Fragment'],
-        reward: 200000
-    },
-    'Divine Artifacts': {
-        description: 'Sacred items of immense power',
-        items: ["Angel's Blessing", "Heaven's Light", 'Divine Grace', 'Holy Relic'],
-        reward: 150000
-    },
-    'Ancient Mysteries': {
-        description: 'Relics from the beginning of time',
-        items: ['First Light', 'Creation Seed', 'Primordial Essence', 'Elder Scroll'],
-        reward: 300000
-    },
-    'Ultimate Power': {
-        description: 'Items of unimaginable strength',
-        items: ['Everything', 'The One', 'Power Absolute', 'Reality Warper'],
-        reward: 500000
-    }
-};
-
 function rollRarity(weights = {}) {
     const roll = Math.random() * 100;
     let cumulativeChance = 0;
@@ -252,35 +223,5 @@ function generateDrop(weights = {}) {
 window.ItemSystem = {
     generateDrop,
     RARITIES,
-    ITEMS,
-    SETS
-};
-
-// Add this method
-window.ItemSystem.getItemSet = function(itemName) {
-    return Object.entries(SETS).find(([setName, setData]) => 
-        setData.items.includes(itemName)
-    )?.[0] || null;
-};
-
-// Add this new method
-window.ItemSystem.getItemByName = function(itemName) {
-    // Search through all rarities and their items
-    for (const [rarity, items] of Object.entries(ITEMS)) {
-        const item = items.find(item => item.name === itemName);
-        if (item) {
-            return {
-                ...item,
-                rarity,
-                color: RARITIES[rarity].color
-            };
-        }
-    }
-    // Return a default item if not found
-    return {
-        name: itemName,
-        icon: "❓",
-        rarity: "UNKNOWN",
-        color: "#666666"
-    };
+    ITEMS
 };

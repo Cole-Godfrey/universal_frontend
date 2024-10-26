@@ -6,21 +6,10 @@ class Inventory {
         this.currentFilter = 'ALL';
         this.currentSort = 'RARITY_DESC';
         this.searchQuery = '';
-        this.currentView = 'items'; // 'items' or 'sets'
         
-        // Wait for DOM to be fully loaded before initializing
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', () => this.initialize());
-        } else {
-            this.initialize();
-        }
-    }
-
-    initialize() {
         this.loadInventory();
         this.initializeFilters();
         this.initializeEventListeners();
-        this.updateViewVisibility();
     }
 
     async loadInventory() {
@@ -52,90 +41,38 @@ class Inventory {
     }
 
     initializeEventListeners() {
-        // Get button elements
-        const inventoryButton = document.getElementById('inventoryButton');
-        const setsButton = document.getElementById('setsButton');
-
-        if (!inventoryButton || !setsButton) {
-            console.error('View toggle buttons not found');
-            return;
-        }
-
-        // Add button event listeners
-        inventoryButton.addEventListener('click', (e) => {
-            this.setActiveView('items', e.target);
-        });
-        
-        setsButton.addEventListener('click', (e) => {
-            this.setActiveView('sets', e.target);
+        document.getElementById('rarityFilter').addEventListener('change', (e) => {
+            this.currentFilter = e.target.value;
+            this.currentPage = 1;
+            this.displayInventory();
         });
 
-        // Store references to filter elements
-        this.filterElements = {
-            rarityFilter: document.getElementById('rarityFilter'),
-            sortBy: document.getElementById('sortBy'),
-            searchBar: document.getElementById('searchBar'),
-            prevPage: document.querySelector('.prev-page'),
-            nextPage: document.querySelector('.next-page')
-        };
+        document.getElementById('sortBy').addEventListener('change', (e) => {
+            this.currentSort = e.target.value;
+            this.displayInventory();
+        });
 
-        // Add event listeners only if elements exist
-        if (this.filterElements.rarityFilter) {
-            this.filterElements.rarityFilter.addEventListener('change', (e) => {
-                this.currentFilter = e.target.value;
-                this.currentPage = 1;
+        document.getElementById('searchBar').addEventListener('input', (e) => {
+            this.searchQuery = e.target.value.toLowerCase();
+            this.currentPage = 1;
+            this.displayInventory();
+        });
+
+        document.querySelector('.prev-page').addEventListener('click', () => {
+            if (this.currentPage > 1) {
+                this.currentPage--;
                 this.displayInventory();
-            });
-        }
+            }
+        });
 
-        if (this.filterElements.sortBy) {
-            this.filterElements.sortBy.addEventListener('change', (e) => {
-                this.currentSort = e.target.value;
+        document.querySelector('.next-page').addEventListener('click', () => {
+            const filteredItems = this.getFilteredItems();
+            const maxPages = Math.ceil(filteredItems.length / this.itemsPerPage);
+            if (this.currentPage < maxPages) {
+                this.currentPage++;
                 this.displayInventory();
-            });
-        }
-
-        if (this.filterElements.searchBar) {
-            this.filterElements.searchBar.addEventListener('input', (e) => {
-                this.searchQuery = e.target.value.toLowerCase();
-                this.currentPage = 1;
-                this.displayInventory();
-            });
-        }
-
-        if (this.filterElements.prevPage) {
-            this.filterElements.prevPage.addEventListener('click', () => {
-                if (this.currentPage > 1) {
-                    this.currentPage--;
-                    this.displayInventory();
-                }
-            });
-        }
-
-        if (this.filterElements.nextPage) {
-            this.filterElements.nextPage.addEventListener('click', () => {
-                const filteredItems = this.getFilteredItems();
-                const maxPages = Math.ceil(filteredItems.length / this.itemsPerPage);
-                if (this.currentPage < maxPages) {
-                    this.currentPage++;
-                    this.displayInventory();
-                }
-            });
-        }
-    }
-
-    // Add this new method
-    updateViewVisibility() {
-        const filtersContainer = document.querySelector('.inventory-filters');
-        const paginationContainer = document.querySelector('.inventory-pagination');
-        
-        if (this.currentView === 'sets') {
-            filtersContainer.style.display = 'none';
-            paginationContainer.style.display = 'none';
-        } else {
-            filtersContainer.style.display = 'flex';
-            paginationContainer.style.display = 'flex';
-        }
+            }
+        });
     }
 
     getFilteredItems() {
@@ -300,68 +237,9 @@ class Inventory {
         balanceDisplay.textContent = `Balance: $${newBalance.toLocaleString()}`;
         localStorage.setItem('balance', newBalance); // Update local storage
     }
-
-    displaySets() {
-        const grid = document.querySelector('.inventory-grid');
-        grid.innerHTML = '';
-        
-        Object.entries(window.ItemSystem.SETS).forEach(([setName, setData]) => {
-            const setElement = document.createElement('div');
-            setElement.className = 'set-container';
-            
-            const setHeader = document.createElement('div');
-            setHeader.className = 'set-header';
-            setHeader.innerHTML = `
-                <h3>${setName}</h3>
-                <p>${setData.description}</p>
-                <p class="set-reward">Reward: $${setData.reward.toLocaleString()}</p>
-            `;
-            
-            const setItems = document.createElement('div');
-            setItems.className = 'set-items';
-            
-            const ownedItems = new Set(this.items.map(item => item.name));
-            
-            setData.items.forEach(itemName => {
-                const itemElement = document.createElement('div');
-                const isOwned = ownedItems.has(itemName);
-                itemElement.className = `set-item ${isOwned ? 'owned' : 'missing'}`;
-                
-                const item = window.ItemSystem.getItemByName(itemName);
-                itemElement.innerHTML = `
-                    <div class="item-icon" style="color: ${isOwned ? item.color : '#666'}">${item.icon}</div>
-                    <div class="item-name">${itemName}</div>
-                    <div class="item-status">${isOwned ? '✓' : '×'}</div>
-                `;
-                
-                setItems.appendChild(itemElement);
-            });
-            
-            setElement.appendChild(setHeader);
-            setElement.appendChild(setItems);
-            grid.appendChild(setElement);
-        });
-    }
-
-    // Add this new method
-    setActiveView(view, buttonElement) {
-        // Update active button styling
-        document.querySelectorAll('.view-button').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        buttonElement.classList.add('active');
-
-        // Update view
-        this.currentView = view;
-        this.updateViewVisibility();
-        
-        if (view === 'sets') {
-            this.displaySets();
-        } else {
-            this.displayInventory();
-        }
-    }
 }
 
 // Initialize inventory when page loads
-window.inventory = new Inventory();
+document.addEventListener('DOMContentLoaded', () => {
+    window.inventory = new Inventory();
+});
