@@ -43,14 +43,13 @@ class Inventory {
     }
 
     initializeEventListeners() {
-        document.getElementById('viewToggle').addEventListener('change', (e) => {
-            this.currentView = e.target.value;
-            this.updateViewVisibility();
-            if (this.currentView === 'sets') {
-                this.displaySets();
-            } else {
-                this.displayInventory();
-            }
+        // Add button event listeners
+        document.getElementById('inventoryButton').addEventListener('click', (e) => {
+            this.setActiveView('items', e.target);
+        });
+        
+        document.getElementById('setsButton').addEventListener('click', (e) => {
+            this.setActiveView('sets', e.target);
         });
 
         // Store references to filter elements
@@ -324,6 +323,25 @@ class Inventory {
             setElement.appendChild(setItems);
             grid.appendChild(setElement);
         });
+    }
+
+    // Add this new method
+    setActiveView(view, buttonElement) {
+        // Update active button styling
+        document.querySelectorAll('.view-button').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        buttonElement.classList.add('active');
+
+        // Update view
+        this.currentView = view;
+        this.updateViewVisibility();
+        
+        if (view === 'sets') {
+            this.displaySets();
+        } else {
+            this.displayInventory();
+        }
     }
 }
 
