@@ -96,11 +96,11 @@ const DIVIDER_FRICTION = 0.95;  // Friction when hitting dividers
 // Add this constant near the top with other game constants
 const MAX_BALLS_IN_PLAY = 5;
 
-// Add these constants near the top with other physics constants
-const CENTER_FORCE = 0.05;  // Strength of the force pulling towards center
-const CENTER_RANGE = 300;   // How far from center the force starts acting
+// Add these constants near the top with other game constants
+const TRAIL_LENGTH = 10;  // Number of positions to store for trail
+const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
-// Chip class
+// Update the Chip class
 class Chip {
     constructor(x, y) {
         this.x = x;
@@ -113,12 +113,19 @@ class Chip {
         this.rotation = 0;
         this.landed = false;
         this.slotIndex = -1;
-        this.totalCost = currentWager;  // Changed from calculateTotalCost() to just currentWager
+        this.totalCost = currentWager;
         this.spin = 0;
+        
+        // Add trail positions array
+        this.trailPositions = [];
+        for (let i = 0; i < TRAIL_LENGTH; i++) {
+            this.trailPositions.push({ x: x, y: y });
+        }
     }
 
     update() {
         if (this.landed) {
+            // Remove this chip from the array
             const index = chips.indexOf(this);
             if (index > -1) {
                 chips.splice(index, 1);
@@ -126,22 +133,21 @@ class Chip {
             return;
         }
 
+        // Update trail positions
+        this.trailPositions.pop(); // Remove last position
+        this.trailPositions.unshift({ x: this.x, y: this.y }); // Add current position
+
         // Apply gravity
         this.velocity.y += GRAVITY;
 
-        // Add center-seeking force
-        const distanceFromCenter = this.x - canvas.width / 2;
-        if (Math.abs(distanceFromCenter) < CENTER_RANGE) {
-            // Calculate force based on distance from center (stronger when further)
-            const forceMagnitude = (distanceFromCenter / CENTER_RANGE) * CENTER_FORCE;
-            // Apply opposite force to pull towards center
-            this.velocity.x -= forceMagnitude;
-        }
-
-        // Rest of the physics remain the same
+        // Apply air resistance
         this.velocity.x *= AIR_RESISTANCE;
         this.velocity.y *= AIR_RESISTANCE;
+
+        // Apply horizontal friction
         this.velocity.x *= FRICTION;
+
+        // Apply spin effect
         this.velocity.x += this.spin * SPIN_FACTOR;
 
         // Limit maximum velocity
@@ -350,6 +356,60 @@ class Chip {
     }
 
     draw() {
+        // Draw trail first
+        ctx.save();
+        
+        // Draw trail segments with gradient
+        for (let i = 1; i < this.trailPositions.length; i++) {
+            const pos = this.trailPositions[i];
+            const prevPos = this.trailPositions[i - 1];
+            
+            // Calculate opacity for this segment
+            const opacity = (TRAIL_OPACITY * (TRAIL_LENGTH - i) / TRAIL_LENGTH) * 0.5;
+            
+            // Create gradient for trail segment
+            const gradient = ctx.createLinearGradient(
+                prevPos.x, prevPos.y,
+                pos.x, pos.y
+            );
+            
+            // Calculate speed-based color
+            const speed = Math.sqrt(this.velocity.x ** 2 + this.velocity.y ** 2);
+            const hue = Math.min(speed * 10, 60); // Yellow at high speed, red at low
+            
+            gradient.addColorStop(0, `hsla(${hue}, 100%, 50%, ${opacity})`);
+            gradient.addColorStop(1, `hsla(${hue}, 100%, 50%, 0)`);
+            
+            // Draw trail segment
+            ctx.beginPath();
+            ctx.moveTo(prevPos.x, prevPos.y);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.lineWidth = CHIP_RADIUS * 1.5 * ((TRAIL_LENGTH - i) / TRAIL_LENGTH);
+            ctx.strokeStyle = gradient;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            
+            // Add glow effect
+            ctx.shadowColor = `hsla(${hue}, 100%, 50%, ${opacity * 0.5})`;
+            ctx.shadowBlur = 10;
+            ctx.stroke();
+        }
+        
+        // Add particle effects along the trail
+        for (let i = 0; i < this.trailPositions.length - 1; i += 2) {
+            const pos = this.trailPositions[i];
+            const opacity = (TRAIL_LENGTH - i) / TRAIL_LENGTH * 0.3;
+            
+            // Particle effect
+            ctx.beginPath();
+            ctx.arc(pos.x, pos.y, CHIP_RADIUS * 0.3, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+            ctx.fill();
+        }
+        
+        ctx.restore();
+
+        // Draw the main chip (existing draw code)
         ctx.save();
         
         // Update rotation based on movement
@@ -360,7 +420,7 @@ class Chip {
             this.x, this.y, 0,
             this.x, this.y, CHIP_RADIUS * 2
         );
-        glowGradient.addColorStop(0, 'rgba(0, 255, 128, 0.3)');  // Neon green to match pegs
+        glowGradient.addColorStop(0, 'rgba(0, 255, 128, 0.3)');
         glowGradient.addColorStop(1, 'rgba(0, 255, 128, 0)');
         
         ctx.beginPath();
