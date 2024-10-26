@@ -498,19 +498,80 @@ function calculateSlotRewards() {
     return [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * currentWager);
 }
 
-// Draw function
+// Add this function to calculate trajectory points
+function calculateTrajectoryPoints(startX, startY, velocityX, velocityY, points = 20) {
+    const trajectoryPoints = [];
+    let simX = startX;
+    let simY = startY;
+    let simVelX = velocityX;
+    let simVelY = velocityY;
+    const timeStep = 0.5; // Smaller time step for smoother curve
+    
+    for (let i = 0; i < points; i++) {
+        trajectoryPoints.push({ x: simX, y: simY });
+        
+        // Apply simplified physics (just gravity and air resistance)
+        simVelY += GRAVITY * timeStep;
+        simVelX *= AIR_RESISTANCE;
+        simVelY *= AIR_RESISTANCE;
+        
+        simX += simVelX * timeStep;
+        simY += simVelY * timeStep;
+        
+        // Stop if trajectory hits bottom or sides
+        if (simY > canvas.height || simX < 0 || simX > canvas.width) {
+            break;
+        }
+    }
+    
+    return trajectoryPoints;
+}
+
+// Update the draw function - replace the existing aim line code with this:
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    // Draw aim line first
-    ctx.beginPath();
-    ctx.moveTo(canvas.width/2, 50);
-    ctx.lineTo(canvas.width/2 + Math.cos(cannonAngle) * 100, 
-               50 + Math.sin(cannonAngle) * 100);
-    ctx.strokeStyle = 'rgba(138, 43, 226, 0.2)';  // Purple glow
-    ctx.lineWidth = 2;
-    ctx.stroke();
+    // Calculate initial velocity components
+    const initialVelX = Math.cos(cannonAngle) * INITIAL_VELOCITY;
+    const initialVelY = Math.sin(cannonAngle) * INITIAL_VELOCITY;
     
+    // Calculate trajectory points
+    const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
+    const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+    const trajectoryPoints = calculateTrajectoryPoints(cannonTipX, cannonTipY, initialVelX, initialVelY);
+    
+    // Draw trajectory line
+    ctx.beginPath();
+    ctx.moveTo(trajectoryPoints[0].x, trajectoryPoints[0].y);
+    
+    // Draw curved line through trajectory points
+    for (let i = 1; i < trajectoryPoints.length; i++) {
+        // Create gradient for fading trajectory
+        const gradient = ctx.createLinearGradient(
+            trajectoryPoints[i-1].x, trajectoryPoints[i-1].y,
+            trajectoryPoints[i].x, trajectoryPoints[i].y
+        );
+        const alpha = 1 - (i / trajectoryPoints.length); // Fade out along the trajectory
+        gradient.addColorStop(0, `rgba(138, 43, 226, ${alpha * 0.4})`);
+        gradient.addColorStop(1, `rgba(138, 43, 226, ${alpha * 0.2})`);
+        
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 2 * (1 - i / trajectoryPoints.length); // Line gets thinner
+        
+        ctx.beginPath();
+        ctx.moveTo(trajectoryPoints[i-1].x, trajectoryPoints[i-1].y);
+        ctx.lineTo(trajectoryPoints[i].x, trajectoryPoints[i].y);
+        ctx.stroke();
+        
+        // Add small dots at each trajectory point
+        ctx.beginPath();
+        ctx.arc(trajectoryPoints[i].x, trajectoryPoints[i].y, 1 * (1 - i / trajectoryPoints.length), 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(138, 43, 226, ${alpha * 0.5})`;
+        ctx.fill();
+    }
+    
+    // Rest of the draw function remains the same...
+
     // Draw cannon with space theme
     ctx.save();
     ctx.translate(canvas.width/2, 50);
