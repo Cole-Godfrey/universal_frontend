@@ -100,78 +100,6 @@ const MAX_BALLS_IN_PLAY = 5;
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
-// Add these constants near the top with other game constants
-const COLLISION_PARTICLES_COUNT = 8;
-const RIPPLE_DURATION = 20;
-
-// Add this class for collision effects
-class CollisionEffect {
-    constructor(x, y) {
-        this.x = x;
-        this.y = y;
-        this.particles = [];
-        this.rippleRadius = 0;
-        this.rippleOpacity = 0.5;
-        this.duration = RIPPLE_DURATION;
-        
-        // Create particles
-        for (let i = 0; i < COLLISION_PARTICLES_COUNT; i++) {
-            const angle = (i / COLLISION_PARTICLES_COUNT) * Math.PI * 2;
-            const speed = Math.random() * 2 + 1;
-            this.particles.push({
-                x: this.x,
-                y: this.y,
-                vx: Math.cos(angle) * speed,
-                vy: Math.sin(angle) * speed,
-                life: 1
-            });
-        }
-    }
-
-    update() {
-        // Update particles
-        this.particles.forEach(particle => {
-            particle.x += particle.vx;
-            particle.y += particle.vy;
-            particle.life *= 0.9;
-        });
-
-        // Update ripple
-        this.rippleRadius += 1;
-        this.rippleOpacity *= 0.9;
-        this.duration--;
-
-        return this.duration > 0;
-    }
-
-    draw(ctx) {
-        // Draw ripple
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.rippleRadius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(0, 255, 128, ${this.rippleOpacity})`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-
-        // Draw particles
-        this.particles.forEach(particle => {
-            const gradient = ctx.createRadialGradient(
-                particle.x, particle.y, 0,
-                particle.x, particle.y, 2
-            );
-            gradient.addColorStop(0, `rgba(0, 255, 128, ${particle.life})`);
-            gradient.addColorStop(1, `rgba(0, 255, 128, 0)`);
-
-            ctx.beginPath();
-            ctx.arc(particle.x, particle.y, 2, 0, Math.PI * 2);
-            ctx.fillStyle = gradient;
-            ctx.fill();
-        });
-    }
-}
-
-// Add this to store active collision effects
-let collisionEffects = [];
-
 // Update the Chip class
 class Chip {
     constructor(x, y) {
@@ -246,9 +174,6 @@ class Chip {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < CHIP_RADIUS + PEG_RADIUS) {
-                // Add this line at the start of the collision response
-                collisionEffects.push(new CollisionEffect(this.x, this.y));
-                
                 // Collision response with improved physics
                 const angle = Math.atan2(dy, dx);
                 const relativeVelocityX = this.velocity.x;
@@ -788,7 +713,7 @@ function draw() {
     
     // Draw balance at top left
     ctx.save();
-    ctx.font = 'bold 20px Arial';
+    ctx.font = 'bold 28px Arial';  // Increased from 20px to 28px
     ctx.textAlign = 'left';
     
     // Add glow effect for balance
@@ -796,12 +721,12 @@ function draw() {
     ctx.shadowColor = 'rgba(0, 255, 128, 0.8)';
     ctx.shadowBlur = 10 * balanceGlow;
     ctx.fillStyle = '#fff';
-    ctx.fillText('Balance:', 20, 30);
+    ctx.fillText('Balance:', 20, 35);  // Adjusted Y position from 30 to 35
     
     ctx.fillStyle = 'rgba(0, 255, 128, 0.9)';
     ctx.shadowColor = 'rgba(0, 255, 128, 0.8)';
     ctx.shadowBlur = 15 * balanceGlow;
-    ctx.fillText(` $${balance}`, 100, 30);
+    ctx.fillText(` $${balance}`, 120, 35);  // Adjusted X position from 100 to 120 and Y from 30 to 35
     ctx.restore();
     
     // Draw wager above cannon
@@ -835,13 +760,6 @@ function draw() {
     ctx.fillText(`$${isEditingWager ? wagerInputValue : currentWager}`, wagerInputPosition.x, wagerInputPosition.y + 6);
     
     ctx.restore();
-
-    // Draw collision effects
-    collisionEffects = collisionEffects.filter(effect => {
-        effect.update();
-        effect.draw(ctx);
-        return effect.duration > 0;
-    });
 
     // Draw pegs with neon green theme
     pegs.forEach(peg => {
