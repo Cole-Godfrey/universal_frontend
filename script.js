@@ -433,11 +433,11 @@ canvas.addEventListener('click', (e) => {
         if (!isEditingWager) {
             // Add check for maximum balls in play
             if (chips.length >= MAX_BALLS_IN_PLAY) {
-                showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed in play!`);
+                showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed!`);
                 return;
             }
 
-            if (balance < currentWager) {
+            if (balance < currentWager) {  // Only check balance
                 showWarningMessage("Insufficient balance!");
             } else if (currentWager < MIN_WAGER) {
                 showWarningMessage(`Minimum wager is $${MIN_WAGER}!`);
