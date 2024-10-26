@@ -23,47 +23,33 @@
         <div class="inventory-container">
             <h1 class="inventory-title">Inventory</h1>
             <div class="balance-display" id="balanceDisplay">Balance: $0</div>
-            
-            <!-- Add tab buttons -->
-            <div class="inventory-tabs">
-                <button class="tab-button active" data-tab="items">Items</button>
-                <button class="tab-button" data-tab="sets">Sets</button>
-            </div>
-
-            <!-- Items Tab -->
-            <div class="tab-content active" id="items-tab">
-                <div class="inventory-display">
-                    <div class="inventory-filters">
-                        <input type="text" id="searchBar" placeholder="Search items..." />
-                        <select id="rarityFilter">
-                            <option value="ALL">All Rarities</option>
-                            <!-- Options will be populated by JavaScript -->
-                        </select>
-                        <select id="sortBy">
-                            <option value="RARITY_DESC">Rarity (Highest)</option>
-                            <option value="RARITY_ASC">Rarity (Lowest)</option>
-                            <option value="NAME_ASC">Name (A-Z)</option>
-                            <option value="NAME_DESC">Name (Z-A)</option>
-                        </select>
-                    </div>
-                    <div class="inventory-grid">
-                        <!-- Items will be populated by JavaScript -->
-                    </div>
-                    <div class="inventory-pagination">
-                        <button class="nav-button prev-page">←</button>
-                        <span class="page-info">Page 1 of 1</span>
-                        <button class="nav-button next-page">→</button>
-                    </div>
+            <div class="inventory-display">
+                <div class="inventory-filters">
+                    <input type="text" id="searchBar" placeholder="Search items..." />
+                    <select id="rarityFilter">
+                        <option value="ALL">All Rarities</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                    <select id="sortBy">
+                        <option value="RARITY_DESC">Rarity (Highest)</option>
+                        <option value="RARITY_ASC">Rarity (Lowest)</option>
+                        <option value="NAME_ASC">Name (A-Z)</option>
+                        <option value="NAME_DESC">Name (Z-A)</option>
+                    </select>
+                    <select id="viewMode">
+                        <option value="GRID">Grid View</option>
+                        <option value="SETS">Sets View</option>
+                    </select>
+                </div>
+                <div class="inventory-grid">
+                    <!-- Items will be populated by JavaScript -->
+                </div>
+                <div class="inventory-pagination">
+                    <button class="nav-button prev-page">←</button>
+                    <span class="page-info">Page 1 of 1</span>
+                    <button class="nav-button next-page">→</button>
                 </div>
             </div>
-
-            <!-- Sets Tab -->
-            <div class="tab-content" id="sets-tab">
-                <div class="sets-grid">
-                    <!-- Sets will be populated by JavaScript -->
-                </div>
-            </div>
-
             <button class="menu-button back-button" onclick="window.location.href='index.html'">
                 <span>Back to Game</span>
             </button>

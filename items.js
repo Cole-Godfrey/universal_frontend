@@ -225,3 +225,28 @@ window.ItemSystem = {
     RARITIES,
     ITEMS
 };
+
+// Add this after the RARITIES definition
+window.ItemSystem.SETS = {
+    CELESTIAL_COLLECTION: {
+        name: "Celestial Collection",
+        items: ["Sun Emblem", "Moon Crystal", "Star Fragment", "Nebula Shard"],
+        reward: 50000
+    },
+    ELEMENTAL_MASTERY: {
+        name: "Elemental Mastery",
+        items: ["Fire Stone", "Water Gem", "Earth Crystal", "Wind Essence"],
+        reward: 25000
+    },
+    ANCIENT_RELICS: {
+        name: "Ancient Relics",
+        items: ["Golden Scarab", "Crystal Skull", "Jade Dragon", "Ruby Phoenix"],
+        reward: 75000
+    },
+    MYTHICAL_BEASTS: {
+        name: "Mythical Beasts",
+        items: ["Dragon Scale", "Phoenix Feather", "Unicorn Horn", "Griffin Claw"],
+        reward: 100000
+    }
+    // Add more sets as needed to include all items
+};

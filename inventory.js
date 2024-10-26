@@ -10,7 +10,6 @@ class Inventory {
         this.loadInventory();
         this.initializeFilters();
         this.initializeEventListeners();
-        this.initializeTabSystem();
     }
 
     async loadInventory() {
@@ -71,6 +70,15 @@ class Inventory {
             const maxPages = Math.ceil(filteredItems.length / this.itemsPerPage);
             if (this.currentPage < maxPages) {
                 this.currentPage++;
+                this.displayInventory();
+            }
+        });
+
+        document.getElementById('viewMode').addEventListener('change', (e) => {
+            const mode = e.target.value;
+            if (mode === 'SETS') {
+                this.displaySets();
+            } else {
                 this.displayInventory();
             }
         });
@@ -239,65 +247,86 @@ class Inventory {
         localStorage.setItem('balance', newBalance); // Update local storage
     }
 
-    initializeTabSystem() {
-        const tabs = document.querySelectorAll('.tab-button');
-        tabs.forEach(tab => {
-            tab.addEventListener('click', () => {
-                // Remove active class from all tabs and contents
-                document.querySelectorAll('.tab-button').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+    displaySets() {
+        const grid = document.querySelector('.inventory-grid');
+        grid.innerHTML = '';
+        
+        Object.entries(window.ItemSystem.SETS).forEach(([setId, setData]) => {
+            const setElement = document.createElement('div');
+            setElement.className = 'set-container';
+            
+            const setHeader = document.createElement('div');
+            setHeader.className = 'set-header';
+            setHeader.innerHTML = `
+                <h3>${setData.name}</h3>
+                <span class="set-reward">Complete Reward: $${setData.reward.toLocaleString()}</span>
+            `;
+            
+            const setItems = document.createElement('div');
+            setItems.className = 'set-items';
+            
+            const ownedItems = new Set(this.items.map(item => item.name));
+            const allItemsOwned = setData.items.every(itemName => ownedItems.has(itemName));
+            
+            setData.items.forEach(itemName => {
+                const itemOwned = ownedItems.has(itemName);
+                const itemElement = document.createElement('div');
+                itemElement.className = `set-item ${itemOwned ? 'owned' : 'missing'}`;
                 
-                // Add active class to clicked tab and corresponding content
-                tab.classList.add('active');
-                document.getElementById(`${tab.dataset.tab}-tab`).classList.add('active');
-
-                if (tab.dataset.tab === 'sets') {
-                    this.displaySets();
-                }
+                const item = window.ItemSystem.ITEMS.find(i => i.name === itemName);
+                itemElement.innerHTML = `
+                    <div class="item-icon" style="color: ${itemOwned ? item.color : '#666'}">${item.icon}</div>
+                    <div class="item-name">${itemName}</div>
+                    <div class="item-status">${itemOwned ? 'Owned' : 'Missing'}</div>
+                `;
+                
+                setItems.appendChild(itemElement);
             });
+            
+            const completeButton = document.createElement('button');
+            completeButton.className = 'complete-set-button';
+            completeButton.textContent = 'Complete Set';
+            completeButton.disabled = !allItemsOwned;
+            completeButton.addEventListener('click', () => this.completeSet(setId, setData));
+            
+            setElement.appendChild(setHeader);
+            setElement.appendChild(setItems);
+            setElement.appendChild(completeButton);
+            grid.appendChild(setElement);
         });
     }
 
-    displaySets() {
-        const setsGrid = document.querySelector('.sets-grid');
-        setsGrid.innerHTML = '';
+    async completeSet(setId, setData) {
+        const username = localStorage.getItem('playerName');
+        try {
+            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/complete-set', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    setId,
+                    items: setData.items
+                })
+            });
 
-        Object.entries(ITEM_SETS).forEach(([setName, setData]) => {
-            const setContainer = document.createElement('div');
-            setContainer.className = 'set-container';
+            if (!response.ok) {
+                throw new Error('Failed to complete set');
+            }
 
-            const completedItems = setData.items.filter(itemName => 
-                this.items.some(item => item.name === itemName)
-            );
-
-            const completion = `${completedItems.length}/${setData.items.length}`;
-            const isComplete = completedItems.length === setData.items.length;
-
-            setContainer.innerHTML = `
-                <div class="set-header">
-                    <div class="set-title">${setName}</div>
-                    <div class="set-completion">${completion} Complete</div>
-                </div>
-                <div class="set-items">
-                    ${setData.items.map(itemName => {
-                        const hasItem = this.items.some(item => item.name === itemName);
-                        const itemData = this.items.find(item => item.name === itemName) || 
-                            { icon: '?', color: '#666' };
-                        return `
-                            <div class="set-item ${hasItem ? '' : 'locked'}">
-                                <div class="item-icon" style="color: ${itemData.color}">${itemData.icon}</div>
-                                <div class="item-name">${itemName}</div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-                <div class="set-reward">
-                    ${isComplete ? '✓ Completed' : `Reward: $${setData.reward.toLocaleString()}`}
-                </div>
-            `;
-
-            setsGrid.appendChild(setContainer);
-        });
+            // Remove items from inventory
+            this.items = this.items.filter(item => !setData.items.includes(item.name));
+            
+            // Update balance
+            this.updateBalance(setData.reward);
+            
+            alert(`Completed ${setData.name} set! Received $${setData.reward.toLocaleString()}`);
+            this.displaySets();
+        } catch (error) {
+            console.error('Error completing set:', error);
+            alert('Failed to complete set. Please try again later.');
+        }
     }
 }
 
@@ -305,22 +334,3 @@ class Inventory {
 document.addEventListener('DOMContentLoaded', () => {
     window.inventory = new Inventory();
 });
-
-const ITEM_SETS = {
-    'Celestial Collection': {
-        items: ['Celestial Crown', 'Celestial Staff', 'Celestial Robe'],
-        reward: 50000,
-        description: 'A set of divine items from the heavens'
-    },
-    'Ancient Artifacts': {
-        items: ['Ancient Scroll', 'Ancient Tome', 'Ancient Relic', 'Ancient Crystal'],
-        reward: 75000,
-        description: 'Powerful artifacts from a forgotten age'
-    },
-    'Cosmic Arsenal': {
-        items: ['Cosmic Blade', 'Cosmic Shield', 'Cosmic Helm'],
-        reward: 100000,
-        description: 'Weapons forged from cosmic energy'
-    },
-    // Add more sets as needed
-};

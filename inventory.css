@@ -217,47 +217,13 @@
     }
 }
 
-/* Tab Styling */
-.inventory-tabs {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 20px;
-}
-
-.tab-button {
-    background: rgba(0, 0, 50, 0.5);
-    color: #00d4ff;
-    border: 1px solid rgba(0, 150, 255, 0.4);
-    padding: 10px 20px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.tab-button.active {
-    background: rgba(0, 150, 255, 0.3);
-    border-color: rgba(0, 150, 255, 0.8);
-}
-
-.tab-content {
-    display: none;
-}
-
-.tab-content.active {
-    display: block;
-}
-
-/* Sets Grid Styling */
-.sets-grid {
-    display: grid;
-    gap: 20px;
-    padding: 20px;
-}
+/* Add these styles at the end of the file */
 
 .set-container {
     background: rgba(10, 10, 50, 0.8);
     border-radius: 10px;
     padding: 20px;
+    margin-bottom: 20px;
     border: 1px solid rgba(0, 150, 255, 0.4);
 }
 
@@ -268,19 +234,21 @@
     margin-bottom: 15px;
 }
 
-.set-title {
+.set-header h3 {
     color: #00d4ff;
-    font-size: 20px;
+    margin: 0;
 }
 
-.set-completion {
+.set-reward {
     color: #00ff9d;
+    font-size: 14px;
 }
 
 .set-items {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
 }
 
 .set-item {
@@ -288,17 +256,40 @@
     padding: 10px;
     border-radius: 8px;
     text-align: center;
+    transition: transform 0.2s;
+}
+
+.set-item.owned:hover {
+    transform: translateY(-3px);
+}
+
+.set-item.missing {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.item-status {
+    font-size: 12px;
+    margin-top: 5px;
+    color: #00d4ff;
+}
+
+.complete-set-button {
+    width: 100%;
+    padding: 10px;
+    background: rgba(0, 150, 255, 0.4);
+    border: 1px solid rgba(0, 150, 255, 0.6);
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.set-item.locked {
-    opacity: 0.5;
-    filter: grayscale(100%);
+.complete-set-button:hover:not(:disabled) {
+    background: rgba(0, 150, 255, 0.6);
 }
 
-.set-reward {
-    color: #ffd700;
-    margin-top: 15px;
-    text-align: right;
-    font-size: 14px;
+.complete-set-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
