@@ -665,21 +665,21 @@ function draw() {
     ctx.fillText(` $${balance}`, 100, 30);
     ctx.restore();
     
-    // Draw wager on left side of cannon - moved further left
+    // Draw wager above cannon
     ctx.save();
     ctx.textAlign = 'center';
     
-    // Add glow effect for wager label - bigger font
+    // Add glow effect for wager label
     ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 18px Arial';
-    ctx.fillText('Wager:', canvas.width/2 - 200, 20);
+    ctx.fillText('Wager:', canvas.width/2, 20);  // Centered above cannon
     
-    // Draw wager input box with animated border - bigger box
+    // Draw wager input box with animated border
     const borderGlow = Math.sin(animationTime * 3) * 0.2 + 0.8;
     ctx.fillStyle = isEditingWager ? 'rgba(138, 43, 226, 0.3)' : 'rgba(0, 0, 0, 0.5)';
-    wagerInputPosition = { x: canvas.width/2 - 200, y: 45 };
+    wagerInputPosition = { x: canvas.width/2, y: 35 };  // Centered above cannon
     ctx.fillRect(wagerInputPosition.x - 50, wagerInputPosition.y - 12, 100, 24);
     
     // Draw wager input border with glow
@@ -687,7 +687,7 @@ function draw() {
     ctx.lineWidth = 1;
     ctx.strokeRect(wagerInputPosition.x - 50, wagerInputPosition.y - 12, 100, 24);
     
-    // Draw wager value with glow - bigger font
+    // Draw wager value with glow
     ctx.fillStyle = '#fff';
     ctx.textAlign = 'center';
     ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
