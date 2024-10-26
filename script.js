@@ -39,7 +39,7 @@ let mouseX = canvas.width/2;
 let mouseY = 0;
 
 // Update these constants for cannon positioning
-const CANNON_Y = 150;  // Changed from 50 to 150 - moves cannon down
+const CANNON_Y = 250;  // Changed from 150 to 250 - moves cannon much lower
 
 // Update all references to cannon Y position
 canvas.addEventListener('mousemove', (e) => {
@@ -56,7 +56,7 @@ canvas.addEventListener('mousemove', (e) => {
     cannonAngle = Math.max(Math.min(cannonAngle, Math.PI - 0.175), 0.175);
 });
 
-// Update the peg initialization with a lower starting position
+// Update the peg initialization with adjusted starting position
 pegs.length = 0;
 for (let row = 0; row < ROWS; row++) {
     // Calculate how many pegs in this row
@@ -68,8 +68,8 @@ for (let row = 0; row < ROWS; row++) {
     // Add offset for alternating rows
     const offsetX = row % 2 === 0 ? 0 : PEG_SPACING / 2;
     
-    // Calculate Y position - adjust for taller canvas
-    const yPos = 180 + row * (PEG_SPACING * 0.65);  // Increased from 130 to 180
+    // Calculate Y position - adjust for lower cannon
+    const yPos = 280 + row * (PEG_SPACING * 0.65);  // Increased from 180 to 280
     
     for (let col = 0; col < pegsInRow; col++) {
         pegs.push({
