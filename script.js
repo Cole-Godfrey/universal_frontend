@@ -656,11 +656,11 @@ function draw() {
     ctx.fillText(` $${balance}`, 100, 30);
     ctx.restore();
     
-    // Draw wager higher above cannon
+    // Draw wager above cannon - moved higher up
     ctx.save();
     ctx.textAlign = 'center';
     
-    // Add glow effect for wager label - moved higher
+    // Add glow effect for wager label
     ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#fff';

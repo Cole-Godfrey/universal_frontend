@@ -8,10 +8,6 @@
     width: 80%;
     max-width: 1200px;
     margin: 0 auto;
-    max-height: 90vh; /* Limit maximum height to 90% of viewport height */
-    display: flex;
-    flex-direction: column;
-    overflow: hidden; /* Prevent container overflow */
 }
 
 .inventory-title {
@@ -71,10 +67,7 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 20px;
     padding: 20px;
-    height: auto; /* Remove fixed height */
-    min-height: 200px; /* Minimum height */
-    max-height: calc(60vh - 100px); /* Adjust maximum height */
-    flex: 1; /* Allow grid to grow within available space */
+    height: 300px; /* Reduced height for the inventory grid */
     overflow-y: auto;
     border: 1px solid rgba(0, 150, 255, 0.4);
     border-radius: 10px;
@@ -89,11 +82,7 @@
     border: 1px solid rgba(0, 150, 255, 0.4); /* Blue border */
     transition: all 0.3s ease;
     cursor: pointer;
-    height: auto; /* Remove fixed height */
-    min-height: 120px; /* Minimum height instead of fixed */
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
+    height: 120px; /* Set a fixed height for item boxes */
 }
 
 .inventory-item:hover {
@@ -226,16 +215,4 @@
         min-height: 44px;
         font-size: 16px; /* Prevent zoom on iOS */
     }
-}
-
-.inventory-display {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    min-height: 0; /* Allow flex container to shrink */
-}
-
-.back-button {
-    margin-top: 20px;
-    margin-bottom: 10px;
 }
