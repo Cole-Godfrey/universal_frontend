@@ -1394,25 +1394,25 @@ function addTimeParticles(dropDisplay) {
     dropDisplay.querySelector('.item-image').appendChild(particlesContainer);
 }
 
-// Update the part where items are added to inventory
+// Replace the existing addItemToInventory function with this updated version
 async function addItemToInventory(item) {
     try {
-        // Get current inventory, initialize if undefined
-        let inventory = [];
-        try {
-            inventory = JSON.parse(localStorage.getItem('inventory')) || [];
-        } catch (error) {
-            console.log('Initializing new inventory');
-            localStorage.setItem('inventory', JSON.stringify([]));
-            inventory = [];
-        }
-
-        // Add new item
-        inventory.push(item);
-        localStorage.setItem('inventory', JSON.stringify(inventory));
-
-        // Update the database - Remove 'plinko-backend' from the URL
         const username = localStorage.getItem('playerName');
+        
+        // Fetch the current inventory directly from the database
+        const getCurrentInventory = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
+        if (!getCurrentInventory.ok) {
+            throw new Error('Failed to fetch current inventory');
+        }
+        const userData = await getCurrentInventory.json();
+        const currentInventory = userData.inventory || [];
+
+        // Add new item to the current inventory
+        currentInventory.push(item);
+
+        // Update both local storage and database with the new inventory
+        localStorage.setItem('inventory', JSON.stringify(currentInventory));
+
         const response = await fetch('https://universal-backend-7wn9.onrender.com/api/update-inventory', {
             method: 'POST',
             headers: {
@@ -1420,7 +1420,7 @@ async function addItemToInventory(item) {
             },
             body: JSON.stringify({
                 username,
-                inventory
+                inventory: currentInventory
             })
         });
 
@@ -1431,14 +1431,16 @@ async function addItemToInventory(item) {
         console.log('Item added to inventory:', item);
     } catch (error) {
         console.error('Error updating inventory:', error);
-        // Revert local storage if database update failed
+        // On error, sync local storage with database
+        const username = localStorage.getItem('playerName');
         try {
-            let inventory = JSON.parse(localStorage.getItem('inventory'));
-            inventory = inventory.slice(0, -1); // Remove the last item
-            localStorage.setItem('inventory', JSON.stringify(inventory));
+            const getCurrentInventory = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
+            if (getCurrentInventory.ok) {
+                const userData = await getCurrentInventory.json();
+                localStorage.setItem('inventory', JSON.stringify(userData.inventory || []));
+            }
         } catch (revertError) {
             console.error('Error reverting inventory:', revertError);
-            localStorage.setItem('inventory', JSON.stringify([]));
         }
     }
 }
