@@ -1445,3 +1445,111 @@ async function addItemToInventory(item) {
     }
 }
 
+// Add after your existing code
+
+// Initialize Stripe
+const stripe = Stripe('pk_live_51QEJc4Lgvs2Le5SQEf1pppmR3d645ZHopkU5rn1VxfdqTgiHOvm8byICAf4NrGxM98vvmJmrqscJJOkl6NBk5QYt00W6obieuY'); // Replace with your actual Stripe publishable key
+
+// Modal functionality
+const modal = document.getElementById('currencyModal');
+const buyButton = document.querySelector('.buy-currency-button');
+const closeButton = document.querySelector('.close-modal');
+
+buyButton.onclick = () => {
+    modal.style.display = 'block';
+}
+
+closeButton.onclick = () => {
+    modal.style.display = 'none';
+}
+
+window.onclick = (event) => {
+    if (event.target === modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Handle currency purchases
+document.querySelectorAll('.purchase-button').forEach(button => {
+    button.addEventListener('click', async (e) => {
+        const amount = e.target.dataset.amount;
+        const price = e.target.dataset.price;
+        
+        // Disable button and show loading state
+        button.disabled = true;
+        button.classList.add('loading');
+        button.textContent = 'Processing...';
+
+        try {
+            // Create payment intent on your server
+            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/create-payment-intent', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    amount: parseFloat(price) * 100, // Convert to cents
+                    currency: 'usd',
+                    metadata: {
+                        coins: amount,
+                        username: localStorage.getItem('playerName')
+                    }
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to create payment intent');
+            }
+
+            const { clientSecret } = await response.json();
+
+            // Confirm the payment with Stripe
+            const result = await stripe.confirmCardPayment(clientSecret, {
+                payment_method: {
+                    card: await stripe.elements().create('card'),
+                    billing_details: {
+                        name: localStorage.getItem('playerName')
+                    }
+                }
+            });
+
+            if (result.error) {
+                throw new Error(result.error.message);
+            }
+
+            // Payment successful, update user's balance
+            const updateResponse = await fetch('https://universal-backend-7wn9.onrender.com/api/update-balance', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: localStorage.getItem('playerName'),
+                    balance: balance + parseInt(amount)
+                })
+            });
+
+            if (!updateResponse.ok) {
+                throw new Error('Failed to update balance');
+            }
+
+            // Update local balance
+            balance += parseInt(amount);
+            localStorage.setItem('balance', balance);
+            balanceDisplay.innerHTML = `Balance: $${balance}`;
+
+            // Show success message
+            alert('Purchase successful! Your balance has been updated.');
+            modal.style.display = 'none';
+
+        } catch (error) {
+            alert(`Payment failed: ${error.message}`);
+        } finally {
+            // Reset button state
+            button.disabled = false;
+            button.classList.remove('loading');
+            button.textContent = 'Purchase';
+        }
+    });
+});
+

@@ -7,11 +7,12 @@
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
-    "mongoose": "^6.0.12",
-    "mongodb": "^5.0.0",
-    "cors": "^2.8.5",
     "body-parser": "^1.19.0",
-    "express-rate-limit": "^6.0.0"
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-rate-limit": "^6.0.0",
+    "mongodb": "^5.0.0",
+    "mongoose": "^6.0.12",
+    "stripe": "^17.2.1"
   }
 }
