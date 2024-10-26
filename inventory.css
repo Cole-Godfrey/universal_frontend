@@ -24,6 +24,7 @@
     display: flex;
     gap: 20px;
     margin-bottom: 20px;
+    transition: opacity 0.3s ease;
 }
 
 .inventory-filters select {
@@ -112,6 +113,7 @@
     align-items: center;
     gap: 20px;
     margin-top: 20px;
+    transition: opacity 0.3s ease;
 }
 
 .page-info {
@@ -291,4 +293,24 @@
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
+}
+
+/* Update the inventory grid styles for sets view */
+.inventory-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 20px;
+    padding: 20px;
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    border-radius: 10px;
+    background: rgba(0, 0, 50, 0.5);
+}
+
+/* When in sets view, adjust the grid */
+.inventory-grid.sets-view {
+    grid-template-columns: 1fr;
+    height: auto;
+    max-height: 600px;
 }

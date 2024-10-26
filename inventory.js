@@ -11,6 +11,7 @@ class Inventory {
         this.loadInventory();
         this.initializeFilters();
         this.initializeEventListeners();
+        this.updateViewVisibility();
     }
 
     async loadInventory() {
@@ -42,47 +43,82 @@ class Inventory {
     }
 
     initializeEventListeners() {
-        document.getElementById('rarityFilter').addEventListener('change', (e) => {
-            this.currentFilter = e.target.value;
-            this.currentPage = 1;
-            this.displayInventory();
-        });
-
-        document.getElementById('sortBy').addEventListener('change', (e) => {
-            this.currentSort = e.target.value;
-            this.displayInventory();
-        });
-
-        document.getElementById('searchBar').addEventListener('input', (e) => {
-            this.searchQuery = e.target.value.toLowerCase();
-            this.currentPage = 1;
-            this.displayInventory();
-        });
-
-        document.querySelector('.prev-page').addEventListener('click', () => {
-            if (this.currentPage > 1) {
-                this.currentPage--;
-                this.displayInventory();
-            }
-        });
-
-        document.querySelector('.next-page').addEventListener('click', () => {
-            const filteredItems = this.getFilteredItems();
-            const maxPages = Math.ceil(filteredItems.length / this.itemsPerPage);
-            if (this.currentPage < maxPages) {
-                this.currentPage++;
-                this.displayInventory();
-            }
-        });
-
         document.getElementById('viewToggle').addEventListener('change', (e) => {
             this.currentView = e.target.value;
+            this.updateViewVisibility();
             if (this.currentView === 'sets') {
                 this.displaySets();
             } else {
                 this.displayInventory();
             }
         });
+
+        // Store references to filter elements
+        this.filterElements = {
+            rarityFilter: document.getElementById('rarityFilter'),
+            sortBy: document.getElementById('sortBy'),
+            searchBar: document.getElementById('searchBar'),
+            prevPage: document.querySelector('.prev-page'),
+            nextPage: document.querySelector('.next-page')
+        };
+
+        // Add event listeners only if elements exist
+        if (this.filterElements.rarityFilter) {
+            this.filterElements.rarityFilter.addEventListener('change', (e) => {
+                this.currentFilter = e.target.value;
+                this.currentPage = 1;
+                this.displayInventory();
+            });
+        }
+
+        if (this.filterElements.sortBy) {
+            this.filterElements.sortBy.addEventListener('change', (e) => {
+                this.currentSort = e.target.value;
+                this.displayInventory();
+            });
+        }
+
+        if (this.filterElements.searchBar) {
+            this.filterElements.searchBar.addEventListener('input', (e) => {
+                this.searchQuery = e.target.value.toLowerCase();
+                this.currentPage = 1;
+                this.displayInventory();
+            });
+        }
+
+        if (this.filterElements.prevPage) {
+            this.filterElements.prevPage.addEventListener('click', () => {
+                if (this.currentPage > 1) {
+                    this.currentPage--;
+                    this.displayInventory();
+                }
+            });
+        }
+
+        if (this.filterElements.nextPage) {
+            this.filterElements.nextPage.addEventListener('click', () => {
+                const filteredItems = this.getFilteredItems();
+                const maxPages = Math.ceil(filteredItems.length / this.itemsPerPage);
+                if (this.currentPage < maxPages) {
+                    this.currentPage++;
+                    this.displayInventory();
+                }
+            });
+        }
+    }
+
+    // Add this new method
+    updateViewVisibility() {
+        const filtersContainer = document.querySelector('.inventory-filters');
+        const paginationContainer = document.querySelector('.inventory-pagination');
+        
+        if (this.currentView === 'sets') {
+            filtersContainer.style.display = 'none';
+            paginationContainer.style.display = 'none';
+        } else {
+            filtersContainer.style.display = 'flex';
+            paginationContainer.style.display = 'flex';
+        }
     }
 
     getFilteredItems() {
