@@ -49,8 +49,9 @@ canvas.addEventListener('mousemove', (e) => {
     const dy = mouseY - 50;  // Cannon Y position
     cannonAngle = Math.atan2(dy, dx);
     
-    // Limit the angle between 0 and 180 degrees (pointing downward only)
-    cannonAngle = Math.max(Math.min(cannonAngle, Math.PI - 0.175), 0.175);
+    // Limit the angle between 45 and 135 degrees (more restricted range)
+    // Math.PI/4 is 45 degrees, 3*Math.PI/4 is 135 degrees
+    cannonAngle = Math.max(Math.min(cannonAngle, 3*Math.PI/4), Math.PI/4);
 });
 
 // Update the peg initialization with a lower starting position
