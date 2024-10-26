@@ -131,15 +131,15 @@ body::after {
 .container {
     text-align: center;
     position: absolute;
-    top: 50%;  /* Changed from 48% to 50% */
+    top: 55%;  /* Changed from 50% to 55% to move canvas lower */
     left: 50%;
     transform: translate(-50%, -50%);
     width: 95%;
     max-width: 1800px;
-    padding: 10px;  /* Changed to uniform padding */
-    display: flex;  /* Added */
-    flex-direction: column;  /* Added */
-    align-items: center;  /* Added */
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 h1 {
