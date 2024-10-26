@@ -2581,3 +2581,31 @@
     }
 }
 
+/* Add to existing file */
+@supports (-webkit-touch-callout: none) {
+    .shop-container {
+        /* Adjust for iOS notch */
+        padding-top: max(30px, env(safe-area-inset-top));
+        padding-bottom: max(30px, env(safe-area-inset-bottom));
+    }
+
+    /* Fix iOS scrolling */
+    .drop-rates {
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Ensure proper touch targets */
+    .buy-button {
+        min-height: 44px;
+    }
+}
+
+/* Fix iOS animation performance */
+.item-image,
+.shop-item,
+.orb-opening-animation {
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: transform;
+}
+

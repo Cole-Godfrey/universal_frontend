@@ -1,3 +1,77 @@
+/* Add at the beginning of the file */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+/* Allow selection for input fields */
+input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Fix iOS momentum scrolling */
+.inventory-grid,
+.drop-rates,
+.items-grid,
+.shop-item-display {
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Fix iOS button styling */
+button {
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+/* Fix iOS input styling */
+input {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 0;
+}
+
+/* Fix iOS 100vh issue */
+.container {
+    height: 100vh;
+    height: -webkit-fill-available;
+    min-height: -webkit-fill-available;
+}
+
+/* Fix iOS sticky hover states */
+@media (hover: hover) {
+    .menu-button:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.1);
+    }
+}
+
+/* Add iOS-specific media queries */
+@supports (-webkit-touch-callout: none) {
+    /* iOS-specific styles */
+    body {
+        /* Prevent elastic scrolling */
+        position: fixed;
+        width: 100%;
+        height: 100%;
+    }
+
+    /* Fix iOS input zoom */
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="password"] {
+        font-size: 16px;
+    }
+}
+
+/* Add safe area insets support */
+.container {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
 body {
     margin: 0;
     display: flex;

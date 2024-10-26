@@ -407,3 +407,30 @@
     border-color: rgba(0, 150, 255, 0.9);
     box-shadow: 0 0 12px rgba(0, 150, 255, 0.4);
 }
+
+/* Add to existing file */
+@supports (-webkit-touch-callout: none) {
+    .trade-container {
+        /* Adjust for iOS notch */
+        padding-top: max(20px, env(safe-area-inset-top));
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+    }
+
+    .trade-section {
+        /* Ensure proper touch targets */
+        min-height: 44px;
+    }
+
+    /* Fix iOS scrolling */
+    .items-grid {
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Update input styling for iOS */
+#tradePartner {
+    -webkit-appearance: none;
+    appearance: none;
+    border-radius: 5px;
+    font-size: 16px; /* Prevent zoom on iOS */
+}
