@@ -102,12 +102,12 @@ class Chip {
             x: Math.cos(cannonAngle) * INITIAL_VELOCITY,
             y: Math.sin(cannonAngle) * INITIAL_VELOCITY
         };
-        this.angularVelocity = 0;  // Add rotation speed
+        this.angularVelocity = 0;
         this.rotation = 0;
         this.landed = false;
         this.slotIndex = -1;
-        this.totalCost = calculateTotalCost();
-        this.spin = 0;  // Add spin property
+        this.totalCost = currentWager;  // Changed from calculateTotalCost() to just currentWager
+        this.spin = 0;
     }
 
     update() {
@@ -431,22 +431,21 @@ canvas.addEventListener('click', (e) => {
     if (clickX > wagerInputPosition.x - 50 && clickX < wagerInputPosition.x + 50 &&
         clickY > wagerInputPosition.y - 12 && clickY < wagerInputPosition.y + 12) {
         isEditingWager = true;
-        wagerInputValue = '';  // Clear the input value when clicking
+        wagerInputValue = '';
     } else {
         // Handle chip shooting with warning messages
         if (!isEditingWager) {
-            const totalCost = calculateTotalCost();
             if (chips.length > 0) {
                 showWarningMessage("Wait for current chip to land!");
-            } else if (balance < totalCost) {
+            } else if (balance < currentWager) {  // Changed from totalCost to currentWager
                 showWarningMessage("Insufficient balance!");
             } else if (currentWager < MIN_WAGER) {
                 showWarningMessage(`Minimum wager is $${MIN_WAGER}!`);
-            } else if (currentWager > balance) { // Changed from MAX_WAGER to balance
+            } else if (currentWager > balance) {
                 showWarningMessage(`Maximum wager is $${balance}!`);
             } else {
                 // Valid shot - proceed with chip creation
-                balance -= totalCost;
+                balance -= currentWager;  // Changed from totalCost to currentWager
                 const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
                 const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
                 const chip = new Chip(cannonTipX, cannonTipY);
@@ -481,17 +480,6 @@ document.addEventListener('keydown', (e) => {
         }
     }
 });
-
-// Update the cost calculation functions
-function calculateMovementCost() {
-    const normalizedAngle = Math.abs((cannonAngle - Math.PI/2) / (Math.PI/2));
-    const costMultiplier = (MAX_COST_MULTIPLIER - 1) * normalizedAngle;
-    return Math.round(currentWager * costMultiplier);
-}
-
-function calculateTotalCost() {
-    return currentWager + calculateMovementCost();
-}
 
 // Update the slot rewards to be based on current wager
 function calculateSlotRewards() {
@@ -680,19 +668,18 @@ function draw() {
     // Draw wager on left side of cannon - moved further left
     ctx.save();
     ctx.textAlign = 'center';
-    const movementCost = calculateMovementCost();
     
     // Add glow effect for wager label - bigger font
     ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 18px Arial';
-    ctx.fillText('Wager:', canvas.width/2 - 200, 20);  // Changed from -100 to -200
+    ctx.fillText('Wager:', canvas.width/2 - 200, 20);
     
     // Draw wager input box with animated border - bigger box
     const borderGlow = Math.sin(animationTime * 3) * 0.2 + 0.8;
     ctx.fillStyle = isEditingWager ? 'rgba(138, 43, 226, 0.3)' : 'rgba(0, 0, 0, 0.5)';
-    wagerInputPosition = { x: canvas.width/2 - 200, y: 45 };  // Changed from -100 to -200
+    wagerInputPosition = { x: canvas.width/2 - 200, y: 45 };
     ctx.fillRect(wagerInputPosition.x - 50, wagerInputPosition.y - 12, 100, 24);
     
     // Draw wager input border with glow
@@ -705,39 +692,9 @@ function draw() {
     ctx.textAlign = 'center';
     ctx.shadowColor = 'rgba(138, 43, 226, 0.8)';
     ctx.shadowBlur = 10 * borderGlow;
-    ctx.font = 'bold 16px Arial';  // Increased from 14px
+    ctx.font = 'bold 16px Arial';
     ctx.fillText(`$${isEditingWager ? wagerInputValue : currentWager}`, wagerInputPosition.x, wagerInputPosition.y + 6);
     
-    // Draw movement cost on right side of cannon - moved further right
-    ctx.textAlign = 'center';
-    const costGlow = Math.sin(animationTime * 2.5) * 0.2 + 0.8;
-    
-    // Draw movement cost label
-    ctx.shadowColor = 'rgba(255, 100, 255, 0.8)';
-    ctx.shadowBlur = 10;
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 18px Arial';
-    ctx.fillText('Movement Cost:', canvas.width/2 + 200, 20);  // Changed from +100 to +200
-    
-    // Draw movement cost box and value
-    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
-    const costBoxX = canvas.width/2 + 200;  // Changed from +100 to +200
-    const costBoxY = 45;
-    ctx.fillRect(costBoxX - 50, costBoxY - 12, 100, 24);
-    
-    // Draw movement cost border
-    ctx.strokeStyle = `rgba(255, 100, 255, ${borderGlow})`;
-    ctx.lineWidth = 1;
-    ctx.strokeRect(costBoxX - 50, costBoxY - 12, 100, 24);
-    
-    // Draw movement cost value - bigger font
-    ctx.fillStyle = '#fff';
-    ctx.textAlign = 'center';
-    ctx.shadowColor = 'rgba(255, 100, 255, 0.8)';
-    ctx.shadowBlur = 10 * costGlow;
-    ctx.font = 'bold 16px Arial';  // Increased from 14px
-    ctx.fillText(`$${movementCost}`, costBoxX, costBoxY + 6);
-
     ctx.restore();
 
     // Draw pegs with neon green theme
@@ -1061,10 +1018,6 @@ function draw() {
 
     animationId = requestAnimationFrame(draw);
 }
-
-// Update these constants for cost calculation
-const BASE_COST = 50;  // Minimum cost when aiming straight down
-const MAX_COST_MULTIPLIER = 3;  // Reduced from 5 to 3 (maximum cost will be 3x the base cost)
 
 // Add a function for winning feedback (optional)
 function showResultMessage(text, color, isSpecial = false) {
