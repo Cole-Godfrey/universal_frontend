@@ -100,6 +100,29 @@ const MAX_BALLS_IN_PLAY = 5;
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
+// Add these constants near the top with other game constants
+const CENTER_SLOT_WIDTH = canvas.width / COLS;  // Base slot width
+const MIN_SLOT_WIDTH = CENTER_SLOT_WIDTH * 0.6; // Minimum slot width at edges
+const CENTER_INDEX = Math.floor(COLS / 2);      // Center slot index
+
+// Add this function to calculate slot width based on distance from center
+function getSlotWidth(slotIndex) {
+    const distanceFromCenter = Math.abs(slotIndex - CENTER_INDEX);
+    const maxDistance = CENTER_INDEX;
+    const widthDifference = CENTER_SLOT_WIDTH - MIN_SLOT_WIDTH;
+    const reduction = (distanceFromCenter / maxDistance) * widthDifference;
+    return CENTER_SLOT_WIDTH - reduction;
+}
+
+// Add this function to calculate slot position
+function getSlotPosition(slotIndex) {
+    let position = 0;
+    for (let i = 0; i < slotIndex; i++) {
+        position += getSlotWidth(i);
+    }
+    return position;
+}
+
 // Update the Chip class
 class Chip {
     constructor(x, y) {
@@ -324,8 +347,21 @@ class Chip {
 
         // Bottom collision and slot landing
         if (this.y > canvas.height - CHIP_RADIUS) {
-            const slotIndex = Math.floor(this.x / SLOT_WIDTH);
-            const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
+            // Find the correct slot based on x position
+            let currentPosition = 0;
+            let slotIndex = 0;
+            
+            for (let i = 0; i < COLS; i++) {
+                const slotWidth = getSlotWidth(i);
+                if (this.x >= currentPosition && this.x < currentPosition + slotWidth) {
+                    slotIndex = i;
+                    break;
+                }
+                currentPosition += slotWidth;
+            }
+            
+            // Calculate slot center position
+            const slotCenter = getSlotPosition(slotIndex) + (getSlotWidth(slotIndex) / 2);
             
             // Guide chip to center of slot
             this.velocity.x = (slotCenter - this.x) * 0.1;
@@ -827,8 +863,23 @@ function draw() {
 
     // Draw slots with rewards
     for (let i = 0; i < COLS; i++) {
-        const dividerX = i * SLOT_WIDTH;
+        const slotWidth = getSlotWidth(i);
+        const slotX = getSlotPosition(i);
         const multiplier = SLOT_REWARDS[i] / CHIP_COST;
+        
+        // Calculate font size based on distance from center
+        const distanceFromCenter = Math.abs(i - CENTER_INDEX);
+        const maxDistance = CENTER_INDEX;
+        const baseFontSize = 14;
+        const minFontSize = 10;
+        const fontSizeReduction = ((distanceFromCenter / maxDistance) * (baseFontSize - minFontSize));
+        const fontSize = baseFontSize - fontSizeReduction;
+        
+        // Calculate background height based on distance from center
+        const baseHeight = DIVIDER_HEIGHT;
+        const minHeight = DIVIDER_HEIGHT * 0.7;
+        const heightReduction = ((distanceFromCenter / maxDistance) * (baseHeight - minHeight));
+        const slotHeight = baseHeight - heightReduction;
         
         // Unique background colors for each multiplier
         let bgColor;
@@ -847,10 +898,12 @@ function draw() {
         
         // Draw background
         if (multiplier === 50) {
-            // Fire/plasma effect for 50x background
+            // Fire/plasma effect for 50x (adjust position and size)
             const time = animationTime * 0.4;
-            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
-                                                    dividerX + SLOT_WIDTH, canvas.height);
+            const gradient = ctx.createLinearGradient(
+                slotX, canvas.height - slotHeight,
+                slotX + slotWidth, canvas.height
+            );
             
             // Intense fire colors
             const intensity = Math.sin(time) * 0.2 + 0.8;
@@ -860,16 +913,16 @@ function draw() {
             gradient.addColorStop(1, 'hsla(10, 100%, ' + (30 * intensity) + '%, 1)');
             
             ctx.fillStyle = gradient;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
+            ctx.fillRect(slotX, canvas.height - slotHeight, slotWidth, slotHeight);
             
-            // Add plasma/fire particles
+            // Adjust particle positions for varying slot widths
             ctx.save();
             const particleCount = 8;
-            for(let i = 0; i < particleCount; i++) {
-                const particleTime = time + i;
-                const x = dividerX + SLOT_WIDTH/2 + Math.sin(particleTime * 2 + i) * (SLOT_WIDTH * 0.4);
-                const y = canvas.height - DIVIDER_HEIGHT * (0.2 + 0.8 * Math.abs(Math.sin(particleTime + i)));
-                const size = (Math.sin(particleTime) * 0.5 + 1.5) * 2;
+            for(let j = 0; j < particleCount; j++) {
+                const particleTime = time + j;
+                const x = slotX + slotWidth/2 + Math.sin(particleTime * 2 + j) * (slotWidth * 0.4);
+                const y = canvas.height - slotHeight * (0.2 + 0.8 * Math.abs(Math.sin(particleTime + j)));
+                const size = (Math.sin(particleTime) * 0.5 + 1.5) * 2 * (slotWidth / CENTER_SLOT_WIDTH);
                 
                 ctx.beginPath();
                 ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -877,54 +930,21 @@ function draw() {
                 ctx.fillStyle = `hsla(${30 + Math.sin(particleTime) * 20}, 100%, 70%, ${particleIntensity})`;
                 ctx.fill();
             }
-            
-            // Add glow overlay
-            ctx.globalAlpha = Math.abs(Math.sin(time)) * 0.3 + 0.2;
-            ctx.fillStyle = `hsla(30, 100%, 50%, 0.3)`;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            ctx.restore();
-        } else if (multiplier === 25) {
-            // New animation for 25x background - electric/plasma effect
-            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
-                                                    dividerX + SLOT_WIDTH, canvas.height);
-            
-            // Electric blue theme
-            const time = animationTime * 0.5;
-            const brightness = Math.sin(time) * 10 + 20;  // Pulsing brightness
-            gradient.addColorStop(0, 'hsla(220, 100%, ' + brightness + '%, 1)');
-            gradient.addColorStop(0.5, 'hsla(200, 100%, ' + (brightness + 5) + '%, 1)');
-            gradient.addColorStop(1, 'hsla(240, 100%, ' + brightness + '%, 1)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add electric glow effect
-            ctx.save();
-            ctx.globalAlpha = Math.abs(Math.sin(time * 2)) * 0.3 + 0.1;
-            ctx.fillStyle = `hsla(210, 100%, 50%, 0.3)`;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add some "sparks"
-            const sparkCount = 3;
-            ctx.globalAlpha = Math.abs(Math.sin(time * 3)) * 0.5 + 0.5;
-            for(let i = 0; i < sparkCount; i++) {
-                const sparkX = dividerX + (Math.sin(time * (i + 1)) + 1) * SLOT_WIDTH/2;
-                const sparkY = canvas.height - DIVIDER_HEIGHT * (Math.cos(time * (i + 2)) + 1) / 2;
-                ctx.beginPath();
-                ctx.arc(sparkX, sparkY, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'white';
-                ctx.fill();
-            }
             ctx.restore();
         } else {
-            // Normal background for other multipliers
+            // Normal background
             ctx.fillStyle = bgColor;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
+            ctx.fillRect(slotX, canvas.height - slotHeight, slotWidth, slotHeight);
         }
         
         // Draw dividers
         ctx.fillStyle = '#666';
-        ctx.fillRect(dividerX - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
+        ctx.fillRect(slotX - 2, canvas.height - slotHeight, 4, slotHeight);
+        
+        // Draw multiplier text
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        const textX = slotX + (slotWidth / 2);
         
         // Draw multiplier text with unique colors and animation for edges
         let textColor;
@@ -941,95 +961,14 @@ function draw() {
             default: textColor = '#ffffff'; break;
         }
         
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'center';
-        const rewardX = dividerX + (SLOT_WIDTH / 2);
-        
-        // Animate edge multipliers (50x)
-        if (multiplier === 50) {
-            const time = animationTime * 0.8;
-            const scale = 1 + Math.sin(time) * 0.15;
-            
-            ctx.save();
-            ctx.translate(rewardX, canvas.height - 15);
-            ctx.scale(scale, scale);
-            
-            // Multiple layers of text for intense effect
-            for(let i = 0; i < 3; i++) {
-                const layerOffset = i * 2;
-                const hue = 30 + Math.sin(time * 2) * 20;
-                const alpha = (3 - i) / 3;
-                
-                ctx.shadowColor = `hsla(${hue}, 100%, 50%, ${alpha})`;
-                ctx.shadowBlur = (15 - layerOffset) * (Math.sin(time * 2) * 0.5 + 1);
-                ctx.fillStyle = `hsla(${hue}, 100%, ${60 + layerOffset * 10}%, ${alpha})`;
-                ctx.fillText(`${multiplier}x`, 0, 10);
-            }
-            
-            // Add orbiting fire particles
-            const orbitCount = 5;
-            for(let i = 0; i < orbitCount; i++) {
-                const orbitAngle = (time * 3 + i * (Math.PI * 2 / orbitCount)) % (Math.PI * 2);
-                const orbitRadius = 15 + Math.sin(time * 2) * 3;
-                const particleX = Math.cos(orbitAngle) * orbitRadius;
-                const particleY = Math.sin(orbitAngle) * orbitRadius;
-                
-                ctx.beginPath();
-                const particleSize = 1.5 + Math.sin(time * 3 + i) * 0.5;
-                ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${30 + Math.sin(time + i) * 30}, 100%, 70%, ${0.8})`;
-                ctx.fill();
-            }
-            
-            ctx.restore();
-        } else if (multiplier === 25) {
-            // Electric text effect for 25x
-            const time = animationTime * 0.8;
-            const scale = 1 + Math.sin(time * 2) * 0.05;  // Subtle pulse
-            
-            ctx.save();
-            ctx.translate(rewardX, canvas.height - 15);
-            ctx.scale(scale, scale);
-            
-            // Electric blue color scheme
-            const baseColor = `hsla(210, 100%, 70%, ${Math.abs(Math.sin(time)) * 0.5 + 0.5})`;
-            const glowColor = `hsla(210, 100%, 50%, ${Math.abs(Math.sin(time * 2)) * 0.8 + 0.2})`;
-            
-            // Multiple layers of text for electric effect
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = baseColor;
-            ctx.fillText(`${multiplier}x`, 0, 10);
-            
-            // Add extra glow layers
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'white';
-            ctx.fillText(`${multiplier}x`, 0, 10);
-            
-            // Add "electric" dots around text
-            const radius = 12;
-            const dotCount = 3;
-            for(let i = 0; i < dotCount; i++) {
-                const angle = (time * 2 + i * Math.PI * 2 / dotCount) % (Math.PI * 2);
-                const dotX = Math.cos(angle) * radius;
-                const dotY = Math.sin(angle) * radius;
-                ctx.beginPath();
-                ctx.arc(dotX, dotY, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(135, 206, 250, 0.8)';  // Light blue
-                ctx.fill();
-            }
-            
-            ctx.restore();
-        } else {
-            // Normal text for other multipliers
-            ctx.fillStyle = textColor;
-            ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
-        }
+        ctx.fillStyle = textColor;
+        ctx.fillText(multiplier + 'x', textX, canvas.height - 5);
     }
 
-    // Draw final divider on the right
+    // Draw final divider
+    const totalWidth = getSlotPosition(COLS);
     ctx.fillStyle = '#666';
-    ctx.fillRect(canvas.width - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
+    ctx.fillRect(totalWidth - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
 
     // Draw result message if exists
     if (resultMessage) {
