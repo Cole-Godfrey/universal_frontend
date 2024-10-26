@@ -308,8 +308,13 @@ class Inventory {
     }
 
     displaySets() {
+        console.log('Displaying sets...'); // Debug log
+        console.log('Item Sets:', window.ItemSystem.ITEM_SETS); // Debug log
+        console.log('Current inventory:', this.items); // Debug log
+
         let setsContainer = document.querySelector('.sets-container');
         if (!setsContainer) {
+            console.log('Creating new sets container...'); // Debug log
             setsContainer = document.createElement('div');
             setsContainer.className = 'sets-container';
             // Insert after the inventory display
@@ -324,6 +329,7 @@ class Inventory {
         setsContainer.style.display = 'block';
         
         Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
+            console.log('Processing set:', setId); // Debug log
             const setElement = document.createElement('div');
             setElement.className = 'set-info';
             
@@ -331,10 +337,13 @@ class Inventory {
                 setInfo.items.includes(item.name)
             );
             
+            console.log('Owned items for set:', ownedItems); // Debug log
+            
             const isComplete = ownedItems.length >= setInfo.requiredCount;
             
             setElement.innerHTML = `
                 <h3 style="color: ${setInfo.color}">${setInfo.name}</h3>
+                <p class="set-description">${setInfo.description}</p>
                 <div class="set-progress">
                     <div class="progress-bar" style="width: ${(ownedItems.length / setInfo.requiredCount) * 100}%"></div>
                     <span>${ownedItems.length}/${setInfo.requiredCount}</span>
@@ -350,6 +359,8 @@ class Inventory {
             
             setsContainer.appendChild(setElement);
         });
+
+        console.log('Sets display complete'); // Debug log
     }
 }
 
