@@ -123,7 +123,7 @@ class Chip {
 
         // Check for stuck or invalid ball conditions
         const fallTime = Date.now() - this.fallStartTime;
-        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+        const currentSpeed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
         
         // Force end the ball's journey if:
         // 1. It's been falling for too long
@@ -181,9 +181,9 @@ class Chip {
         this.velocity.x += this.spin * SPIN_FACTOR;
 
         // Limit maximum velocity
-        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-        if (speed > MAX_VELOCITY) {
-            const ratio = MAX_VELOCITY / speed;
+        const velocity = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+        if (velocity > MAX_VELOCITY) {
+            const ratio = MAX_VELOCITY / velocity;
             this.velocity.x *= ratio;
             this.velocity.y *= ratio;
         }
