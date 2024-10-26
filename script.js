@@ -93,10 +93,6 @@ const DIVIDER_WIDTH = 4;  // Width of divider in pixels
 const DIVIDER_ELASTICITY = 0.7;  // How bouncy the dividers are
 const DIVIDER_FRICTION = 0.95;  // Friction when hitting dividers
 
-// Add these constants at the top with other game constants
-const MAX_FALL_TIME = 10000; // 10 seconds maximum fall time
-const MAX_FALL_SPEED = 30; // Maximum vertical speed before considering the ball stuck
-
 // Chip class
 class Chip {
     constructor(x, y) {
@@ -112,58 +108,11 @@ class Chip {
         this.slotIndex = -1;
         this.totalCost = currentWager;  // Changed from calculateTotalCost() to just currentWager
         this.spin = 0;
-        this.fallStartTime = Date.now(); // Add timestamp when chip is created
     }
 
     update() {
         if (this.landed) {
             chips = chips.filter(chip => chip !== this);
-            return;
-        }
-
-        // Check for stuck or invalid ball conditions
-        const fallTime = Date.now() - this.fallStartTime;
-        const currentSpeed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-        
-        // Force end the ball's journey if:
-        // 1. It's been falling for too long
-        // 2. It's moving too fast (stuck in a physics loop)
-        // 3. It's gone way off screen
-        if (fallTime > MAX_FALL_TIME || 
-            Math.abs(this.velocity.y) > MAX_FALL_SPEED ||
-            this.y > canvas.height + 100 ||
-            this.y < -100) {
-            
-            console.log("Ball reset due to:", 
-                fallTime > MAX_FALL_TIME ? "timeout" : 
-                Math.abs(this.velocity.y) > MAX_FALL_SPEED ? "excessive speed" : 
-                "out of bounds");
-            
-            // Force the ball to land in the nearest slot
-            const slotIndex = Math.floor(this.x / SLOT_WIDTH);
-            const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
-            this.x = slotCenter;
-            this.y = canvas.height - CHIP_RADIUS;
-            this.landed = true;
-            this.slotIndex = slotIndex;
-            
-            // Handle win/loss logic
-            const multiplier = SLOT_REWARDS[this.slotIndex] / CHIP_COST;
-            const prize = currentWager * multiplier;
-            const netResult = prize - this.totalCost;
-            
-            updatePlayerBalance(netResult);
-            
-            if (netResult > this.totalCost * 10) {
-                showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
-            } else if (netResult > 0) {
-                showResultMessage(`Won $${netResult}`, '#4CAF50');
-            } else if (netResult < 0) {
-                showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
-            } else {
-                showResultMessage('Break Even', '#ffffff');
-            }
-            
             return;
         }
 
@@ -181,9 +130,9 @@ class Chip {
         this.velocity.x += this.spin * SPIN_FACTOR;
 
         // Limit maximum velocity
-        const velocity = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
-        if (velocity > MAX_VELOCITY) {
-            const ratio = MAX_VELOCITY / velocity;
+        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+        if (speed > MAX_VELOCITY) {
+            const ratio = MAX_VELOCITY / speed;
             this.velocity.x *= ratio;
             this.velocity.y *= ratio;
         }
@@ -357,14 +306,13 @@ class Chip {
             const slotIndex = Math.floor(this.x / SLOT_WIDTH);
             const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
             
-            // Check if chip is close enough to slot center
+            // Check if chip is close enough to slot center - only consider horizontal position
             if (Math.abs(this.x - slotCenter) < SLOT_WIDTH / 3) {
-                // Smooth landing in slot
-                const landingSpeed = 2;
+                // Guide chip to center of slot
                 this.velocity.x = (slotCenter - this.x) * 0.1;
-                this.velocity.y = Math.min(this.velocity.y, landingSpeed);
                 
-                if (Math.abs(this.x - slotCenter) < 1 && this.velocity.y < landingSpeed * 1.1) {
+                // If horizontally centered, end the round regardless of vertical velocity
+                if (Math.abs(this.x - slotCenter) < 1) {
                     this.x = slotCenter;
                     this.y = canvas.height - CHIP_RADIUS;
                     this.landed = true;
