@@ -1,22 +1,20 @@
 .inventory-container {
+    position: relative;
     background: rgba(0, 0, 50, 0.8); /* Dark blue background */
     border-radius: 15px;
-    padding: 20px; /* Reduced padding */
+    padding: 30px;
     backdrop-filter: blur(10px);
     border: 2px solid rgba(0, 150, 255, 0.4); /* Blue border */
     box-shadow: 0 0 30px rgba(0, 150, 255, 0.2); /* Blue shadow */
     width: 80%;
     max-width: 1200px;
-    margin: 20px auto; /* Added margin to top and bottom */
-    display: flex;
-    flex-direction: column;
-    min-height: calc(100vh - 40px); /* Subtract the margin */
+    margin: 0 auto;
 }
 
 .inventory-title {
     color: #00d4ff; /* Light blue text */
     font-size: 36px;
-    margin-bottom: 15px; /* Reduced margin */
+    margin-bottom: 30px;
     text-align: center;
     text-shadow: 0 0 10px rgba(0, 150, 255, 0.8); /* Blue text shadow */
     text-transform: uppercase;
@@ -70,8 +68,7 @@
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 20px;
     padding: 20px;
-    height: calc(100vh - 300px); /* Adjust height dynamically */
-    min-height: 300px; /* Minimum height */
+    height: 300px; /* Reduced height for the inventory grid */
     overflow-y: auto;
     border: 1px solid rgba(0, 150, 255, 0.4);
     border-radius: 10px;
@@ -185,7 +182,7 @@
 .balance-display {
     color: #00d4ff; /* Light blue text */
     font-size: 20px;
-    margin-bottom: 15px; /* Reduced margin */
+    margin-bottom: 20px;
     text-align: center;
     text-shadow: 0 0 10px rgba(0, 150, 255, 0.8); /* Blue text shadow */
     padding: 10px;
@@ -225,7 +222,7 @@
     display: flex;
     justify-content: center;
     gap: 20px;
-    margin-bottom: 15px; /* Reduced margin */
+    margin-bottom: 20px;
 }
 
 .toggle-button {
@@ -328,11 +325,9 @@
     font-style: italic;
 }
 
-/* Update the sets display height */
+/* Update the sets-display and sets-container styles */
 .sets-display {
-    height: calc(100vh - 300px); /* Adjust height dynamically */
-    min-height: 300px; /* Minimum height */
-    flex: 1; /* Allow it to grow */
+    height: 500px; /* Set a fixed height for the sets display area */
     overflow-y: auto; /* Enable vertical scrolling */
     border: 1px solid rgba(0, 150, 255, 0.4);
     border-radius: 10px;
@@ -366,15 +361,23 @@
     }
 }
 
-/* Update the back button styling */
+/* Add/update the back-button styling */
 .back-button {
-    margin-top: 20px; /* Add space above the button */
-    position: relative; /* Ensure it stays in flow */
-    bottom: auto; /* Remove any absolute positioning */
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 50, 0.5);
+    color: #00d4ff;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 100;
 }
 
-/* Add flex grow to the main content area */
-.inventory-display, .sets-display {
-    flex: 1;
-    overflow: auto;
+.back-button:hover {
+    background: rgba(0, 150, 255, 0.3);
+    border-color: rgba(0, 150, 255, 0.8);
+    box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
 }

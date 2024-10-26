@@ -228,122 +228,54 @@ window.ItemSystem = {
 
 // Add this to your ItemSystem section, replacing the previous SETS definition
 window.ItemSystem.SETS = {
-    // Dragon-themed Set
     "Dragon's Legacy": {
-        items: ["Dragon Scale", "Dragon's Heart", "Phoenix Egg"],
+        items: ["Dragon Scale", "Dragon's Heart"],
         reward: 100000,
         description: "Ancient artifacts of dragon origin"
     },
-    // Cosmic-themed Sets
     "Cosmic Explorer": {
         items: ["Black Hole Fragment", "Galaxy Shard", "Space-Time Shard"],
         reward: 250000,
         description: "Remnants of the vast cosmos"
     },
-    "Celestial Authority": {
-        items: ["Star Core", "Sun Fragment", "Moon Stone", "Constellation Map"],
-        reward: 200000,
-        description: "Celestial objects of immense power"
-    },
-    // Divine-themed Sets
     "Divine Authority": {
-        items: ["Angel's Blessing", "Divine Grace", "Holy Relic", "Sacred Text"],
+        items: ["Angel's Blessing", "Divine Grace", "Holy Relic"],
         reward: 150000,
         description: "Sacred items of divine power"
     },
-    "Divine Omnipotence": {
-        items: ["Divine Power", "Omniscience Shard", "Universal Key"],
-        reward: 300000,
-        description: "Tools of godly might"
-    },
-    // Nature-themed Sets
     "Nature's Essence": {
-        items: ["World Tree Leaf", "Mystic Leaf", "Earth Core", "Creation Seed"],
+        items: ["World Tree Leaf", "Mystic Leaf", "Earth Core"],
         reward: 75000,
         description: "Pure manifestations of natural energy"
     },
-    // Ocean-themed Set
     "Ocean's Might": {
         items: ["Mermaid's Pearl", "Kraken's Eye", "Ocean's Breath"],
         reward: 120000,
         description: "Treasures from the depths of the sea"
     },
-    // Eternal-themed Sets
     "Eternal Power": {
-        items: ["Time's End", "Eternal Flame", "Forever Crystal", "Eternal Force"],
+        items: ["Time's End", "Eternal Flame", "Forever Crystal"],
         reward: 500000,
         description: "Artifacts of unending power"
     },
-    // Reality-themed Sets
     "Reality's Edge": {
-        items: ["Reality Stone", "Reality Warper", "Reality's Edge", "Reality Bender"],
+        items: ["Reality Stone", "Reality Warper", "Reality's Edge"],
         reward: 400000,
         description: "Items that bend the fabric of existence"
     },
-    // Time-themed Set
+    "Celestial Authority": {
+        items: ["Star Core", "Sun Fragment", "Moon Stone"],
+        reward: 200000,
+        description: "Celestial objects of immense power"
+    },
     "Time Master": {
         items: ["Time Shard", "Time's Beginning", "Space-Time Shard"],
         reward: 300000,
         description: "Artifacts that control the flow of time"
     },
-    // Ultimate Set
     "Ultimate Creation": {
-        items: ["Everything", "The One", "Creation Core", "Power Absolute"],
+        items: ["Everything", "The One", "Creation Core"],
         reward: 1000000,
         description: "The most powerful combination of items in existence"
-    },
-    // Spirit-themed Set
-    "Spirit Realm": {
-        items: ["Spirit Essence", "Ghost Light", "Giant's Soul", "Wraith Fragment"],
-        reward: 200000,
-        description: "Essences from the spiritual plane"
-    },
-    // Magical Items Set
-    "Mystic Collection": {
-        items: ["Magic Feather", "Enchanted Thread", "Fairy Dust", "Lucky Coin"],
-        reward: 50000,
-        description: "A collection of enchanted items"
-    },
-    // Common Treasures Set
-    "Humble Beginnings": {
-        items: ["Rusty Key", "Wooden Token", "Glass Marble", "Paper Clip", "String"],
-        reward: 10000,
-        description: "Simple items with hidden potential"
-    },
-    // Crystal Set
-    "Crystal Formation": {
-        items: ["Glowing Crystal", "Soul Gem", "Storm Crystal", "Quantum Crystal", "Order Crystal"],
-        reward: 150000,
-        description: "A collection of powerful crystals"
-    },
-    // Essence Set
-    "Pure Essence": {
-        items: ["Star Essence", "Astral Essence", "Ultimate Essence", "Primordial Essence"],
-        reward: 250000,
-        description: "Pure forms of magical energy"
-    },
-    // Fragment Set
-    "Shattered Power": {
-        items: ["Void Fragment", "Universe Fragment", "Infinity Shard", "Almighty Fragment", "Unity Fragment"],
-        reward: 350000,
-        description: "Fragments of immense power"
-    },
-    // Ancient Knowledge Set
-    "Ancient Wisdom": {
-        items: ["Elder Scroll", "Infinite Wisdom", "Existence Core", "Phantom Core"],
-        reward: 400000,
-        description: "Ancient artifacts of knowledge"
-    },
-    // Life and Death Set
-    "Cycle of Existence": {
-        items: ["Life Force", "Death's Denial", "Undying Light", "First Light"],
-        reward: 450000,
-        description: "The balance of life and death"
-    },
-    // Absolute Power Set
-    "Cosmic Supremacy": {
-        items: ["Alpha", "Omega", "Nothing", "Existence Boundary", "Creation's Peak"],
-        reward: 2000000,
-        description: "The ultimate manifestation of power"
     }
 };
