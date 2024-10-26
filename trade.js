@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadPlayerInventory() {
     const username = localStorage.getItem('playerName');
     try {
-        const response = await fetch(`https://universal-backend-7wn9.onrender.com/${username}`);
+        const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/${username}`);
         if (!response.ok) {
             throw new Error('Failed to fetch your inventory from server');
         }
