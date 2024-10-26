@@ -34,7 +34,7 @@ const PEGS_PER_ROW = 25;  // Increased from 23 to maintain coverage with reduced
 let cannonAngle = -Math.PI/2;  // Start pointing straight up
 const CANNON_LENGTH = 40;
 const CANNON_WIDTH = 20;
-const INITIAL_VELOCITY = 15;
+const INITIAL_VELOCITY = 12;  // Reduced from 15
 let mouseX = canvas.width/2;
 let mouseY = 0;
 
@@ -79,6 +79,15 @@ for (let row = 0; row < ROWS; row++) {
 // Add this constant with the other game constants
 const DIVIDER_HEIGHT = 30;
 
+// Update these constants for more realistic physics
+const GRAVITY = 0.3;  // Increased from 0.1
+const BOUNCE_DAMPING = 0.7;  // Changed from 0.6 - less energy loss
+const AIR_RESISTANCE = 0.99;  // New constant for air resistance
+const COLLISION_ELASTICITY = 0.8;  // New constant for collision elasticity
+const FRICTION = 0.98;  // New constant for horizontal friction
+const SPIN_FACTOR = 0.15;  // New constant for spin effect
+const MAX_VELOCITY = 20;  // New constant to prevent excessive speeds
+
 // Chip class
 class Chip {
     constructor(x, y) {
@@ -88,10 +97,12 @@ class Chip {
             x: Math.cos(cannonAngle) * INITIAL_VELOCITY,
             y: Math.sin(cannonAngle) * INITIAL_VELOCITY
         };
+        this.angularVelocity = 0;  // Add rotation speed
+        this.rotation = 0;
         this.landed = false;
         this.slotIndex = -1;
         this.totalCost = calculateTotalCost();
-        this.rotation = 0;  // Add rotation property
+        this.spin = 0;  // Add spin property
     }
 
     update() {
@@ -100,21 +111,35 @@ class Chip {
             return;
         }
 
-        // Keep reduced gravity
-        this.velocity.y += 0.1;
-        
-        // Further reduce center bias force
-        const centerX = canvas.width / 2;
-        const distanceFromCenter = this.x - centerX;
-        const centerForce = -distanceFromCenter * 0.00002;  // Reduced from 0.00005
-        this.velocity.x += centerForce;
-        
-        // Slightly increase random movement
-        this.velocity.x += (Math.random() - 0.5) * 0.12;  // Increased from 0.1
-        
-        // Apply velocity
+        // Apply gravity
+        this.velocity.y += GRAVITY;
+
+        // Apply air resistance
+        this.velocity.x *= AIR_RESISTANCE;
+        this.velocity.y *= AIR_RESISTANCE;
+
+        // Apply horizontal friction
+        this.velocity.x *= FRICTION;
+
+        // Apply spin effect
+        this.velocity.x += this.spin * SPIN_FACTOR;
+
+        // Limit maximum velocity
+        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+        if (speed > MAX_VELOCITY) {
+            const ratio = MAX_VELOCITY / speed;
+            this.velocity.x *= ratio;
+            this.velocity.y *= ratio;
+        }
+
+        // Update position
         this.x += this.velocity.x;
         this.y += this.velocity.y;
+
+        // Update rotation based on horizontal velocity
+        this.rotation += this.velocity.x * 0.1;
+        this.angularVelocity *= AIR_RESISTANCE;
+        this.rotation += this.angularVelocity;
 
         // Check collisions with pegs
         pegs.forEach(peg => {
@@ -123,89 +148,99 @@ class Chip {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < CHIP_RADIUS + PEG_RADIUS) {
-                // Collision response
+                // Collision response with improved physics
                 const angle = Math.atan2(dy, dx);
-                this.x = peg.x + (CHIP_RADIUS + PEG_RADIUS) * Math.cos(angle);
-                this.y = peg.y + (CHIP_RADIUS + PEG_RADIUS) * Math.sin(angle);
+                const relativeVelocityX = this.velocity.x;
+                const relativeVelocityY = this.velocity.y;
                 
-                // More center-biased bounce effect
+                // Calculate collision normal
                 const normalX = dx / distance;
                 const normalY = dy / distance;
-                const bounce = -0.6;
                 
-                const dotProduct = this.velocity.x * normalX + this.velocity.y * normalY;
+                // Calculate relative velocity along normal
+                const normalVelocity = relativeVelocityX * normalX + relativeVelocityY * normalY;
                 
-                // Add more randomness to bounce direction but with center bias
-                const randomAngle = ((Math.random() - 0.5) * Math.PI / 6) + 
-                                  (distanceFromCenter > 0 ? -0.01 : 0.01);  // Reduced from ±0.02
-                const cos = Math.cos(randomAngle);
-                const sin = Math.sin(randomAngle);
-                
-                // Apply rotated bounce with reduced horizontal component
-                this.velocity.x = bounce * (dotProduct * normalX * cos - dotProduct * normalY * sin) * 0.8;
-                this.velocity.y = bounce * (dotProduct * normalX * sin + dotProduct * normalY * cos);
-                
-                // Add reduced random movement after collision
-                this.velocity.x += (Math.random() - 0.5) * 2;  // Increased from 1.8
-                this.velocity.y += (Math.random() - 0.5) * 0.8;  // Increased from 0.7
+                // Only bounce if moving towards the peg
+                if (normalVelocity < 0) {
+                    // Calculate impulse
+                    const impulse = -(1 + COLLISION_ELASTICITY) * normalVelocity;
+                    
+                    // Apply impulse
+                    this.velocity.x += impulse * normalX;
+                    this.velocity.y += impulse * normalY;
+                    
+                    // Add spin based on collision point
+                    const tangentialVelocity = -relativeVelocityX * normalY + relativeVelocityY * normalX;
+                    this.spin = tangentialVelocity * SPIN_FACTOR;
+                    
+                    // Update angular velocity
+                    this.angularVelocity += this.spin;
+                    
+                    // Position correction to prevent sticking
+                    const overlap = (CHIP_RADIUS + PEG_RADIUS) - distance;
+                    this.x += overlap * normalX;
+                    this.y += overlap * normalY;
+                    
+                    // Add slight randomness to prevent predictable paths
+                    const randomFactor = 0.1;
+                    this.velocity.x += (Math.random() - 0.5) * randomFactor;
+                    this.velocity.y += (Math.random() - 0.5) * randomFactor;
+                }
             }
         });
 
-        // Check collisions with dividers
-        const bottomY = canvas.height - DIVIDER_HEIGHT;
-        if (this.y + CHIP_RADIUS > bottomY) {
-            // Calculate nearest divider position
-            const dividerSpacing = SLOT_WIDTH;
-            const nearestDivider = Math.round(this.x / dividerSpacing) * dividerSpacing;
-            const distanceToDivider = Math.abs(this.x - nearestDivider);
-
-            // If close to a divider, bounce off it
-            if (distanceToDivider < 4) { // 4 is divider width
-                const bounceDirection = this.x < nearestDivider ? -1 : 1;
-                this.x = nearestDivider + (bounceDirection * 4);
-                this.velocity.x = bounceDirection * Math.abs(this.velocity.x) * 0.8;
-            }
+        // Wall collisions with improved physics
+        if (this.x < CHIP_RADIUS) {
+            this.x = CHIP_RADIUS;
+            this.velocity.x = Math.abs(this.velocity.x) * BOUNCE_DAMPING;
+            this.spin *= -0.5;  // Reverse and reduce spin on wall collision
+        } else if (this.x > canvas.width - CHIP_RADIUS) {
+            this.x = canvas.width - CHIP_RADIUS;
+            this.velocity.x = -Math.abs(this.velocity.x) * BOUNCE_DAMPING;
+            this.spin *= -0.5;  // Reverse and reduce spin on wall collision
         }
 
-        // Check if chip has landed
+        // Bottom collision and slot landing
         if (this.y > canvas.height - CHIP_RADIUS) {
             const slotIndex = Math.floor(this.x / SLOT_WIDTH);
             const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
             
+            // Check if chip is close enough to slot center
             if (Math.abs(this.x - slotCenter) < SLOT_WIDTH / 3) {
-                this.y = canvas.height - CHIP_RADIUS;
-                this.x = slotCenter;
-                this.landed = true;
-                this.slotIndex = slotIndex;
+                // Smooth landing in slot
+                const landingSpeed = 2;
+                this.velocity.x = (slotCenter - this.x) * 0.1;
+                this.velocity.y = Math.min(this.velocity.y, landingSpeed);
                 
-                // Calculate actual prize based on current wager
-                const multiplier = SLOT_REWARDS[this.slotIndex] / CHIP_COST;
-                const prize = currentWager * multiplier;
-                const netResult = prize - this.totalCost;
-                
-                // Update balance and database
-                updatePlayerBalance(netResult);
-                
-                if (netResult > this.totalCost * 10) {
-                    showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
-                } else if (netResult > 0) {
-                    showResultMessage(`Won $${netResult}`, '#4CAF50');
-                } else if (netResult < 0) {
-                    showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
-                } else {
-                    showResultMessage('Break Even', '#ffffff');
+                if (Math.abs(this.x - slotCenter) < 1 && this.velocity.y < landingSpeed * 1.1) {
+                    this.x = slotCenter;
+                    this.y = canvas.height - CHIP_RADIUS;
+                    this.landed = true;
+                    this.slotIndex = slotIndex;
+                    
+                    // Handle win/loss logic
+                    const multiplier = SLOT_REWARDS[this.slotIndex] / CHIP_COST;
+                    const prize = currentWager * multiplier;
+                    const netResult = prize - this.totalCost;
+                    
+                    updatePlayerBalance(netResult);
+                    
+                    if (netResult > this.totalCost * 10) {
+                        showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
+                    } else if (netResult > 0) {
+                        showResultMessage(`Won $${netResult}`, '#4CAF50');
+                    } else if (netResult < 0) {
+                        showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
+                    } else {
+                        showResultMessage('Break Even', '#ffffff');
+                    }
                 }
             } else {
-                // Bounce off bottom if not in slot center
+                // Bounce off bottom with improved physics
                 this.y = canvas.height - CHIP_RADIUS;
-                this.velocity.y *= -0.5;
+                this.velocity.y = -Math.abs(this.velocity.y) * BOUNCE_DAMPING;
+                this.velocity.x *= FRICTION;  // Apply extra friction on bottom bounce
             }
-        }
-
-        // Make wall and bottom bounces bouncier
-        if (this.x < CHIP_RADIUS || this.x > canvas.width - CHIP_RADIUS) {
-            this.velocity.x *= -0.8;  // Increased from -0.5
-            this.x = this.x < CHIP_RADIUS ? CHIP_RADIUS : canvas.width - CHIP_RADIUS;
         }
     }
 
