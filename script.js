@@ -93,6 +93,10 @@ const DIVIDER_WIDTH = 4;  // Width of divider in pixels
 const DIVIDER_ELASTICITY = 0.7;  // How bouncy the dividers are
 const DIVIDER_FRICTION = 0.95;  // Friction when hitting dividers
 
+// Add these constants at the top with other game constants
+const MAX_FALL_TIME = 10000; // 10 seconds maximum fall time
+const MAX_FALL_SPEED = 30; // Maximum vertical speed before considering the ball stuck
+
 // Chip class
 class Chip {
     constructor(x, y) {
@@ -108,11 +112,58 @@ class Chip {
         this.slotIndex = -1;
         this.totalCost = currentWager;  // Changed from calculateTotalCost() to just currentWager
         this.spin = 0;
+        this.fallStartTime = Date.now(); // Add timestamp when chip is created
     }
 
     update() {
         if (this.landed) {
             chips = chips.filter(chip => chip !== this);
+            return;
+        }
+
+        // Check for stuck or invalid ball conditions
+        const fallTime = Date.now() - this.fallStartTime;
+        const speed = Math.sqrt(this.velocity.x * this.velocity.x + this.velocity.y * this.velocity.y);
+        
+        // Force end the ball's journey if:
+        // 1. It's been falling for too long
+        // 2. It's moving too fast (stuck in a physics loop)
+        // 3. It's gone way off screen
+        if (fallTime > MAX_FALL_TIME || 
+            Math.abs(this.velocity.y) > MAX_FALL_SPEED ||
+            this.y > canvas.height + 100 ||
+            this.y < -100) {
+            
+            console.log("Ball reset due to:", 
+                fallTime > MAX_FALL_TIME ? "timeout" : 
+                Math.abs(this.velocity.y) > MAX_FALL_SPEED ? "excessive speed" : 
+                "out of bounds");
+            
+            // Force the ball to land in the nearest slot
+            const slotIndex = Math.floor(this.x / SLOT_WIDTH);
+            const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
+            this.x = slotCenter;
+            this.y = canvas.height - CHIP_RADIUS;
+            this.landed = true;
+            this.slotIndex = slotIndex;
+            
+            // Handle win/loss logic
+            const multiplier = SLOT_REWARDS[this.slotIndex] / CHIP_COST;
+            const prize = currentWager * multiplier;
+            const netResult = prize - this.totalCost;
+            
+            updatePlayerBalance(netResult);
+            
+            if (netResult > this.totalCost * 10) {
+                showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
+            } else if (netResult > 0) {
+                showResultMessage(`Won $${netResult}`, '#4CAF50');
+            } else if (netResult < 0) {
+                showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
+            } else {
+                showResultMessage('Break Even', '#ffffff');
+            }
+            
             return;
         }
 
