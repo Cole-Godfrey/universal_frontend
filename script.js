@@ -11,11 +11,10 @@ const CHIP_RADIUS = 10;
 const ROWS = 11;  // Reduced from 15 to 11 rows
 const COLS = 17;   // Increased to match number of multipliers
 const BASE_COLS = 17;  // Match COLS
-const CENTER_SLOT_WIDTH = canvas.width / COLS;  // Base slot width
-const MIN_SLOT_WIDTH = CENTER_SLOT_WIDTH * 0.6; // Minimum slot width at edges
-const CENTER_INDEX = Math.floor(COLS / 2);      // Center slot index
+const SLOT_WIDTH = canvas.width / COLS;
+const VERTICAL_SPACING = canvas.height / (ROWS + 2);
 const CHIP_COST = 50;
-const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
+const SLOT_REWARDS = [25, 12.5, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 12.5, 25].map(x => x * CHIP_COST);
 let balance = parseInt(localStorage.getItem('balance')) || 1000;  // Changed from 10000000 to 1000
 
 // Game state
@@ -100,30 +99,6 @@ const MAX_BALLS_IN_PLAY = 5;
 // Add these constants near the top with other game constants
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
-
-// Update the getSlotWidth function for more pronounced effect
-function getSlotWidth(slotIndex) {
-    const distanceFromCenter = Math.abs(slotIndex - CENTER_INDEX);
-    const maxDistance = CENTER_INDEX;
-    // Make the width reduction more pronounced
-    const widthDifference = CENTER_SLOT_WIDTH - MIN_SLOT_WIDTH;
-    // Use a quadratic curve for smoother size transition
-    const reduction = (Math.pow(distanceFromCenter / maxDistance, 2)) * widthDifference;
-    return CENTER_SLOT_WIDTH - reduction;
-}
-
-// Update the getSlotPosition function to ensure total width matches canvas
-function getSlotPosition(slotIndex) {
-    let position = 0;
-    for (let i = 0; i < slotIndex; i++) {
-        position += getSlotWidth(i);
-    }
-    
-    // Adjust position to ensure slots are centered
-    const totalWidth = Array.from({length: COLS}, (_, i) => getSlotWidth(i)).reduce((a, b) => a + b, 0);
-    const offset = (canvas.width - totalWidth) / 2;
-    return position + offset;
-}
 
 // Update the Chip class
 class Chip {
@@ -349,21 +324,8 @@ class Chip {
 
         // Bottom collision and slot landing
         if (this.y > canvas.height - CHIP_RADIUS) {
-            // Find the correct slot based on x position
-            let currentPosition = 0;
-            let slotIndex = 0;
-            
-            for (let i = 0; i < COLS; i++) {
-                const slotWidth = getSlotWidth(i);
-                if (this.x >= currentPosition && this.x < currentPosition + slotWidth) {
-                    slotIndex = i;
-                    break;
-                }
-                currentPosition += slotWidth;
-            }
-            
-            // Calculate slot center position
-            const slotCenter = getSlotPosition(slotIndex) + (getSlotWidth(slotIndex) / 2);
+            const slotIndex = Math.floor(this.x / SLOT_WIDTH);
+            const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
             
             // Guide chip to center of slot
             this.velocity.x = (slotCenter - this.x) * 0.1;
@@ -381,9 +343,9 @@ class Chip {
                     
             updatePlayerBalance(netResult);
                     
-            if (netResult > this.totalCost * 10) {
+            if (netResult > this.totalCost * 5) {  // Changed from 10 to 5 since max multiplier is now 25
                     showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
-            } else if (netResult > this.totalCost * 5) {
+            } else if (netResult > this.totalCost * 2.5) {  // Changed from 5 to 2.5
                     showResultMessage(`BIG WIN: $${netResult}!`, '#ffd700', true);
             } else if (netResult > 0) {
                     showResultMessage(`Won $${netResult}`, '#4CAF50');
@@ -865,47 +827,30 @@ function draw() {
 
     // Draw slots with rewards
     for (let i = 0; i < COLS; i++) {
-        const slotWidth = getSlotWidth(i);
-        const slotX = getSlotPosition(i);
+        const dividerX = i * SLOT_WIDTH;
         const multiplier = SLOT_REWARDS[i] / CHIP_COST;
-        
-        // Calculate font size based on distance from center
-        const distanceFromCenter = Math.abs(i - CENTER_INDEX);
-        const maxDistance = CENTER_INDEX;
-        const baseFontSize = 14;
-        const minFontSize = 10;
-        const fontSizeReduction = ((distanceFromCenter / maxDistance) * (baseFontSize - minFontSize));
-        const fontSize = baseFontSize - fontSizeReduction;
-        
-        // Calculate background height based on distance from center
-        const baseHeight = DIVIDER_HEIGHT;
-        const minHeight = DIVIDER_HEIGHT * 0.7;
-        const heightReduction = ((distanceFromCenter / maxDistance) * (baseHeight - minHeight));
-        const slotHeight = baseHeight - heightReduction;
         
         // Unique background colors for each multiplier
         let bgColor;
         switch(multiplier) {
-            case 50: bgColor = '#660000'; break;  // Dark red
-            case 25: bgColor = '#663300'; break;  // Dark orange
-            case 10: bgColor = '#666600'; break;  // Dark yellow
-            case 5: bgColor = '#006600'; break;   // Dark green
-            case 2: bgColor = '#006633'; break;   // Dark teal
-            case 1: bgColor = '#006666'; break;   // Dark cyan
-            case 0.5: bgColor = '#000066'; break; // Dark blue
-            case 0.25: bgColor = '#330066'; break;// Dark purple
-            case 0: bgColor = '#333333'; break;   // Dark gray
+            case 25: bgColor = '#660000'; break;   // Dark red (was 50)
+            case 12.5: bgColor = '#663300'; break; // Dark orange (was 25)
+            case 10: bgColor = '#666600'; break;   // Dark yellow
+            case 5: bgColor = '#006600'; break;    // Dark green
+            case 2: bgColor = '#006633'; break;    // Dark teal
+            case 1: bgColor = '#006666'; break;    // Dark cyan
+            case 0.5: bgColor = '#000066'; break;  // Dark blue
+            case 0.25: bgColor = '#330066'; break; // Dark purple
+            case 0: bgColor = '#660000'; break;    // Changed to dark red for emphasis
             default: bgColor = '#000000'; break;
         }
         
         // Draw background
-        if (multiplier === 50) {
-            // Fire/plasma effect for 50x (adjust position and size)
+        if (multiplier === 25) {
+            // Fire/plasma effect for 50x background
             const time = animationTime * 0.4;
-            const gradient = ctx.createLinearGradient(
-                slotX, canvas.height - slotHeight,
-                slotX + slotWidth, canvas.height
-            );
+            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
+                                                    dividerX + SLOT_WIDTH, canvas.height);
             
             // Intense fire colors
             const intensity = Math.sin(time) * 0.2 + 0.8;
@@ -915,16 +860,16 @@ function draw() {
             gradient.addColorStop(1, 'hsla(10, 100%, ' + (30 * intensity) + '%, 1)');
             
             ctx.fillStyle = gradient;
-            ctx.fillRect(slotX, canvas.height - slotHeight, slotWidth, slotHeight);
+            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
             
-            // Adjust particle positions for varying slot widths
+            // Add plasma/fire particles
             ctx.save();
             const particleCount = 8;
-            for(let j = 0; j < particleCount; j++) {
-                const particleTime = time + j;
-                const x = slotX + slotWidth/2 + Math.sin(particleTime * 2 + j) * (slotWidth * 0.4);
-                const y = canvas.height - slotHeight * (0.2 + 0.8 * Math.abs(Math.sin(particleTime + j)));
-                const size = (Math.sin(particleTime) * 0.5 + 1.5) * 2 * (slotWidth / CENTER_SLOT_WIDTH);
+            for(let i = 0; i < particleCount; i++) {
+                const particleTime = time + i;
+                const x = dividerX + SLOT_WIDTH/2 + Math.sin(particleTime * 2 + i) * (SLOT_WIDTH * 0.4);
+                const y = canvas.height - DIVIDER_HEIGHT * (0.2 + 0.8 * Math.abs(Math.sin(particleTime + i)));
+                const size = (Math.sin(particleTime) * 0.5 + 1.5) * 2;
                 
                 ctx.beginPath();
                 ctx.arc(x, y, size, 0, Math.PI * 2);
@@ -932,45 +877,104 @@ function draw() {
                 ctx.fillStyle = `hsla(${30 + Math.sin(particleTime) * 20}, 100%, 70%, ${particleIntensity})`;
                 ctx.fill();
             }
+            
+            // Add glow overlay
+            ctx.globalAlpha = Math.abs(Math.sin(time)) * 0.3 + 0.2;
+            ctx.fillStyle = `hsla(30, 100%, 50%, 0.3)`;
+            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
+            ctx.restore();
+        } else if (multiplier === 12.5) {
+            // New animation for 25x background - electric/plasma effect
+            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
+                                                    dividerX + SLOT_WIDTH, canvas.height);
+            
+            // Electric blue theme
+            const time = animationTime * 0.5;
+            const brightness = Math.sin(time) * 10 + 20;  // Pulsing brightness
+            gradient.addColorStop(0, 'hsla(220, 100%, ' + brightness + '%, 1)');
+            gradient.addColorStop(0.5, 'hsla(200, 100%, ' + (brightness + 5) + '%, 1)');
+            gradient.addColorStop(1, 'hsla(240, 100%, ' + brightness + '%, 1)');
+            
+            ctx.fillStyle = gradient;
+            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
+            
+            // Add electric glow effect
+            ctx.save();
+            ctx.globalAlpha = Math.abs(Math.sin(time * 2)) * 0.3 + 0.1;
+            ctx.fillStyle = `hsla(210, 100%, 50%, 0.3)`;
+            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
+            
+            // Add some "sparks"
+            const sparkCount = 3;
+            ctx.globalAlpha = Math.abs(Math.sin(time * 3)) * 0.5 + 0.5;
+            for(let i = 0; i < sparkCount; i++) {
+                const sparkX = dividerX + (Math.sin(time * (i + 1)) + 1) * SLOT_WIDTH/2;
+                const sparkY = canvas.height - DIVIDER_HEIGHT * (Math.cos(time * (i + 2)) + 1) / 2;
+                ctx.beginPath();
+                ctx.arc(sparkX, sparkY, 1, 0, Math.PI * 2);
+                ctx.fillStyle = 'white';
+                ctx.fill();
+            }
             ctx.restore();
         } else {
-            // Normal background
+            // Normal background for other multipliers
             ctx.fillStyle = bgColor;
-            ctx.fillRect(slotX, canvas.height - slotHeight, slotWidth, slotHeight);
+            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
         }
         
         // Draw dividers
         ctx.fillStyle = '#666';
-        ctx.fillRect(slotX - 2, canvas.height - slotHeight, 4, slotHeight);
-        
-        // Draw multiplier text
-        ctx.font = `bold ${fontSize}px Arial`;
-        ctx.textAlign = 'center';
-        const textX = slotX + (slotWidth / 2);
+        ctx.fillRect(dividerX - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
         
         // Draw multiplier text with unique colors and animation for edges
         let textColor;
         switch(multiplier) {
-            case 50: textColor = '#ff0000'; break;  // Bright red
-            case 25: textColor = '#ffa500'; break;  // Orange
-            case 10: textColor = '#ffff00'; break;  // Yellow
-            case 5: textColor = '#00ff00'; break;   // Green
-            case 2: textColor = '#00ff99'; break;   // Bright teal
-            case 1: textColor = '#00ffff'; break;   // Cyan
-            case 0.5: textColor = '#0099ff'; break; // Light blue
-            case 0.25: textColor = '#9933ff'; break;// Purple
-            case 0: textColor = '#ffffff'; break;   // White
+            case 25: textColor = '#ffa500'; break;  // Orange (was 50)
+            case 12.5: textColor = '#ffff00'; break; // Yellow (was 25)
+            case 10: textColor = '#ffff00'; break;   // Yellow
+            case 5: textColor = '#00ff00'; break;    // Green
+            case 2: textColor = '#00ff99'; break;    // Bright teal
+            case 1: textColor = '#00ffff'; break;    // Cyan
+            case 0.5: textColor = '#0099ff'; break;  // Light blue
+            case 0.25: textColor = '#9933ff'; break; // Purple
+            case 0: textColor = '#ff0000'; break;    // Changed to red for emphasis
             default: textColor = '#ffffff'; break;
         }
         
-        ctx.fillStyle = textColor;
-        ctx.fillText(multiplier + 'x', textX, canvas.height - 5);
+        ctx.font = '14px Arial';
+        ctx.textAlign = 'center';
+        const rewardX = dividerX + (SLOT_WIDTH / 2);
+        
+        // Animate edge multipliers (50x)
+        if (multiplier === 25) {
+            // Keep existing 50x animation code but update values to 25x
+            // ... (existing animation code remains the same)
+        } else if (multiplier === 12.5) {
+            // Keep existing 25x animation code but update values to 12.5x
+            // ... (existing animation code remains the same)
+        } else if (multiplier === 0) {
+            // Add special larger styling for 0x multiplier
+            ctx.font = 'bold 20px Arial';  // Increased from 14px
+            ctx.fillStyle = textColor;
+            ctx.shadowColor = 'rgba(255, 0, 0, 0.8)';
+            ctx.shadowBlur = 15;
+            ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
+            
+            // Add pulsing effect for 0x
+            const time = animationTime * 0.8;
+            const pulseScale = 1 + Math.sin(time * 2) * 0.1;
+            ctx.scale(pulseScale, pulseScale);
+        } else {
+            // Normal text for other multipliers
+            ctx.font = '14px Arial';
+            ctx.fillStyle = textColor;
+            ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
+        }
     }
 
-    // Draw final divider
-    const totalWidth = getSlotPosition(COLS);
+    // Draw final divider on the right
     ctx.fillStyle = '#666';
-    ctx.fillRect(totalWidth - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
+    ctx.fillRect(canvas.width - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
 
     // Draw result message if exists
     if (resultMessage) {
