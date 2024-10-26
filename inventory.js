@@ -199,30 +199,9 @@ class Inventory {
     }
 
     calculateItemValue(item) {
-        // Adjusted sell value calculation based on rarity
-        const rarityValues = {
-            COMMON: 5,
-            UNCOMMON: 15,
-            RARE: 40,
-            VERY_RARE: 80,
-            EPIC: 150,
-            LEGENDARY: 300,
-            MYTHICAL: 600,
-            DIVINE: 1200,
-            CELESTIAL: 2500,
-            COSMIC: 5000,
-            TRANSCENDENT: 10000,
-            ETHEREAL: 20000,
-            ANCIENT: 40000,
-            PRIMORDIAL: 80000,
-            GODLY: 160000,
-            OMNIPOTENT: 320000,
-            INFINITE: 640000,
-            ETERNAL: 1280000,
-            IMMORTAL: 2560000,
-            ABSOLUTE: 5120000
-        };
-        return rarityValues[item.rarity] || 0;
+        const baseValue = this.calculateBaseValue(item);
+        const rarityBonus = RARITY_SELL_BONUSES[item.rarity] || 1.0;
+        return Math.floor(baseValue * rarityBonus);
     }
 
     calculateItemWorth(item) {
@@ -243,3 +222,27 @@ class Inventory {
 document.addEventListener('DOMContentLoaded', () => {
     window.inventory = new Inventory();
 });
+
+// Add rarity-based sell bonuses
+const RARITY_SELL_BONUSES = {
+    COMMON: 1.0,
+    UNCOMMON: 1.1,
+    RARE: 1.2,
+    VERY_RARE: 1.3,
+    EPIC: 1.4,
+    LEGENDARY: 1.5,
+    MYTHICAL: 1.6,
+    DIVINE: 1.7,
+    CELESTIAL: 1.8,
+    COSMIC: 1.9,
+    TRANSCENDENT: 2.0,
+    ETHEREAL: 2.1,
+    ANCIENT: 2.2,
+    PRIMORDIAL: 2.3,
+    GODLY: 2.4,
+    OMNIPOTENT: 2.5,
+    INFINITE: 2.6,
+    ETERNAL: 2.7,
+    IMMORTAL: 2.8,
+    ABSOLUTE: 3.0
+};

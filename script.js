@@ -13,8 +13,8 @@ const COLS = 17;   // Increased to match number of multipliers
 const BASE_COLS = 17;  // Match COLS
 const SLOT_WIDTH = canvas.width / COLS;
 const VERTICAL_SPACING = canvas.height / (ROWS + 2);
-const CHIP_COST = 50;
-const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
+const CHIP_COST = 25;  // Reduced from 50 to make early game more accessible
+const SLOT_REWARDS = [25, 15, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 15, 25].map(x => x * CHIP_COST);
 let balance = parseInt(localStorage.getItem('balance')) || 1000;  // Changed from 10000000 to 1000
 
 // Game state
@@ -34,7 +34,7 @@ const PEGS_PER_ROW = 25;  // Increased from 23 to maintain coverage with reduced
 let cannonAngle = -Math.PI/2;  // Start pointing straight up
 const CANNON_LENGTH = 40;
 const CANNON_WIDTH = 20;
-const INITIAL_VELOCITY = 12;  // Reduced from 15
+const INITIAL_VELOCITY = 10;  // Reduced for better control
 let mouseX = canvas.width/2;
 let mouseY = 0;
 
@@ -79,14 +79,14 @@ for (let row = 0; row < ROWS; row++) {
 // Add this constant with the other game constants
 const DIVIDER_HEIGHT = 30;
 
-// Update these constants for more realistic physics
-const GRAVITY = 0.3;  // Increased from 0.1
-const BOUNCE_DAMPING = 0.7;  // Changed from 0.6 - less energy loss
-const AIR_RESISTANCE = 0.99;  // New constant for air resistance
-const COLLISION_ELASTICITY = 0.8;  // New constant for collision elasticity
-const FRICTION = 0.98;  // New constant for horizontal friction
-const SPIN_FACTOR = 0.15;  // New constant for spin effect
-const MAX_VELOCITY = 20;  // New constant to prevent excessive speeds
+// Update these constants for better gameplay balance
+const GRAVITY = 0.25;  // Reduced for slower fall
+const BOUNCE_DAMPING = 0.8;  // Increased for more bouncy action
+const AIR_RESISTANCE = 0.995;  // Reduced air resistance
+const COLLISION_ELASTICITY = 0.85;  // More elastic collisions
+const FRICTION = 0.99;  // Less friction
+const SPIN_FACTOR = 0.2;  // Increased spin effect
+const MAX_VELOCITY = 15;  // Reduced max velocity
 
 // Add these constants at the top with other game constants
 const DIVIDER_WIDTH = 4;  // Width of divider in pixels
@@ -324,16 +324,27 @@ class Chip {
             const prize = currentWager * multiplier;
             const netResult = prize - this.totalCost;
                     
-            updatePlayerBalance(netResult);
-                    
-            if (netResult > this.totalCost * 10) {
-                    showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
-            } else if (netResult > 0) {
-                    showResultMessage(`Won $${netResult}`, '#4CAF50');
-            } else if (netResult < 0) {
-                    showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
+            // Update win/loss logic with streak bonus
+            if (netResult > 0) {
+                currentStreak++;
+                const comboMultiplier = calculateComboMultiplier();
+                const bonusPrize = netResult * (comboMultiplier - 1);
+                const totalPrize = netResult + bonusPrize;
+                
+                if (totalPrize > this.totalCost * 10) {
+                    showResultMessage(`MASSIVE WIN: $${Math.floor(totalPrize)}! (${currentStreak}x Streak!)`, '#ffd700', true);
+                } else {
+                    showResultMessage(`Won $${Math.floor(totalPrize)} (${currentStreak}x Streak!)`, '#4CAF50');
+                }
+                updatePlayerBalance(totalPrize);
             } else {
+                currentStreak = 0;
+                if (netResult < 0) {
+                    showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
+                } else {
                     showResultMessage('Break Even', '#ffffff');
+                }
+                updatePlayerBalance(netResult);
             }
         }
     }
@@ -413,6 +424,15 @@ let wagerInputPosition = { x: canvas.width - 100, y: 55 };
 // Add these variables for warning message
 let warningMessage = null;
 const WARNING_DURATION = 2000; // 2 seconds
+
+// Add streak bonus system
+let currentStreak = 0;
+let lastWinAmount = 0;
+
+// Add combo multiplier
+function calculateComboMultiplier() {
+    return Math.min(1 + (currentStreak * 0.1), 2.0); // Max 2x multiplier
+}
 
 // Update the canvas click handler
 canvas.addEventListener('click', (e) => {
