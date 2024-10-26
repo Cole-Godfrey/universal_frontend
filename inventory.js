@@ -6,10 +6,12 @@ class Inventory {
         this.currentFilter = 'ALL';
         this.currentSort = 'RARITY_DESC';
         this.searchQuery = '';
+        this.activeSets = new Set();
         
         this.loadInventory();
         this.initializeFilters();
         this.initializeEventListeners();
+        this.initializeSets();
     }
 
     async loadInventory() {
@@ -142,6 +144,42 @@ class Inventory {
         document.querySelector('.page-info').textContent = `Page ${this.currentPage} of ${maxPages}`;
         document.querySelector('.prev-page').disabled = this.currentPage === 1;
         document.querySelector('.next-page').disabled = this.currentPage === maxPages;
+
+        // Add set information display
+        const setsContainer = document.createElement('div');
+        setsContainer.className = 'sets-container';
+        
+        Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
+            const setElement = document.createElement('div');
+            setElement.className = 'set-info';
+            
+            const ownedItems = this.items.filter(item => 
+                setInfo.items.includes(item.name)
+            );
+            
+            const isComplete = ownedItems.length >= setInfo.requiredCount;
+            
+            setElement.innerHTML = `
+                <h3 style="color: ${setInfo.color}">${setInfo.name}</h3>
+                <div class="set-progress">
+                    <div class="progress-bar" style="width: ${(ownedItems.length / setInfo.requiredCount) * 100}%"></div>
+                    <span>${ownedItems.length}/${setInfo.requiredCount}</span>
+                </div>
+                <p class="set-bonus ${isComplete ? 'active' : ''}">${setInfo.bonus}</p>
+                <div class="set-items">
+                    ${setInfo.items.map(itemName => {
+                        const owned = ownedItems.some(item => item.name === itemName);
+                        return `<div class="set-item ${owned ? 'owned' : ''}">${itemName}</div>`;
+                    }).join('')}
+                </div>
+            `;
+            
+            setsContainer.appendChild(setElement);
+        });
+        
+        // Insert sets container before the inventory grid
+        const inventoryDisplay = document.querySelector('.inventory-display');
+        inventoryDisplay.insertBefore(setsContainer, inventoryDisplay.firstChild);
     }
 
     async sellItem(item, itemValue) {
@@ -236,6 +274,24 @@ class Inventory {
         const newBalance = currentBalance + amount;
         balanceDisplay.textContent = `Balance: $${newBalance.toLocaleString()}`;
         localStorage.setItem('balance', newBalance); // Update local storage
+    }
+
+    initializeSets() {
+        this.updateActiveSets();
+    }
+
+    updateActiveSets() {
+        this.activeSets.clear();
+        
+        Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
+            const ownedSetItems = this.items.filter(item => 
+                setInfo.items.includes(item.name)
+            );
+            
+            if (ownedSetItems.length >= setInfo.requiredCount) {
+                this.activeSets.add(setId);
+            }
+        });
     }
 }
 

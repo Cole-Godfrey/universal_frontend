@@ -216,3 +216,84 @@
         font-size: 16px; /* Prevent zoom on iOS */
     }
 }
+
+/* Add set styling */
+.sets-container {
+    background: rgba(0, 0, 50, 0.6);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(138, 43, 226, 0.4);
+}
+
+.set-info {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+}
+
+.set-info h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    text-shadow: 0 0 10px currentColor;
+}
+
+.set-progress {
+    position: relative;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 10px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(45deg, rgba(138, 43, 226, 0.6), rgba(138, 43, 226, 0.8));
+    transition: width 0.3s ease;
+}
+
+.set-progress span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+    text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+.set-bonus {
+    color: #999;
+    font-size: 14px;
+    margin: 5px 0;
+}
+
+.set-bonus.active {
+    color: #00ff00;
+    text-shadow: 0 0 5px rgba(0, 255, 0, 0.5);
+}
+
+.set-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.set-item {
+    padding: 5px 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 5px;
+    color: #999;
+    font-size: 12px;
+    text-align: center;
+}
+
+.set-item.owned {
+    color: white;
+    background: rgba(138, 43, 226, 0.3);
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    text-shadow: 0 0 5px rgba(138, 43, 226, 0.8);
+}

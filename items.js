@@ -166,6 +166,31 @@ const ITEMS = {
     ]
 };
 
+// Add after ITEMS definition
+const ITEM_SETS = {
+    CELESTIAL_HARMONY: {
+        name: "Celestial Harmony",
+        items: ["Star Core", "Nebula Fragment", "Galaxy Shard", "Constellation Map", "Astral Essence"],
+        bonus: "Increases drop rates by 10%",
+        color: "#00ffff",
+        requiredCount: 5
+    },
+    ETERNAL_FLAME: {
+        name: "Eternal Flame",
+        items: ["Dragon's Heart", "Phoenix Egg", "Phoenix Feather", "Fire Core", "Magma Shard"],
+        bonus: "Increases balance gains by 15%",
+        color: "#ff3300",
+        requiredCount: 5
+    },
+    VOID_WALKER: {
+        name: "Void Walker",
+        items: ["Black Hole Fragment", "Dark Matter", "Void Crystal", "Shadow Essence", "Null Shard"],
+        bonus: "Reduces orb costs by 20%",
+        color: "#9900ff",
+        requiredCount: 5
+    }
+};
+
 function rollRarity(weights = {}) {
     const roll = Math.random() * 100;
     let cumulativeChance = 0;
@@ -223,5 +248,6 @@ function generateDrop(weights = {}) {
 window.ItemSystem = {
     generateDrop,
     RARITIES,
-    ITEMS
+    ITEMS,
+    ITEM_SETS
 };
