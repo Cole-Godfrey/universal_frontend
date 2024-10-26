@@ -23,13 +23,6 @@
         <div class="inventory-container">
             <h1 class="inventory-title">Inventory</h1>
             <div class="balance-display" id="balanceDisplay">Balance: $0</div>
-            <!-- Add after balance display -->
-            <div id="quickSellButtons" class="quick-sell-section">
-                <button class="quick-sell-btn" data-rarity="COMMON">Sell All Common</button>
-                <button class="quick-sell-btn" data-rarity="UNCOMMON">Sell All Uncommon</button>
-                <button class="quick-sell-btn" data-rarity="RARE">Sell All Rare</button>
-                <!-- Add more buttons for other rarities as needed -->
-            </div>
             <div class="inventory-display">
                 <div class="inventory-filters">
                     <input type="text" id="searchBar" placeholder="Search items..." />
@@ -38,8 +31,6 @@
                         <!-- Options will be populated by JavaScript -->
                     </select>
                     <select id="sortBy">
-                        <option value="VALUE_DESC">Value (Highest)</option>
-                        <option value="VALUE_ASC">Value (Lowest)</option>
                         <option value="RARITY_DESC">Rarity (Highest)</option>
                         <option value="RARITY_ASC">Rarity (Lowest)</option>
                         <option value="NAME_ASC">Name (A-Z)</option>

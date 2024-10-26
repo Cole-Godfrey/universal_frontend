@@ -4,7 +4,7 @@ class Inventory {
         this.itemsPerPage = 24;
         this.currentPage = 1;
         this.currentFilter = 'ALL';
-        this.currentSort = 'VALUE_DESC';
+        this.currentSort = 'RARITY_DESC';
         this.searchQuery = '';
         
         this.loadInventory();
@@ -73,14 +73,6 @@ class Inventory {
                 this.displayInventory();
             }
         });
-
-        // Add quick sell buttons
-        document.getElementById('quickSellButtons').addEventListener('click', (e) => {
-            if (e.target.classList.contains('quick-sell-btn')) {
-                const rarity = e.target.dataset.rarity;
-                this.quickSellByRarity(rarity);
-            }
-        });
     }
 
     getFilteredItems() {
@@ -96,10 +88,10 @@ class Inventory {
 
         items.sort((a, b) => {
             switch (this.currentSort) {
-                case 'VALUE_DESC':
-                    return this.calculateItemValue(b) - this.calculateItemValue(a);
-                case 'VALUE_ASC':
-                    return this.calculateItemValue(a) - this.calculateItemValue(b);
+                case 'RARITY_DESC':
+                    return this.getRarityWeight(b.rarity) - this.getRarityWeight(a.rarity);
+                case 'RARITY_ASC':
+                    return this.getRarityWeight(a.rarity) - this.getRarityWeight(b.rarity);
                 case 'NAME_ASC':
                     return a.name.localeCompare(b.name);
                 case 'NAME_DESC':
@@ -109,18 +101,7 @@ class Inventory {
             }
         });
 
-        // Group identical items
-        const groupedItems = items.reduce((acc, item) => {
-            const key = `${item.name}-${item.rarity}`;
-            if (!acc[key]) {
-                acc[key] = { ...item, count: 1 };
-            } else {
-                acc[key].count++;
-            }
-            return acc;
-        }, {});
-
-        return Object.values(groupedItems);
+        return items;
     }
 
     getRarityWeight(rarity) {
@@ -143,30 +124,17 @@ class Inventory {
             itemElement.setAttribute('data-rarity', item.rarity);
             
             const itemValue = this.calculateItemValue(item);
-            const totalValue = itemValue * (item.count || 1);
+            const itemWorth = this.calculateItemWorth(item);
 
             itemElement.innerHTML = `
-                <div class="item-content">
-                    <div class="item-icon" style="color: ${item.color}">${item.icon}</div>
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-rarity" style="color: ${item.color}">${item.rarity}</div>
-                    <div class="item-worth">Worth: $${itemValue.toLocaleString()}</div>
-                    ${item.count > 1 ? `<div class="item-count">x${item.count}</div>` : ''}
-                    <button class="sell-item-button">Sell${item.count > 1 ? ' (1)' : ''}</button>
-                    ${item.count > 1 ? `<button class="sell-all-button">Sell All</button>` : ''}
-                </div>
+                <div class="item-icon" style="color: ${item.color}">${item.icon}</div>
+                <div class="item-name">${item.name}</div>
+                <div class="item-rarity" style="color: ${item.color}">${item.rarity}</div>
+                <div class="item-worth" style="color: #00d4ff;">Worth: $${itemWorth.toLocaleString()}</div>
+                <button class="sell-item-button">Sell</button>
             `;
 
-            // Add hover effect listeners
-            itemElement.addEventListener('mouseenter', () => this.showItemDetails(item, itemElement));
-            itemElement.addEventListener('mouseleave', () => this.hideItemDetails(itemElement));
-
-            // Add sell button listeners
             itemElement.querySelector('.sell-item-button').addEventListener('click', () => this.sellItem(item, itemValue));
-            if (item.count > 1) {
-                itemElement.querySelector('.sell-all-button').addEventListener('click', () => this.sellAllItems(item, totalValue));
-            }
-
             grid.appendChild(itemElement);
         });
 
@@ -268,106 +236,6 @@ class Inventory {
         const newBalance = currentBalance + amount;
         balanceDisplay.textContent = `Balance: $${newBalance.toLocaleString()}`;
         localStorage.setItem('balance', newBalance); // Update local storage
-    }
-
-    async quickSellByRarity(rarity) {
-        const itemsToSell = this.items.filter(item => item.rarity === rarity);
-        if (itemsToSell.length === 0) {
-            alert('No items of this rarity to sell!');
-            return;
-        }
-
-        const totalValue = itemsToSell.reduce((sum, item) => sum + this.calculateItemValue(item), 0);
-        const confirmed = await this.showConfirmDialog(
-            `Sell all ${itemsToSell.length} ${rarity} items for $${totalValue.toLocaleString()}?`
-        );
-
-        if (confirmed) {
-            try {
-                // Implement bulk sell API call here
-                const username = localStorage.getItem('playerName');
-                const response = await fetch('https://universal-backend-7wn9.onrender.com/api/bulk-sell', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        username,
-                        items: itemsToSell.map(item => item.name)
-                    })
-                });
-
-                if (!response.ok) throw new Error('Failed to sell items');
-
-                this.items = this.items.filter(item => item.rarity !== rarity);
-                this.updateBalance(totalValue);
-                this.displayInventory();
-                this.showToast(`Sold ${itemsToSell.length} items for $${totalValue.toLocaleString()}`);
-            } catch (error) {
-                console.error('Error bulk selling:', error);
-                alert('Failed to sell items. Please try again.');
-            }
-        }
-    }
-
-    showConfirmDialog(message) {
-        return new Promise((resolve) => {
-            const dialog = document.createElement('div');
-            dialog.className = 'confirm-dialog';
-            dialog.innerHTML = `
-                <div class="confirm-content">
-                    <p>${message}</p>
-                    <div class="confirm-buttons">
-                        <button class="confirm-yes">Yes</button>
-                        <button class="confirm-no">No</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(dialog);
-
-            dialog.querySelector('.confirm-yes').onclick = () => {
-                dialog.remove();
-                resolve(true);
-            };
-            dialog.querySelector('.confirm-no').onclick = () => {
-                dialog.remove();
-                resolve(false);
-            };
-        });
-    }
-
-    showToast(message) {
-        const toast = document.createElement('div');
-        toast.className = 'toast-notification';
-        toast.textContent = message;
-        document.body.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
-    }
-
-    sellAllItems(item, totalValue) {
-        // Implement bulk sell API call here
-        const username = localStorage.getItem('playerName');
-        const response = fetch('https://universal-backend-7wn9.onrender.com/api/bulk-sell', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                username,
-                items: [item.name]
-            })
-        });
-
-        if (!response.ok) throw new Error('Failed to sell items');
-
-        this.items = this.items.filter(i => i !== item);
-        this.updateBalance(totalValue);
-        this.displayInventory();
-        this.showToast(`Sold ${item.name} for $${totalValue.toLocaleString()}`);
-    }
-
-    showItemDetails(item, itemElement) {
-        // Implement item details display here
-    }
-
-    hideItemDetails(itemElement) {
-        // Implement item details hide here
     }
 }
 
