@@ -1,28 +1,3 @@
-// Define RARITY_SELL_BONUSES first, before the Inventory class
-const RARITY_SELL_BONUSES = {
-    COMMON: 1.0,
-    UNCOMMON: 1.1,
-    RARE: 1.2,
-    VERY_RARE: 1.3,
-    EPIC: 1.4,
-    LEGENDARY: 1.5,
-    MYTHICAL: 1.6,
-    DIVINE: 1.7,
-    CELESTIAL: 1.8,
-    COSMIC: 1.9,
-    TRANSCENDENT: 2.0,
-    ETHEREAL: 2.1,
-    ANCIENT: 2.2,
-    PRIMORDIAL: 2.3,
-    GODLY: 2.4,
-    OMNIPOTENT: 2.5,
-    INFINITE: 2.6,
-    ETERNAL: 2.7,
-    IMMORTAL: 2.8,
-    ABSOLUTE: 3.0
-};
-
-// Then define the Inventory class
 class Inventory {
     constructor() {
         this.items = [];
@@ -223,9 +198,9 @@ class Inventory {
         }
     }
 
-    calculateBaseValue(item) {
-        // Base values for each rarity
-        const BASE_VALUES = {
+    calculateItemValue(item) {
+        // Adjusted sell value calculation based on rarity
+        const rarityValues = {
             COMMON: 5,
             UNCOMMON: 15,
             RARE: 40,
@@ -247,26 +222,12 @@ class Inventory {
             IMMORTAL: 2560000,
             ABSOLUTE: 5120000
         };
-
-        return BASE_VALUES[item.rarity] || 0;
-    }
-
-    calculateItemValue(item) {
-        const baseValue = this.calculateBaseValue(item);
-        const rarityBonus = RARITY_SELL_BONUSES[item.rarity] || 1.0;
-        
-        // Add random variation (±10%)
-        const variation = 0.9 + (Math.random() * 0.2);
-        
-        // Calculate final value with bonus and variation
-        return Math.floor(baseValue * rarityBonus * variation);
+        return rarityValues[item.rarity] || 0;
     }
 
     calculateItemWorth(item) {
-        // Worth is base value without variation
-        const baseValue = this.calculateBaseValue(item);
-        const rarityBonus = RARITY_SELL_BONUSES[item.rarity] || 1.0;
-        return Math.floor(baseValue * rarityBonus);
+        // Make the worth value the same as the sell value
+        return this.calculateItemValue(item);
     }
 
     updateBalance(amount) {
