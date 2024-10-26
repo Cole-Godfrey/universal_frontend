@@ -11,8 +11,9 @@ const CHIP_RADIUS = 10;
 const ROWS = 11;  // Reduced from 15 to 11 rows
 const COLS = 17;   // Increased to match number of multipliers
 const BASE_COLS = 17;  // Match COLS
-const SLOT_WIDTH = canvas.width / COLS;
-const VERTICAL_SPACING = canvas.height / (ROWS + 2);
+const CENTER_SLOT_WIDTH = canvas.width / COLS;  // Base slot width
+const MIN_SLOT_WIDTH = CENTER_SLOT_WIDTH * 0.6; // Minimum slot width at edges
+const CENTER_INDEX = Math.floor(COLS / 2);      // Center slot index
 const CHIP_COST = 50;
 const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
 let balance = parseInt(localStorage.getItem('balance')) || 1000;  // Changed from 10000000 to 1000
@@ -100,27 +101,28 @@ const MAX_BALLS_IN_PLAY = 5;
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
-// Add these constants near the top with other game constants
-const CENTER_SLOT_WIDTH = canvas.width / COLS;  // Base slot width
-const MIN_SLOT_WIDTH = CENTER_SLOT_WIDTH * 0.6; // Minimum slot width at edges
-const CENTER_INDEX = Math.floor(COLS / 2);      // Center slot index
-
-// Add this function to calculate slot width based on distance from center
+// Update the getSlotWidth function for more pronounced effect
 function getSlotWidth(slotIndex) {
     const distanceFromCenter = Math.abs(slotIndex - CENTER_INDEX);
     const maxDistance = CENTER_INDEX;
+    // Make the width reduction more pronounced
     const widthDifference = CENTER_SLOT_WIDTH - MIN_SLOT_WIDTH;
-    const reduction = (distanceFromCenter / maxDistance) * widthDifference;
+    // Use a quadratic curve for smoother size transition
+    const reduction = (Math.pow(distanceFromCenter / maxDistance, 2)) * widthDifference;
     return CENTER_SLOT_WIDTH - reduction;
 }
 
-// Add this function to calculate slot position
+// Update the getSlotPosition function to ensure total width matches canvas
 function getSlotPosition(slotIndex) {
     let position = 0;
     for (let i = 0; i < slotIndex; i++) {
         position += getSlotWidth(i);
     }
-    return position;
+    
+    // Adjust position to ensure slots are centered
+    const totalWidth = Array.from({length: COLS}, (_, i) => getSlotWidth(i)).reduce((a, b) => a + b, 0);
+    const offset = (canvas.width - totalWidth) / 2;
+    return position + offset;
 }
 
 // Update the Chip class
