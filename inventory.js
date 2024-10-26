@@ -7,6 +7,8 @@ class Inventory {
         this.currentSort = 'RARITY_DESC';
         this.searchQuery = '';
         this.activeSets = new Set();
+        this.currentTab = 'items'; // Add this line to track current tab
+        this.initializeTabs(); // Add this line
         
         this.loadInventory();
         this.initializeFilters();
@@ -144,42 +146,6 @@ class Inventory {
         document.querySelector('.page-info').textContent = `Page ${this.currentPage} of ${maxPages}`;
         document.querySelector('.prev-page').disabled = this.currentPage === 1;
         document.querySelector('.next-page').disabled = this.currentPage === maxPages;
-
-        // Add set information display
-        const setsContainer = document.createElement('div');
-        setsContainer.className = 'sets-container';
-        
-        Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
-            const setElement = document.createElement('div');
-            setElement.className = 'set-info';
-            
-            const ownedItems = this.items.filter(item => 
-                setInfo.items.includes(item.name)
-            );
-            
-            const isComplete = ownedItems.length >= setInfo.requiredCount;
-            
-            setElement.innerHTML = `
-                <h3 style="color: ${setInfo.color}">${setInfo.name}</h3>
-                <div class="set-progress">
-                    <div class="progress-bar" style="width: ${(ownedItems.length / setInfo.requiredCount) * 100}%"></div>
-                    <span>${ownedItems.length}/${setInfo.requiredCount}</span>
-                </div>
-                <p class="set-bonus ${isComplete ? 'active' : ''}">${setInfo.bonus}</p>
-                <div class="set-items">
-                    ${setInfo.items.map(itemName => {
-                        const owned = ownedItems.some(item => item.name === itemName);
-                        return `<div class="set-item ${owned ? 'owned' : ''}">${itemName}</div>`;
-                    }).join('')}
-                </div>
-            `;
-            
-            setsContainer.appendChild(setElement);
-        });
-        
-        // Insert sets container before the inventory grid
-        const inventoryDisplay = document.querySelector('.inventory-display');
-        inventoryDisplay.insertBefore(setsContainer, inventoryDisplay.firstChild);
     }
 
     async sellItem(item, itemValue) {
@@ -292,6 +258,87 @@ class Inventory {
                 this.activeSets.add(setId);
             }
         });
+    }
+
+    initializeTabs() {
+        const tabsHtml = `
+            <div class="inventory-tabs">
+                <button class="tab-button active" data-tab="items">Items</button>
+                <button class="tab-button" data-tab="sets">Sets</button>
+            </div>
+        `;
+        
+        const inventoryDisplay = document.querySelector('.inventory-display');
+        inventoryDisplay.insertAdjacentHTML('beforebegin', tabsHtml);
+
+        // Add tab click listeners
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.addEventListener('click', () => {
+                this.switchTab(button.dataset.tab);
+            });
+        });
+    }
+
+    switchTab(tabName) {
+        this.currentTab = tabName;
+        
+        // Update tab buttons
+        document.querySelectorAll('.tab-button').forEach(button => {
+            button.classList.toggle('active', button.dataset.tab === tabName);
+        });
+        
+        // Update visibility of content
+        const inventoryDisplay = document.querySelector('.inventory-display');
+        const setsContainer = document.querySelector('.sets-container');
+        
+        if (tabName === 'items') {
+            inventoryDisplay.style.display = 'block';
+            if (setsContainer) setsContainer.style.display = 'none';
+        } else {
+            inventoryDisplay.style.display = 'none';
+            if (setsContainer) setsContainer.style.display = 'block';
+            else this.displaySets(); // If sets container doesn't exist, create it
+        }
+    }
+
+    displaySets() {
+        const existingSets = document.querySelector('.sets-container');
+        if (existingSets) existingSets.remove();
+
+        const setsContainer = document.createElement('div');
+        setsContainer.className = 'sets-container';
+        
+        Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
+            const setElement = document.createElement('div');
+            setElement.className = 'set-info';
+            
+            const ownedItems = this.items.filter(item => 
+                setInfo.items.includes(item.name)
+            );
+            
+            const isComplete = ownedItems.length >= setInfo.requiredCount;
+            
+            setElement.innerHTML = `
+                <h3 style="color: ${setInfo.color}">${setInfo.name}</h3>
+                <div class="set-progress">
+                    <div class="progress-bar" style="width: ${(ownedItems.length / setInfo.requiredCount) * 100}%"></div>
+                    <span>${ownedItems.length}/${setInfo.requiredCount}</span>
+                </div>
+                <p class="set-bonus ${isComplete ? 'active' : ''}">${setInfo.bonus}</p>
+                <div class="set-items">
+                    ${setInfo.items.map(itemName => {
+                        const owned = ownedItems.some(item => item.name === itemName);
+                        return `<div class="set-item ${owned ? 'owned' : ''}">${itemName}</div>`;
+                    }).join('')}
+                </div>
+            `;
+            
+            setsContainer.appendChild(setElement);
+        });
+        
+        // Insert after the inventory display
+        const inventoryDisplay = document.querySelector('.inventory-display');
+        inventoryDisplay.parentNode.insertBefore(setsContainer, inventoryDisplay.nextSibling);
     }
 }
 
