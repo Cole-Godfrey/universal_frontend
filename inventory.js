@@ -15,7 +15,7 @@ class Inventory {
     async loadInventory() {
         const username = localStorage.getItem('playerName');
         try {
-            const response = await fetch(`http://localhost:3000/api/user/${username}`);
+            const response = await fetch(`https://universal-backend-7wn9.onrender.com/${username}`);
             if (!response.ok) {
                 throw new Error('Failed to fetch inventory from server');
             }
@@ -148,7 +148,7 @@ class Inventory {
         const username = localStorage.getItem('playerName');
         try {
             // Call the server to update the inventory
-            const response = await fetch('http://localhost:3000/api/sell-item', {
+            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/sell-item', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -164,7 +164,7 @@ class Inventory {
             }
 
             // Fetch the current balance from the server
-            const userResponse = await fetch(`http://localhost:3000/api/user/${username}`);
+            const userResponse = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
             if (!userResponse.ok) {
                 throw new Error('Failed to fetch user data from server');
             }
@@ -172,7 +172,7 @@ class Inventory {
             const newBalance = userData.balance + itemValue;
 
             // Update balance on the server
-            const balanceResponse = await fetch('http://localhost:3000/api/update-balance', {
+            const balanceResponse = await fetch('https://universal-backend-7wn9.onrender.com/api/update-balance', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

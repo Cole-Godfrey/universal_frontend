@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadPlayerInventory() {
     const username = localStorage.getItem('playerName');
     try {
-        const response = await fetch(`http://localhost:3000/api/user/${username}`);
+        const response = await fetch(`https://universal-backend-7wn9.onrender.com/${username}`);
         if (!response.ok) {
             throw new Error('Failed to fetch your inventory from server');
         }
@@ -33,7 +33,7 @@ async function loadPlayerInventory() {
 async function loadPendingTrades() {
     const username = localStorage.getItem('playerName');
     try {
-        const response = await fetch(`http://localhost:3000/api/trade/pending/${username}`);
+        const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/trade/pending/${username}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch pending trades');
@@ -96,7 +96,7 @@ function displayPendingTrades(trades) {
 async function respondToTrade(tradeId, response) {
     try {
         const username = localStorage.getItem('playerName');
-        const result = await fetch('http://localhost:3000/api/trade/respond', {
+        const result = await fetch('https://universal-backend-7wn9.onrender.com/api/trade/respond', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -112,7 +112,7 @@ async function respondToTrade(tradeId, response) {
             const data = await result.json();
             if (response === 'accept') {
                 // Fetch updated inventory from the server
-                const updatedUser = await fetch(`http://localhost:3000/api/user/${username}`);
+                const updatedUser = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
                 const userData = await updatedUser.json();
 
                 // Update the inventory display with the fetched data
@@ -246,7 +246,7 @@ async function findPlayer() {
     partnerItems.innerHTML = ''; // Clear previous items
 
     try {
-        const response = await fetch(`http://localhost:3000/api/user/${partnerName}`);
+        const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${partnerName}`);
         if (!response.ok) {
             throw new Error('Player not found');
         }
@@ -294,7 +294,7 @@ function proposeTrade() {
         receiverItems: Array.from(selectedItems.partner)
     };
     
-    fetch('http://localhost:3000/api/trade/propose', {
+    fetch('https://universal-backend-7wn9.onrender.com/api/trade/propose', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
