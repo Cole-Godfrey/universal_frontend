@@ -168,22 +168,31 @@ const ITEMS = {
 
 // Add at the top of the file, after RARITIES definition
 const SETS = {
-    'Celestial Collection': {
-        description: 'Ancient artifacts from the heavens',
-        items: ['Celestial Crown', 'Cosmic Scepter', 'Divine Chalice'],
+    'Elemental Collection': {
+        description: 'Master the elements of nature',
+        items: ['Storm Crystal', "Ocean's Breath", 'Earth Core', "World Tree Leaf"],
         reward: 100000
     },
-    'Elemental Mastery': {
-        description: 'Control the fundamental forces',
-        items: ['Fire Crystal', 'Water Essence', 'Earth Stone', 'Wind Fragment'],
-        reward: 50000
+    'Cosmic Powers': {
+        description: 'Harness the power of the cosmos',
+        items: ['Star Core', 'Nebula Fragment', 'Galaxy Shard', 'Black Hole Fragment'],
+        reward: 200000
     },
-    'Royal Treasury': {
-        description: 'Symbols of ultimate power',
-        items: ['Golden Crown', 'Royal Scepter', 'Imperial Orb'],
-        reward: 75000
+    'Divine Artifacts': {
+        description: 'Sacred items of immense power',
+        items: ["Angel's Blessing", "Heaven's Light", 'Divine Grace', 'Holy Relic'],
+        reward: 150000
     },
-    // Add more sets as needed
+    'Ancient Mysteries': {
+        description: 'Relics from the beginning of time',
+        items: ['First Light', 'Creation Seed', 'Primordial Essence', 'Elder Scroll'],
+        reward: 300000
+    },
+    'Ultimate Power': {
+        description: 'Items of unimaginable strength',
+        items: ['Everything', 'The One', 'Power Absolute', 'Reality Warper'],
+        reward: 500000
+    }
 };
 
 function rollRarity(weights = {}) {
@@ -252,4 +261,26 @@ window.ItemSystem.getItemSet = function(itemName) {
     return Object.entries(SETS).find(([setName, setData]) => 
         setData.items.includes(itemName)
     )?.[0] || null;
+};
+
+// Add this new method
+window.ItemSystem.getItemByName = function(itemName) {
+    // Search through all rarities and their items
+    for (const [rarity, items] of Object.entries(ITEMS)) {
+        const item = items.find(item => item.name === itemName);
+        if (item) {
+            return {
+                ...item,
+                rarity,
+                color: RARITIES[rarity].color
+            };
+        }
+    }
+    // Return a default item if not found
+    return {
+        name: itemName,
+        icon: "❓",
+        rarity: "UNKNOWN",
+        color: "#666666"
+    };
 };
