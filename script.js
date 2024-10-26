@@ -112,7 +112,11 @@ class Chip {
 
     update() {
         if (this.landed) {
-            chips = chips.filter(chip => chip !== this);
+            // Remove this chip from the array
+            const index = chips.indexOf(this);
+            if (index > -1) {
+                chips.splice(index, 1);
+            }
             return;
         }
 
@@ -434,9 +438,7 @@ canvas.addEventListener('click', (e) => {
     } else {
         // Handle chip shooting with warning messages
         if (!isEditingWager) {
-            if (chips.length > 0) {
-                showWarningMessage("Wait for current chip to land!");
-            } else if (balance < currentWager) {  // Changed from totalCost to currentWager
+            if (balance < currentWager) {  // Only check balance
                 showWarningMessage("Insufficient balance!");
             } else if (currentWager < MIN_WAGER) {
                 showWarningMessage(`Minimum wager is $${MIN_WAGER}!`);
@@ -444,7 +446,7 @@ canvas.addEventListener('click', (e) => {
                 showWarningMessage(`Maximum wager is $${balance}!`);
             } else {
                 // Valid shot - proceed with chip creation
-                balance -= currentWager;  // Changed from totalCost to currentWager
+                balance -= currentWager;
                 const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
                 const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
                 const chip = new Chip(cannonTipX, cannonTipY);
