@@ -345,6 +345,8 @@ class Chip {
                     
             if (netResult > this.totalCost * 10) {
                     showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
+            } else if (netResult > this.totalCost * 5) {
+                    showResultMessage(`BIG WIN: $${netResult}!`, '#ffd700', true);
             } else if (netResult > 0) {
                     showResultMessage(`Won $${netResult}`, '#4CAF50');
             } else if (netResult < 0) {
@@ -1032,20 +1034,84 @@ function draw() {
     // Draw result message if exists
     if (resultMessage) {
         ctx.save();
+        
+        const age = (Date.now() - resultMessage.startTime) / 1000; // Animation age in seconds
+        
+        if (resultMessage.isSpecial) {
+            // Update and draw particles
+            resultMessage.particles.forEach((particle, index) => {
+                // Update particle position
+                particle.x += particle.vx;
+                particle.y += particle.vy;
+                particle.vy += 0.5; // Gravity
+                particle.opacity -= 0.02;
+                
+                // Draw particle
+                ctx.beginPath();
+                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.fillStyle = particle.color.replace(')', `, ${particle.opacity})`);
+                ctx.fill();
+            });
+            
+            // Remove dead particles
+            resultMessage.particles = resultMessage.particles.filter(p => p.opacity > 0);
+            
+            // Animate scale and rotation
+            resultMessage.scale = Math.min(1, resultMessage.scale + 0.05);
+            resultMessage.rotation *= 0.9;
+            
+            // Create shockwave effect
+            const shockwaveRadius = age * 200;
+            const shockwaveOpacity = Math.max(0, 0.5 - age * 0.5);
+            ctx.beginPath();
+            ctx.arc(canvas.width / 2, resultMessage.y, shockwaveRadius, 0, Math.PI * 2);
+            ctx.strokeStyle = `rgba(255, 215, 0, ${shockwaveOpacity})`;
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            
+            // Apply scale and rotation transformations
+            ctx.translate(canvas.width / 2, resultMessage.y);
+            ctx.rotate(resultMessage.rotation);
+            ctx.scale(resultMessage.scale, resultMessage.scale);
+            ctx.translate(-canvas.width / 2, -resultMessage.y);
+        }
+        
+        // Draw the main text
         ctx.fillStyle = resultMessage.color;
         ctx.globalAlpha = resultMessage.opacity;
         
-        // Special styling for big wins
         if (resultMessage.isSpecial) {
-            ctx.font = 'bold 32px Arial';  // Bigger font
-            ctx.shadowColor = '#ffd700';
-            ctx.shadowBlur = 20;
+            // Enhanced text effects for special wins
+            ctx.font = 'bold 48px Arial';
             
-            // Add glow effect
-            const glowIntensity = Math.abs(Math.sin(animationTime * 3)) * 0.5 + 0.5;
-            ctx.shadowColor = `rgba(255, 215, 0, ${glowIntensity})`;
+            // Multiple shadow layers for intense glow
+            for (let i = 0; i < 5; i++) {
+                const intensity = Math.sin(animationTime * 5) * 0.5 + 0.5;
+                ctx.shadowColor = `rgba(255, 215, 0, ${intensity * 0.5})`;
+                ctx.shadowBlur = 20 + i * 5;
+                ctx.fillText(resultMessage.text, canvas.width / 2, resultMessage.y);
+            }
+            
+            // Add metallic gradient overlay
+            const gradient = ctx.createLinearGradient(
+                canvas.width / 2 - 200, resultMessage.y - 30,
+                canvas.width / 2 + 200, resultMessage.y + 30
+            );
+            gradient.addColorStop(0, '#ffd700');
+            gradient.addColorStop(0.25, '#fff6a6');
+            gradient.addColorStop(0.5, '#ffd700');
+            gradient.addColorStop(0.75, '#fff6a6');
+            gradient.addColorStop(1, '#ffd700');
+            
+            ctx.globalCompositeOperation = 'overlay';
+            ctx.fillStyle = gradient;
+            ctx.fillText(resultMessage.text, canvas.width / 2, resultMessage.y);
+            
         } else {
+            // Normal win messages
             ctx.font = 'bold 24px Arial';
+            ctx.shadowColor = resultMessage.color;
+            ctx.shadowBlur = 10;
         }
         
         ctx.textAlign = 'center';
@@ -1053,9 +1119,14 @@ function draw() {
         ctx.fillText(resultMessage.text, canvas.width / 2, resultMessage.y);
         ctx.restore();
 
-        // Slower fade out
-        resultMessage.y -= 0.3;
-        resultMessage.opacity -= 0.004;
+        // Update message position and opacity
+        if (resultMessage.isSpecial) {
+            resultMessage.y -= 0.2;
+            resultMessage.opacity -= 0.002;
+        } else {
+            resultMessage.y -= 0.3;
+            resultMessage.opacity -= 0.004;
+        }
 
         if (resultMessage.opacity <= 0) {
             resultMessage = null;
@@ -1090,8 +1161,27 @@ function showResultMessage(text, color, isSpecial = false) {
         color: color,
         opacity: 1,
         y: canvas.height / 2,
-        isSpecial: isSpecial
+        isSpecial: isSpecial,
+        scale: isSpecial ? 0.1 : 1, // Start small for special wins
+        rotation: isSpecial ? -Math.PI/4 : 0, // Start rotated for special wins
+        particles: [], // Add particles for special wins
+        startTime: Date.now() // Track animation start time
     };
+    
+    // Create particles for special wins
+    if (isSpecial) {
+        for (let i = 0; i < 50; i++) {
+            resultMessage.particles.push({
+                x: canvas.width / 2,
+                y: canvas.height / 2,
+                vx: (Math.random() - 0.5) * 15,
+                vy: (Math.random() - 0.5) * 15,
+                size: Math.random() * 4 + 2,
+                color: `hsl(${Math.random() * 60 + 30}, 100%, 50%)`, // Gold/yellow colors
+                opacity: 1
+            });
+        }
+    }
     
     if (messageTimer) clearTimeout(messageTimer);
     messageTimer = null;
