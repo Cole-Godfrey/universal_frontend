@@ -217,27 +217,47 @@
     }
 }
 
-/* Add these styles at the end of the file */
-.view-toggle-button {
+/* Tab Styling */
+.inventory-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.tab-button {
     background: rgba(0, 0, 50, 0.5);
     color: #00d4ff;
     border: 1px solid rgba(0, 150, 255, 0.4);
-    padding: 8px 15px;
+    padding: 10px 20px;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
 }
 
-.view-toggle-button:hover {
+.tab-button.active {
+    background: rgba(0, 150, 255, 0.3);
     border-color: rgba(0, 150, 255, 0.8);
-    box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Sets Grid Styling */
+.sets-grid {
+    display: grid;
+    gap: 20px;
+    padding: 20px;
 }
 
 .set-container {
     background: rgba(10, 10, 50, 0.8);
     border-radius: 10px;
     padding: 20px;
-    margin-bottom: 20px;
     border: 1px solid rgba(0, 150, 255, 0.4);
 }
 
@@ -246,15 +266,14 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 15px;
+}
+
+.set-title {
     color: #00d4ff;
+    font-size: 20px;
 }
 
-.set-header h3 {
-    margin: 0;
-    font-size: 1.2em;
-}
-
-.set-reward {
+.set-completion {
     color: #00ff9d;
 }
 
@@ -262,49 +281,24 @@
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
     gap: 10px;
-    margin-bottom: 15px;
 }
 
 .set-item {
     background: rgba(0, 0, 50, 0.5);
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
     text-align: center;
     transition: all 0.3s ease;
 }
 
-.set-item.owned {
-    border: 1px solid rgba(0, 255, 0, 0.4);
-    color: #00ff9d;
-}
-
-.set-item.not-owned {
-    border: 1px solid rgba(255, 0, 0, 0.4);
-    color: #ff6b6b;
-    opacity: 0.6;
-}
-
-.set-item-icon {
-    font-size: 1.2em;
-    margin-bottom: 5px;
-}
-
-.claim-set-button {
-    width: 100%;
-    padding: 10px;
-    background: rgba(0, 150, 255, 0.2);
-    color: #00d4ff;
-    border: 1px solid rgba(0, 150, 255, 0.4);
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.claim-set-button:not(:disabled):hover {
-    background: rgba(0, 150, 255, 0.4);
-}
-
-.claim-set-button:disabled {
+.set-item.locked {
     opacity: 0.5;
-    cursor: not-allowed;
+    filter: grayscale(100%);
+}
+
+.set-reward {
+    color: #ffd700;
+    margin-top: 15px;
+    text-align: right;
+    font-size: 14px;
 }

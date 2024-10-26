@@ -225,27 +225,3 @@ window.ItemSystem = {
     RARITIES,
     ITEMS
 };
-
-// Add this after the RARITIES definition
-window.ItemSystem.SETS = {
-    CELESTIAL_COLLECTION: {
-        name: "Celestial Collection",
-        items: ["Sun Crown", "Moon Scepter", "Star Pendant"],
-        reward: 50000
-    },
-    ELEMENTAL_MASTERY: {
-        name: "Elemental Mastery",
-        items: ["Fire Orb", "Water Crystal", "Earth Stone", "Wind Feather"],
-        reward: 75000
-    },
-    DIVINE_REGALIA: {
-        name: "Divine Regalia",
-        items: ["Divine Crown", "Divine Robe", "Divine Staff", "Divine Boots", "Divine Ring"],
-        reward: 100000
-    },
-    COSMIC_HARMONY: {
-        name: "Cosmic Harmony",
-        items: ["Galaxy Fragment", "Nebula Dust", "Black Hole Shard"],
-        reward: 150000
-    }
-};
