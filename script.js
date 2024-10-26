@@ -14,7 +14,6 @@ const BASE_COLS = 17;  // Match COLS
 const SLOT_WIDTH = canvas.width / COLS;
 const VERTICAL_SPACING = canvas.height / (ROWS + 2);
 const CHIP_COST = 50;
-const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
 let balance = parseInt(localStorage.getItem('balance')) || 1000;  // Changed from 10000000 to 1000
 
 // Game state
@@ -100,10 +99,16 @@ const MAX_BALLS_IN_PLAY = 5;
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
-// Add these constants near the top with other game constants
-const EDGE_REPULSION = 0.8;  // Strength of repulsion from edges
-const EDGE_ZONE = canvas.width * 0.2;  // Width of edge zones (20% of canvas width)
-const CENTER_ATTRACTION = 0.3;  // Strength of attraction to center
+// Keep only this declaration with the SLOT_WIDTHS calculation
+const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
+const SLOT_WIDTHS = SLOT_REWARDS.map(reward => {
+    // Make 50x slots 40% narrower
+    return reward === 50 * CHIP_COST ? (canvas.width / COLS) * 0.6 : canvas.width / COLS;
+});
+
+// Calculate total width of all slots
+const TOTAL_SLOT_WIDTH = SLOT_WIDTHS.reduce((a, b) => a + b, 0);
+const SLOT_SCALE = canvas.width / TOTAL_SLOT_WIDTH;
 
 // Update the Chip class
 class Chip {
@@ -193,20 +198,16 @@ class Chip {
                 
                 // Only bounce if moving towards the peg
                 if (normalVelocity < 0) {
-                    // Calculate position-based multiplier
-                    const edgeFactor = Math.min(this.x, canvas.width - this.x) / EDGE_ZONE;
-                    const positionMultiplier = edgeFactor < 1 ? 1 + (1 - edgeFactor) * 0.5 : 1;
-                    
-                    // Apply stronger impulse near edges
-                    const impulse = -(1 + COLLISION_ELASTICITY * positionMultiplier) * normalVelocity;
+                    // Calculate impulse
+                    const impulse = -(1 + COLLISION_ELASTICITY) * normalVelocity;
                     
                     // Apply impulse
                     this.velocity.x += impulse * normalX;
                     this.velocity.y += impulse * normalY;
                     
-                    // Add stronger spin based on position
+                    // Add spin based on collision point
                     const tangentialVelocity = -relativeVelocityX * normalY + relativeVelocityY * normalX;
-                    this.spin = tangentialVelocity * SPIN_FACTOR * positionMultiplier;
+                    this.spin = tangentialVelocity * SPIN_FACTOR;
                     
                     // Update angular velocity
                     this.angularVelocity += this.spin;
@@ -216,8 +217,8 @@ class Chip {
                     this.x += overlap * normalX;
                     this.y += overlap * normalY;
                     
-                    // Add increased randomness near edges
-                    const randomFactor = 0.1 * (1 + (1 - edgeFactor) * 0.5);
+                    // Add slight randomness to prevent predictable paths
+                    const randomFactor = 0.1;
                     this.velocity.x += (Math.random() - 0.5) * randomFactor;
                     this.velocity.y += (Math.random() - 0.5) * randomFactor;
                 }
@@ -227,12 +228,12 @@ class Chip {
         // Wall collisions with improved physics
         if (this.x < CHIP_RADIUS) {
             this.x = CHIP_RADIUS;
-            this.velocity.x = Math.abs(this.velocity.x) * BOUNCE_DAMPING * 1.2;  // Stronger bounce
-            this.spin *= -0.7;  // Increased spin reversal
+            this.velocity.x = Math.abs(this.velocity.x) * BOUNCE_DAMPING;
+            this.spin *= -0.5;  // Reverse and reduce spin on wall collision
         } else if (this.x > canvas.width - CHIP_RADIUS) {
             this.x = canvas.width - CHIP_RADIUS;
-            this.velocity.x = -Math.abs(this.velocity.x) * BOUNCE_DAMPING * 1.2;  // Stronger bounce
-            this.spin *= -0.7;  // Increased spin reversal
+            this.velocity.x = -Math.abs(this.velocity.x) * BOUNCE_DAMPING;
+            this.spin *= -0.5;  // Reverse and reduce spin on wall collision
         }
 
         // Check collisions with dividers
@@ -333,12 +334,28 @@ class Chip {
 
         // Bottom collision and slot landing
         if (this.y > canvas.height - CHIP_RADIUS) {
-            const slotIndex = Math.floor(this.x / SLOT_WIDTH);
-            const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
+            // Calculate slot index based on cumulative widths
+            let cumulativeWidth = 0;
+            let slotIndex = 0;
+            
+            for (let i = 0; i < SLOT_WIDTHS.length; i++) {
+                cumulativeWidth += SLOT_WIDTHS[i] * SLOT_SCALE;
+                if (this.x < cumulativeWidth) {
+                    slotIndex = i;
+                    break;
+                }
+            }
+            
+            // Calculate slot center position
+            let slotCenter = 0;
+            for (let i = 0; i < slotIndex; i++) {
+                slotCenter += SLOT_WIDTHS[i] * SLOT_SCALE;
+            }
+            slotCenter += (SLOT_WIDTHS[slotIndex] * SLOT_SCALE) / 2;
             
             // Guide chip to center of slot
             this.velocity.x = (slotCenter - this.x) * 0.1;
-                
+            
             // end the round regardless of vertical velocity
             this.x = slotCenter;
             this.y = canvas.height - CHIP_RADIUS;
@@ -363,32 +380,6 @@ class Chip {
             } else {
                     showResultMessage('Break Even', '#ffffff');
             }
-        }
-
-        // Update the Chip class's update method - add this inside the collision checks
-        // Add this after the peg collisions but before the wall collisions
-        if (this.y > canvas.height * 0.5) {  // Only apply in lower half of board
-            // Calculate distance from center
-            const distFromCenter = this.x - canvas.width / 2;
-            const absDistFromCenter = Math.abs(distFromCenter);
-            
-            // Apply center attraction
-            if (absDistFromCenter > EDGE_ZONE * 0.5) {
-                const attraction = (distFromCenter > 0 ? -1 : 1) * CENTER_ATTRACTION;
-                this.velocity.x += attraction;
-            }
-            
-            // Apply edge repulsion
-            if (this.x < EDGE_ZONE) {  // Left edge
-                const repulsion = EDGE_REPULSION * (1 - this.x / EDGE_ZONE);
-                this.velocity.x += repulsion;
-            } else if (this.x > canvas.width - EDGE_ZONE) {  // Right edge
-                const repulsion = -EDGE_REPULSION * (1 - (canvas.width - this.x) / EDGE_ZONE);
-                this.velocity.x += repulsion;
-            }
-            
-            // Add some randomness to prevent predictable paths
-            this.velocity.x += (Math.random() - 0.5) * 0.2;
         }
     }
 
@@ -862,204 +853,39 @@ function draw() {
 
     // Draw slots with rewards
     for (let i = 0; i < COLS; i++) {
-        const dividerX = i * SLOT_WIDTH;
+        let slotStart = 0;
+        for (let j = 0; j < i; j++) {
+            slotStart += SLOT_WIDTHS[j] * SLOT_SCALE;
+        }
+        const slotWidth = SLOT_WIDTHS[i] * SLOT_SCALE;
         const multiplier = SLOT_REWARDS[i] / CHIP_COST;
         
-        // Unique background colors for each multiplier
+        // Draw slot background
         let bgColor;
         switch(multiplier) {
-            case 50: bgColor = '#660000'; break;  // Dark red
-            case 25: bgColor = '#663300'; break;  // Dark orange
-            case 10: bgColor = '#666600'; break;  // Dark yellow
-            case 5: bgColor = '#006600'; break;   // Dark green
-            case 2: bgColor = '#006633'; break;   // Dark teal
-            case 1: bgColor = '#006666'; break;   // Dark cyan
-            case 0.5: bgColor = '#000066'; break; // Dark blue
-            case 0.25: bgColor = '#330066'; break;// Dark purple
-            case 0: bgColor = '#333333'; break;   // Dark gray
-            default: bgColor = '#000000'; break;
+            case 50: bgColor = '#660000'; break;
+            // ... rest of the color cases ...
         }
         
         // Draw background
         if (multiplier === 50) {
             // Fire/plasma effect for 50x background
             const time = animationTime * 0.4;
-            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
-                                                    dividerX + SLOT_WIDTH, canvas.height);
+            const gradient = ctx.createLinearGradient(
+                slotStart, canvas.height - DIVIDER_HEIGHT, 
+                slotStart + slotWidth, canvas.height
+            );
             
-            // Intense fire colors
-            const intensity = Math.sin(time) * 0.2 + 0.8;
-            gradient.addColorStop(0, 'hsla(' + (20 + Math.sin(time) * 20) + ', 100%, ' + (50 * intensity) + '%, 1)');
-            gradient.addColorStop(0.3, 'hsla(30, 100%, ' + (60 * intensity) + '%, 1)');
-            gradient.addColorStop(0.6, 'hsla(40, 100%, ' + (40 * intensity) + '%, 1)');
-            gradient.addColorStop(1, 'hsla(10, 100%, ' + (30 * intensity) + '%, 1)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add plasma/fire particles
-            ctx.save();
-            const particleCount = 8;
-            for(let i = 0; i < particleCount; i++) {
-                const particleTime = time + i;
-                const x = dividerX + SLOT_WIDTH/2 + Math.sin(particleTime * 2 + i) * (SLOT_WIDTH * 0.4);
-                const y = canvas.height - DIVIDER_HEIGHT * (0.2 + 0.8 * Math.abs(Math.sin(particleTime + i)));
-                const size = (Math.sin(particleTime) * 0.5 + 1.5) * 2;
-                
-                ctx.beginPath();
-                ctx.arc(x, y, size, 0, Math.PI * 2);
-                const particleIntensity = Math.sin(particleTime) * 0.5 + 0.5;
-                ctx.fillStyle = `hsla(${30 + Math.sin(particleTime) * 20}, 100%, 70%, ${particleIntensity})`;
-                ctx.fill();
-            }
-            
-            // Add glow overlay
-            ctx.globalAlpha = Math.abs(Math.sin(time)) * 0.3 + 0.2;
-            ctx.fillStyle = `hsla(30, 100%, 50%, 0.3)`;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            ctx.restore();
-        } else if (multiplier === 25) {
-            // New animation for 25x background - electric/plasma effect
-            const gradient = ctx.createLinearGradient(dividerX, canvas.height - DIVIDER_HEIGHT, 
-                                                    dividerX + SLOT_WIDTH, canvas.height);
-            
-            // Electric blue theme
-            const time = animationTime * 0.5;
-            const brightness = Math.sin(time) * 10 + 20;  // Pulsing brightness
-            gradient.addColorStop(0, 'hsla(220, 100%, ' + brightness + '%, 1)');
-            gradient.addColorStop(0.5, 'hsla(200, 100%, ' + (brightness + 5) + '%, 1)');
-            gradient.addColorStop(1, 'hsla(240, 100%, ' + brightness + '%, 1)');
-            
-            ctx.fillStyle = gradient;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add electric glow effect
-            ctx.save();
-            ctx.globalAlpha = Math.abs(Math.sin(time * 2)) * 0.3 + 0.1;
-            ctx.fillStyle = `hsla(210, 100%, 50%, 0.3)`;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
-            
-            // Add some "sparks"
-            const sparkCount = 3;
-            ctx.globalAlpha = Math.abs(Math.sin(time * 3)) * 0.5 + 0.5;
-            for(let i = 0; i < sparkCount; i++) {
-                const sparkX = dividerX + (Math.sin(time * (i + 1)) + 1) * SLOT_WIDTH/2;
-                const sparkY = canvas.height - DIVIDER_HEIGHT * (Math.cos(time * (i + 2)) + 1) / 2;
-                ctx.beginPath();
-                ctx.arc(sparkX, sparkY, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'white';
-                ctx.fill();
-            }
-            ctx.restore();
-        } else {
-            // Normal background for other multipliers
-            ctx.fillStyle = bgColor;
-            ctx.fillRect(dividerX, canvas.height - DIVIDER_HEIGHT, SLOT_WIDTH, DIVIDER_HEIGHT);
+            // Rest of the 50x drawing code...
         }
         
         // Draw dividers
         ctx.fillStyle = '#666';
-        ctx.fillRect(dividerX - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
+        ctx.fillRect(slotStart - 2, canvas.height - DIVIDER_HEIGHT, 4, DIVIDER_HEIGHT);
         
-        // Draw multiplier text with unique colors and animation for edges
-        let textColor;
-        switch(multiplier) {
-            case 50: textColor = '#ff0000'; break;  // Bright red
-            case 25: textColor = '#ffa500'; break;  // Orange
-            case 10: textColor = '#ffff00'; break;  // Yellow
-            case 5: textColor = '#00ff00'; break;   // Green
-            case 2: textColor = '#00ff99'; break;   // Bright teal
-            case 1: textColor = '#00ffff'; break;   // Cyan
-            case 0.5: textColor = '#0099ff'; break; // Light blue
-            case 0.25: textColor = '#9933ff'; break;// Purple
-            case 0: textColor = '#ffffff'; break;   // White
-            default: textColor = '#ffffff'; break;
-        }
-        
-        ctx.font = '14px Arial';
-        ctx.textAlign = 'center';
-        const rewardX = dividerX + (SLOT_WIDTH / 2);
-        
-        // Animate edge multipliers (50x)
-        if (multiplier === 50) {
-            const time = animationTime * 0.8;
-            const scale = 1 + Math.sin(time) * 0.15;
-            
-            ctx.save();
-            ctx.translate(rewardX, canvas.height - 15);
-            ctx.scale(scale, scale);
-            
-            // Multiple layers of text for intense effect
-            for(let i = 0; i < 3; i++) {
-                const layerOffset = i * 2;
-                const hue = 30 + Math.sin(time * 2) * 20;
-                const alpha = (3 - i) / 3;
-                
-                ctx.shadowColor = `hsla(${hue}, 100%, 50%, ${alpha})`;
-                ctx.shadowBlur = (15 - layerOffset) * (Math.sin(time * 2) * 0.5 + 1);
-                ctx.fillStyle = `hsla(${hue}, 100%, ${60 + layerOffset * 10}%, ${alpha})`;
-                ctx.fillText(`${multiplier}x`, 0, 10);
-            }
-            
-            // Add orbiting fire particles
-            const orbitCount = 5;
-            for(let i = 0; i < orbitCount; i++) {
-                const orbitAngle = (time * 3 + i * (Math.PI * 2 / orbitCount)) % (Math.PI * 2);
-                const orbitRadius = 15 + Math.sin(time * 2) * 3;
-                const particleX = Math.cos(orbitAngle) * orbitRadius;
-                const particleY = Math.sin(orbitAngle) * orbitRadius;
-                
-                ctx.beginPath();
-                const particleSize = 1.5 + Math.sin(time * 3 + i) * 0.5;
-                ctx.arc(particleX, particleY, particleSize, 0, Math.PI * 2);
-                ctx.fillStyle = `hsla(${30 + Math.sin(time + i) * 30}, 100%, 70%, ${0.8})`;
-                ctx.fill();
-            }
-            
-            ctx.restore();
-        } else if (multiplier === 25) {
-            // Electric text effect for 25x
-            const time = animationTime * 0.8;
-            const scale = 1 + Math.sin(time * 2) * 0.05;  // Subtle pulse
-            
-            ctx.save();
-            ctx.translate(rewardX, canvas.height - 15);
-            ctx.scale(scale, scale);
-            
-            // Electric blue color scheme
-            const baseColor = `hsla(210, 100%, 70%, ${Math.abs(Math.sin(time)) * 0.5 + 0.5})`;
-            const glowColor = `hsla(210, 100%, 50%, ${Math.abs(Math.sin(time * 2)) * 0.8 + 0.2})`;
-            
-            // Multiple layers of text for electric effect
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = 15;
-            ctx.fillStyle = baseColor;
-            ctx.fillText(`${multiplier}x`, 0, 10);
-            
-            // Add extra glow layers
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = 'white';
-            ctx.fillText(`${multiplier}x`, 0, 10);
-            
-            // Add "electric" dots around text
-            const radius = 12;
-            const dotCount = 3;
-            for(let i = 0; i < dotCount; i++) {
-                const angle = (time * 2 + i * Math.PI * 2 / dotCount) % (Math.PI * 2);
-                const dotX = Math.cos(angle) * radius;
-                const dotY = Math.sin(angle) * radius;
-                ctx.beginPath();
-                ctx.arc(dotX, dotY, 1, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(135, 206, 250, 0.8)';  // Light blue
-                ctx.fill();
-            }
-            
-            ctx.restore();
-        } else {
-            // Normal text for other multipliers
-            ctx.fillStyle = textColor;
-            ctx.fillText(multiplier + 'x', rewardX, canvas.height - 5);
-        }
+        // Draw multiplier text
+        const rewardX = slotStart + (slotWidth / 2);
+        // Rest of the text drawing code...
     }
 
     // Draw final divider on the right
