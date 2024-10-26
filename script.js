@@ -310,40 +310,30 @@ class Chip {
             const slotIndex = Math.floor(this.x / SLOT_WIDTH);
             const slotCenter = (slotIndex * SLOT_WIDTH) + (SLOT_WIDTH / 2);
             
-            // Check if chip is close enough to slot center - only consider horizontal position
-            if (Math.abs(this.x - slotCenter) < SLOT_WIDTH / 3) {
-                // Guide chip to center of slot
-                this.velocity.x = (slotCenter - this.x) * 0.1;
+            // Guide chip to center of slot
+            this.velocity.x = (slotCenter - this.x) * 0.1;
                 
-                // If horizontally centered, end the round regardless of vertical velocity
-                if (Math.abs(this.x - slotCenter) < 1) {
-                    this.x = slotCenter;
-                    this.y = canvas.height - CHIP_RADIUS;
-                    this.landed = true;
-                    this.slotIndex = slotIndex;
+            // end the round regardless of vertical velocity
+            this.x = slotCenter;
+            this.y = canvas.height - CHIP_RADIUS;
+            this.landed = true;
+            this.slotIndex = slotIndex;
                     
-                    // Handle win/loss logic
-                    const multiplier = SLOT_REWARDS[this.slotIndex] / CHIP_COST;
-                    const prize = currentWager * multiplier;
-                    const netResult = prize - this.totalCost;
+            // Handle win/loss logic
+            const multiplier = SLOT_REWARDS[this.slotIndex] / CHIP_COST;
+            const prize = currentWager * multiplier;
+            const netResult = prize - this.totalCost;
                     
-                    updatePlayerBalance(netResult);
+            updatePlayerBalance(netResult);
                     
-                    if (netResult > this.totalCost * 10) {
-                        showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
-                    } else if (netResult > 0) {
-                        showResultMessage(`Won $${netResult}`, '#4CAF50');
-                    } else if (netResult < 0) {
-                        showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
-                    } else {
-                        showResultMessage('Break Even', '#ffffff');
-                    }
-                }
+            if (netResult > this.totalCost * 10) {
+                    showResultMessage(`MASSIVE WIN: $${netResult}!`, '#ffd700', true);
+            } else if (netResult > 0) {
+                    showResultMessage(`Won $${netResult}`, '#4CAF50');
+            } else if (netResult < 0) {
+                    showResultMessage(`Lost $${Math.abs(netResult)}`, '#ff4444');
             } else {
-                // Bounce off bottom with improved physics
-                this.y = canvas.height - CHIP_RADIUS;
-                this.velocity.y = -Math.abs(this.velocity.y) * BOUNCE_DAMPING;
-                this.velocity.x *= FRICTION;  // Apply extra friction on bottom bounce
+                    showResultMessage('Break Even', '#ffffff');
             }
         }
     }
