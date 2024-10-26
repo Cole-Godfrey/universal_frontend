@@ -8,8 +8,6 @@
     width: 90%;
     max-width: 1400px;
     margin: 20px auto;
-    max-height: 90vh;
-    overflow-y: auto;
 }
 
 .inventory-title {
@@ -26,8 +24,7 @@
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: 25px;
     padding: 25px;
-    height: auto;
-    max-height: 500px;
+    height: 500px;
     overflow-y: auto;
     border: 2px solid rgba(0, 150, 255, 0.4);
     border-radius: 15px;
@@ -97,15 +94,16 @@
 }
 
 .balance-display {
-    background: linear-gradient(45deg, rgba(0, 0, 50, 0.6), rgba(0, 0, 80, 0.6));
+    background: linear-gradient(45deg, rgba(0, 100, 0, 0.6), rgba(0, 150, 0, 0.6));
     padding: 15px 30px;
     border-radius: 15px;
     font-size: 24px;
     font-weight: 600;
     margin-bottom: 30px;
-    border: 2px solid rgba(0, 150, 255, 0.3);
-    color: #00d4ff;
-    text-align: center;
+    border: 2px solid rgba(0, 255, 0, 0.3);
+    color: #00ff00;
+    text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.1);
 }
 
 .inventory-filters {
@@ -150,23 +148,4 @@
 .nav-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* Add scrollbar styling for the container */
-.inventory-container::-webkit-scrollbar {
-    width: 8px;
-}
-
-.inventory-container::-webkit-scrollbar-track {
-    background: rgba(0, 0, 50, 0.3);
-    border-radius: 4px;
-}
-
-.inventory-container::-webkit-scrollbar-thumb {
-    background: rgba(0, 150, 255, 0.4);
-    border-radius: 4px;
-}
-
-.inventory-container::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 150, 255, 0.6);
 }
