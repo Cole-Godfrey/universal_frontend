@@ -8,6 +8,15 @@ class Inventory {
         this.searchQuery = '';
         this.currentView = 'items'; // 'items' or 'sets'
         
+        // Wait for DOM to be fully loaded before initializing
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.initialize());
+        } else {
+            this.initialize();
+        }
+    }
+
+    initialize() {
         this.loadInventory();
         this.initializeFilters();
         this.initializeEventListeners();
@@ -43,12 +52,21 @@ class Inventory {
     }
 
     initializeEventListeners() {
+        // Get button elements
+        const inventoryButton = document.getElementById('inventoryButton');
+        const setsButton = document.getElementById('setsButton');
+
+        if (!inventoryButton || !setsButton) {
+            console.error('View toggle buttons not found');
+            return;
+        }
+
         // Add button event listeners
-        document.getElementById('inventoryButton').addEventListener('click', (e) => {
+        inventoryButton.addEventListener('click', (e) => {
             this.setActiveView('items', e.target);
         });
         
-        document.getElementById('setsButton').addEventListener('click', (e) => {
+        setsButton.addEventListener('click', (e) => {
             this.setActiveView('sets', e.target);
         });
 
@@ -346,6 +364,4 @@ class Inventory {
 }
 
 // Initialize inventory when page loads
-document.addEventListener('DOMContentLoaded', () => {
-    window.inventory = new Inventory();
-});
+window.inventory = new Inventory();
