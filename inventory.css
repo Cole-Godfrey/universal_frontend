@@ -216,3 +216,110 @@
         font-size: 16px; /* Prevent zoom on iOS */
     }
 }
+
+.view-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.toggle-button {
+    background: rgba(0, 0, 50, 0.5);
+    color: #00d4ff;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.toggle-button.active {
+    background: rgba(0, 150, 255, 0.3);
+    border-color: rgba(0, 150, 255, 0.8);
+    box-shadow: 0 0 10px rgba(0, 150, 255, 0.3);
+}
+
+.sets-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+.set-box {
+    background: rgba(10, 10, 50, 0.8);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+}
+
+.set-header h3 {
+    color: #00d4ff;
+    margin: 0 0 10px 0;
+}
+
+.set-header p {
+    color: rgba(0, 212, 255, 0.8);
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+.set-items {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.set-item {
+    text-align: center;
+    padding: 10px;
+    border-radius: 5px;
+    background: rgba(0, 0, 50, 0.5);
+}
+
+.set-item.missing {
+    opacity: 0.5;
+    filter: grayscale(1);
+}
+
+.set-item-icon {
+    font-size: 24px;
+    margin-bottom: 5px;
+}
+
+.set-item-name {
+    font-size: 12px;
+    color: #00d4ff;
+}
+
+.set-reward {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.set-reward p {
+    color: #00d4ff;
+    margin-bottom: 10px;
+}
+
+.claim-set-button {
+    background: rgba(0, 255, 0, 0.2);
+    color: #00ff00;
+    border: 1px solid rgba(0, 255, 0, 0.4);
+    padding: 8px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.claim-set-button:hover {
+    background: rgba(0, 255, 0, 0.3);
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+}
+
+.incomplete-set {
+    color: rgba(255, 0, 0, 0.8);
+    font-style: italic;
+}

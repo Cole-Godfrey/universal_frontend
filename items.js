@@ -225,3 +225,23 @@ window.ItemSystem = {
     RARITIES,
     ITEMS
 };
+
+// Add this to your ItemSystem or create a new section
+window.ItemSystem.SETS = {
+    "Celestial Collection": {
+        items: ["Celestial Crown", "Celestial Staff", "Celestial Robe"],
+        reward: 50000,
+        description: "A set of divine items from the heavens"
+    },
+    "Ancient Artifacts": {
+        items: ["Ancient Scroll", "Ancient Medallion", "Ancient Sword"],
+        reward: 25000,
+        description: "Powerful relics from a forgotten age"
+    },
+    "Cosmic Bundle": {
+        items: ["Cosmic Ring", "Cosmic Amulet", "Cosmic Scepter"],
+        reward: 75000,
+        description: "Items infused with cosmic energy"
+    }
+    // Add more sets as needed
+};

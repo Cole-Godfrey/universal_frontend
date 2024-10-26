@@ -6,10 +6,10 @@ class Inventory {
         this.currentFilter = 'ALL';
         this.currentSort = 'RARITY_DESC';
         this.searchQuery = '';
-        
-        this.loadInventory();
+        this.currentView = 'items'; // Add this line to track current view
         this.initializeFilters();
         this.initializeEventListeners();
+        this.initializeSetSystem();
     }
 
     async loadInventory() {
@@ -72,6 +72,17 @@ class Inventory {
                 this.currentPage++;
                 this.displayInventory();
             }
+        });
+
+        // Add these new listeners
+        document.getElementById('viewItems').addEventListener('click', () => {
+            this.currentView = 'items';
+            this.toggleView();
+        });
+
+        document.getElementById('viewSets').addEventListener('click', () => {
+            this.currentView = 'sets';
+            this.toggleView();
         });
     }
 
@@ -236,6 +247,106 @@ class Inventory {
         const newBalance = currentBalance + amount;
         balanceDisplay.textContent = `Balance: $${newBalance.toLocaleString()}`;
         localStorage.setItem('balance', newBalance); // Update local storage
+    }
+
+    initializeSetSystem() {
+        const setsContainer = document.querySelector('.sets-container');
+        Object.entries(window.ItemSystem.SETS).forEach(([setName, setData]) => {
+            const setElement = document.createElement('div');
+            setElement.className = 'set-box';
+            
+            const itemsHtml = setData.items.map(itemName => {
+                const hasItem = this.items.some(item => item.name === itemName);
+                return `
+                    <div class="set-item ${hasItem ? 'owned' : 'missing'}">
+                        <div class="set-item-icon">${this.getItemIcon(itemName)}</div>
+                        <div class="set-item-name">${itemName}</div>
+                    </div>
+                `;
+            }).join('');
+
+            setElement.innerHTML = `
+                <div class="set-header">
+                    <h3>${setName}</h3>
+                    <p>${setData.description}</p>
+                </div>
+                <div class="set-items">
+                    ${itemsHtml}
+                </div>
+                <div class="set-reward">
+                    <p>Set Reward: $${setData.reward.toLocaleString()}</p>
+                    ${this.hasCompleteSet(setData.items) ? 
+                        '<button class="claim-set-button">Claim Reward</button>' : 
+                        '<span class="incomplete-set">Set Incomplete</span>'}
+                </div>
+            `;
+
+            if (this.hasCompleteSet(setData.items)) {
+                setElement.querySelector('.claim-set-button').addEventListener('click', () => {
+                    this.claimSetReward(setName, setData);
+                });
+            }
+
+            setsContainer.appendChild(setElement);
+        });
+    }
+
+    hasCompleteSet(setItems) {
+        return setItems.every(itemName => 
+            this.items.some(item => item.name === itemName)
+        );
+    }
+
+    getItemIcon(itemName) {
+        // You'll need to implement this to return the correct icon for each item
+        // This could be stored in your items data
+        return '🎁'; // Default icon
+    }
+
+    async claimSetReward(setName, setData) {
+        const username = localStorage.getItem('playerName');
+        try {
+            // Call server to claim reward and update balance
+            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/claim-set', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    username,
+                    setName,
+                    reward: setData.reward
+                })
+            });
+
+            if (!response.ok) throw new Error('Failed to claim set reward');
+
+            this.updateBalance(setData.reward);
+            alert(`Claimed ${setName} set reward: $${setData.reward.toLocaleString()}`);
+            
+            // Refresh the sets view
+            this.initializeSetSystem();
+        } catch (error) {
+            console.error('Error claiming set reward:', error);
+            alert('Failed to claim set reward. Please try again later.');
+        }
+    }
+
+    toggleView() {
+        const inventoryGrid = document.querySelector('.inventory-display');
+        const setsContainer = document.querySelector('.sets-display');
+        
+        if (this.currentView === 'items') {
+            inventoryGrid.style.display = 'block';
+            setsContainer.style.display = 'none';
+            document.getElementById('viewItems').classList.add('active');
+            document.getElementById('viewSets').classList.remove('active');
+        } else {
+            inventoryGrid.style.display = 'none';
+            setsContainer.style.display = 'block';
+            document.getElementById('viewItems').classList.remove('active');
+            document.getElementById('viewSets').classList.add('active');
+        }
     }
 }
 
