@@ -268,62 +268,26 @@ class Inventory {
             setItems.className = 'set-items';
             
             const ownedItems = new Set(this.items.map(item => item.name));
-            let allItemsOwned = true;
             
             setData.items.forEach(itemName => {
                 const itemElement = document.createElement('div');
-                const owned = ownedItems.has(itemName);
-                itemElement.className = `set-item ${owned ? 'owned' : 'missing'}`;
+                const isOwned = ownedItems.has(itemName);
+                itemElement.className = `set-item ${isOwned ? 'owned' : 'missing'}`;
                 
-                if (!owned) allItemsOwned = false;
-                
+                const item = window.ItemSystem.getItemByName(itemName);
                 itemElement.innerHTML = `
-                    <div class="item-icon">${owned ? '✓' : '×'}</div>
+                    <div class="item-icon" style="color: ${isOwned ? item.color : '#666'}">${item.icon}</div>
                     <div class="item-name">${itemName}</div>
+                    <div class="item-status">${isOwned ? '✓' : '×'}</div>
                 `;
                 
                 setItems.appendChild(itemElement);
             });
             
-            const claimButton = document.createElement('button');
-            claimButton.className = 'claim-set-button';
-            claimButton.textContent = 'Claim Reward';
-            claimButton.disabled = !allItemsOwned;
-            
-            if (allItemsOwned) {
-                claimButton.addEventListener('click', () => this.claimSetReward(setName, setData));
-            }
-            
             setElement.appendChild(setHeader);
             setElement.appendChild(setItems);
-            setElement.appendChild(claimButton);
             grid.appendChild(setElement);
         });
-    }
-
-    async claimSetReward(setName, setData) {
-        const username = localStorage.getItem('playerName');
-        try {
-            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/claim-set', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username,
-                    setName,
-                    reward: setData.reward
-                })
-            });
-
-            if (!response.ok) throw new Error('Failed to claim set reward');
-
-            this.updateBalance(setData.reward);
-            alert(`Claimed ${setName} set reward: $${setData.reward.toLocaleString()}`);
-        } catch (error) {
-            console.error('Error claiming set reward:', error);
-            alert('Failed to claim set reward. Please try again later.');
-        }
     }
 }
 

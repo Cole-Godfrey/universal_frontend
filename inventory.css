@@ -218,21 +218,6 @@
 }
 
 /* Add these styles at the end of the file */
-.view-toggle {
-    margin-bottom: 20px;
-    text-align: center;
-}
-
-.view-toggle select {
-    background: rgba(0, 0, 50, 0.5);
-    color: #00d4ff;
-    border: 1px solid rgba(0, 150, 255, 0.4);
-    padding: 8px 15px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
 .set-container {
     background: rgba(10, 10, 50, 0.8);
     border-radius: 10px;
@@ -251,56 +236,59 @@
 }
 
 .set-header p {
-    color: #ffffff;
+    color: #88ccff;
     margin: 5px 0;
     font-size: 14px;
 }
 
 .set-reward {
-    color: #00ff00 !important;
+    color: #00ff88 !important;
     font-weight: bold;
 }
 
 .set-items {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    gap: 10px;
-    margin-bottom: 15px;
+    gap: 15px;
 }
 
 .set-item {
+    background: rgba(0, 0, 50, 0.5);
     padding: 10px;
-    border-radius: 5px;
+    border-radius: 8px;
     text-align: center;
 }
 
-.set-item.owned {
-    background: rgba(0, 255, 0, 0.1);
-    border: 1px solid rgba(0, 255, 0, 0.3);
-}
-
 .set-item.missing {
-    background: rgba(255, 0, 0, 0.1);
-    border: 1px solid rgba(255, 0, 0, 0.3);
-    opacity: 0.6;
+    opacity: 0.5;
+    filter: grayscale(100%);
 }
 
-.claim-set-button {
-    width: 100%;
-    padding: 10px;
-    background: rgba(0, 150, 255, 0.3);
-    border: 1px solid rgba(0, 150, 255, 0.4);
+.set-item .item-status {
+    font-size: 18px;
+    margin-top: 5px;
+}
+
+.set-item.owned .item-status {
+    color: #00ff88;
+}
+
+.set-item.missing .item-status {
+    color: #ff4444;
+}
+
+/* Style the view toggle */
+.view-toggle {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.view-toggle select {
+    background: rgba(0, 0, 50, 0.5);
     color: #00d4ff;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    padding: 8px 15px;
     border-radius: 5px;
     cursor: pointer;
     transition: all 0.3s ease;
-}
-
-.claim-set-button:hover:not(:disabled) {
-    background: rgba(0, 150, 255, 0.5);
-}
-
-.claim-set-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
 }

@@ -246,3 +246,10 @@ window.ItemSystem = {
     ITEMS,
     SETS
 };
+
+// Add this method
+window.ItemSystem.getItemSet = function(itemName) {
+    return Object.entries(SETS).find(([setName, setData]) => 
+        setData.items.includes(itemName)
+    )?.[0] || null;
+};
