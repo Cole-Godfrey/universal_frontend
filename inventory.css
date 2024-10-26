@@ -323,3 +323,39 @@
     color: rgba(255, 0, 0, 0.8);
     font-style: italic;
 }
+
+/* Update the sets-display and sets-container styles */
+.sets-display {
+    height: 500px; /* Set a fixed height for the sets display area */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    border-radius: 10px;
+    background: rgba(0, 0, 50, 0.5);
+    margin: 20px 0;
+}
+
+/* Add scrollbar styling for the sets display */
+.sets-display::-webkit-scrollbar {
+    width: 8px;
+}
+
+.sets-display::-webkit-scrollbar-track {
+    background: rgba(0, 0, 50, 0.3);
+    border-radius: 4px;
+}
+
+.sets-display::-webkit-scrollbar-thumb {
+    background: rgba(0, 150, 255, 0.4);
+    border-radius: 4px;
+}
+
+.sets-display::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 150, 255, 0.6);
+}
+
+/* Add iOS scrolling support */
+@supports (-webkit-touch-callout: none) {
+    .sets-display {
+        -webkit-overflow-scrolling: touch;
+    }
+}
