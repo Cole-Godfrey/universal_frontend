@@ -199,9 +199,10 @@ button:hover {
 .menu {
     display: flex;
     justify-content: center;
-    gap: 20px;  /* Increased gap between buttons */
-    margin-top: 2px;
-    margin-bottom: 0;  /* Ensure no bottom margin */
+    gap: 20px;
+    margin-bottom: 20px; /* Add space between menu and canvas */
+    padding: 10px;      /* Add some padding around the menu */
+    width: 100%;        /* Make menu full width */
 }
 
 /* Update menu button styles with a cosmic/void theme */
@@ -497,16 +498,18 @@ button:hover {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding-top: 20px; /* Add some top padding */
 }
 
 .container {
     text-align: center;
     width: 95%;
     max-width: 1800px;
-    padding: 10px 10px 0 10px;
-    /* Remove absolute positioning and transform */
-    position: relative;
+    padding: 20px 10px 0 10px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center;    /* Center children horizontally */
 }
 
 /* Update canvas styles */
@@ -525,6 +528,7 @@ canvas {
         inset 0 0 50px rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
     max-width: 100%;  /* Make sure canvas doesn't overflow container */
+    height: auto;
 }
 
 /* Remove these properties from the existing .container styles */
@@ -536,3 +540,4 @@ canvas {
     transform: translate(-50%, -50%);
     */
 }
+
