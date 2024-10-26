@@ -96,6 +96,10 @@ const DIVIDER_FRICTION = 0.95;  // Friction when hitting dividers
 // Add this constant near the top with other game constants
 const MAX_BALLS_IN_PLAY = 5;
 
+// Add these constants near the top with other game constants
+const CENTER_INFLUENCE = 0.015; // Subtle force towards center (adjust between 0.01-0.02 for subtlety)
+const CENTER_RANGE = canvas.width * 0.6; // Range where influence takes effect
+
 // Chip class
 class Chip {
     constructor(x, y) {
@@ -125,6 +129,16 @@ class Chip {
 
         // Apply gravity
         this.velocity.y += GRAVITY;
+
+        // Add subtle influence towards center when chip is outside center range
+        const distanceFromCenter = this.x - (canvas.width / 2);
+        if (Math.abs(distanceFromCenter) > CENTER_RANGE / 2) {
+            // Calculate influence based on distance from center
+            const influence = -distanceFromCenter * CENTER_INFLUENCE;
+            // Apply reduced influence as ball falls faster
+            const velocityFactor = Math.max(0, 1 - Math.abs(this.velocity.y) / 20);
+            this.velocity.x += influence * velocityFactor;
+        }
 
         // Apply air resistance
         this.velocity.x *= AIR_RESISTANCE;
