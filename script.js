@@ -100,6 +100,11 @@ const MAX_BALLS_IN_PLAY = 5;
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
+// Add these constants near the top with other game constants
+const EDGE_REPULSION = 0.8;  // Strength of repulsion from edges
+const EDGE_ZONE = canvas.width * 0.2;  // Width of edge zones (20% of canvas width)
+const CENTER_ATTRACTION = 0.3;  // Strength of attraction to center
+
 // Update the Chip class
 class Chip {
     constructor(x, y) {
@@ -188,16 +193,20 @@ class Chip {
                 
                 // Only bounce if moving towards the peg
                 if (normalVelocity < 0) {
-                    // Calculate impulse
-                    const impulse = -(1 + COLLISION_ELASTICITY) * normalVelocity;
+                    // Calculate position-based multiplier
+                    const edgeFactor = Math.min(this.x, canvas.width - this.x) / EDGE_ZONE;
+                    const positionMultiplier = edgeFactor < 1 ? 1 + (1 - edgeFactor) * 0.5 : 1;
+                    
+                    // Apply stronger impulse near edges
+                    const impulse = -(1 + COLLISION_ELASTICITY * positionMultiplier) * normalVelocity;
                     
                     // Apply impulse
                     this.velocity.x += impulse * normalX;
                     this.velocity.y += impulse * normalY;
                     
-                    // Add spin based on collision point
+                    // Add stronger spin based on position
                     const tangentialVelocity = -relativeVelocityX * normalY + relativeVelocityY * normalX;
-                    this.spin = tangentialVelocity * SPIN_FACTOR;
+                    this.spin = tangentialVelocity * SPIN_FACTOR * positionMultiplier;
                     
                     // Update angular velocity
                     this.angularVelocity += this.spin;
@@ -207,8 +216,8 @@ class Chip {
                     this.x += overlap * normalX;
                     this.y += overlap * normalY;
                     
-                    // Add slight randomness to prevent predictable paths
-                    const randomFactor = 0.1;
+                    // Add increased randomness near edges
+                    const randomFactor = 0.1 * (1 + (1 - edgeFactor) * 0.5);
                     this.velocity.x += (Math.random() - 0.5) * randomFactor;
                     this.velocity.y += (Math.random() - 0.5) * randomFactor;
                 }
@@ -218,12 +227,12 @@ class Chip {
         // Wall collisions with improved physics
         if (this.x < CHIP_RADIUS) {
             this.x = CHIP_RADIUS;
-            this.velocity.x = Math.abs(this.velocity.x) * BOUNCE_DAMPING;
-            this.spin *= -0.5;  // Reverse and reduce spin on wall collision
+            this.velocity.x = Math.abs(this.velocity.x) * BOUNCE_DAMPING * 1.2;  // Stronger bounce
+            this.spin *= -0.7;  // Increased spin reversal
         } else if (this.x > canvas.width - CHIP_RADIUS) {
             this.x = canvas.width - CHIP_RADIUS;
-            this.velocity.x = -Math.abs(this.velocity.x) * BOUNCE_DAMPING;
-            this.spin *= -0.5;  // Reverse and reduce spin on wall collision
+            this.velocity.x = -Math.abs(this.velocity.x) * BOUNCE_DAMPING * 1.2;  // Stronger bounce
+            this.spin *= -0.7;  // Increased spin reversal
         }
 
         // Check collisions with dividers
@@ -354,6 +363,32 @@ class Chip {
             } else {
                     showResultMessage('Break Even', '#ffffff');
             }
+        }
+
+        // Update the Chip class's update method - add this inside the collision checks
+        // Add this after the peg collisions but before the wall collisions
+        if (this.y > canvas.height * 0.5) {  // Only apply in lower half of board
+            // Calculate distance from center
+            const distFromCenter = this.x - canvas.width / 2;
+            const absDistFromCenter = Math.abs(distFromCenter);
+            
+            // Apply center attraction
+            if (absDistFromCenter > EDGE_ZONE * 0.5) {
+                const attraction = (distFromCenter > 0 ? -1 : 1) * CENTER_ATTRACTION;
+                this.velocity.x += attraction;
+            }
+            
+            // Apply edge repulsion
+            if (this.x < EDGE_ZONE) {  // Left edge
+                const repulsion = EDGE_REPULSION * (1 - this.x / EDGE_ZONE);
+                this.velocity.x += repulsion;
+            } else if (this.x > canvas.width - EDGE_ZONE) {  // Right edge
+                const repulsion = -EDGE_REPULSION * (1 - (canvas.width - this.x) / EDGE_ZONE);
+                this.velocity.x += repulsion;
+            }
+            
+            // Add some randomness to prevent predictable paths
+            this.velocity.x += (Math.random() - 0.5) * 0.2;
         }
     }
 
