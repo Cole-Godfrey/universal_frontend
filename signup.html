@@ -14,12 +14,18 @@
     <link rel="apple-touch-startup-image" href="splash.png">
 </head>
 <body>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
+    <div class="shooting-star"></div>
     <div class="container">
-        <h1>Sign Up</h1>
-        <form id="signupForm">
-            <input type="text" id="signupUsername" placeholder="Enter username" required>
-            <button type="submit">Sign Up</button>
-        </form>
+        <div class="signup-container">
+            <h1 class="signup-title">Sign Up</h1>
+            <form id="signupForm" class="signup-form">
+                <input type="text" id="signupUsername" placeholder="Enter username" required>
+                <button type="submit" class="signup-button">Sign Up</button>
+            </form>
+        </div>
     </div>
     <!-- Load scripts at the end of body, config.js first -->
     <script src="config.js"></script>

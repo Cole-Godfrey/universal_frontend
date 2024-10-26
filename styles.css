@@ -455,3 +455,89 @@ canvas {
     -moz-appearance: textfield;
 }
 
+/* Add these styles for the signup page */
+.signup-container {
+    background: rgba(0, 0, 50, 0.8);
+    border-radius: 15px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(0, 150, 255, 0.4);
+    box-shadow: 0 0 30px rgba(0, 150, 255, 0.2);
+    width: 300px;
+    margin: 0 auto;
+}
+
+.signup-title {
+    color: #00d4ff;
+    font-size: 36px;
+    margin-bottom: 30px;
+    text-align: center;
+    text-shadow: 0 0 10px rgba(0, 150, 255, 0.8);
+    text-transform: uppercase;
+    letter-spacing: 3px;
+}
+
+.signup-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.signup-form input {
+    background: rgba(0, 0, 50, 0.5);
+    color: #00d4ff;
+    border: 1px solid rgba(0, 150, 255, 0.4);
+    padding: 12px 15px;
+    border-radius: 5px;
+    font-size: 16px;
+    width: 100%;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.signup-form input:focus {
+    outline: none;
+    border-color: rgba(0, 150, 255, 0.8);
+    box-shadow: 0 0 15px rgba(0, 150, 255, 0.3);
+}
+
+.signup-form input::placeholder {
+    color: rgba(0, 212, 255, 0.6);
+}
+
+.signup-button {
+    background: linear-gradient(45deg, #4a2a8a, #2a1a4a);
+    color: white;
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    padding: 12px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    width: 100%;
+}
+
+.signup-button:hover {
+    background: linear-gradient(45deg, #5a3a9a, #3a2a5a);
+    box-shadow: 0 0 15px rgba(138, 43, 226, 0.4);
+    transform: translateY(-2px);
+}
+
+.signup-button:active {
+    transform: translateY(0);
+}
+
+/* Add iOS-specific styles */
+@supports (-webkit-touch-callout: none) {
+    .signup-container {
+        padding-top: max(30px, env(safe-area-inset-top));
+        padding-bottom: max(30px, env(safe-area-inset-bottom));
+    }
+
+    .signup-form input {
+        -webkit-appearance: none;
+        appearance: none;
+    }
+}
