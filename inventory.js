@@ -289,24 +289,39 @@ class Inventory {
         
         // Update visibility of content
         const inventoryDisplay = document.querySelector('.inventory-display');
-        const setsContainer = document.querySelector('.sets-container');
+        let setsContainer = document.querySelector('.sets-container');
         
         if (tabName === 'items') {
             inventoryDisplay.style.display = 'block';
-            if (setsContainer) setsContainer.style.display = 'none';
+            if (setsContainer) {
+                setsContainer.style.display = 'none';
+            }
         } else {
             inventoryDisplay.style.display = 'none';
-            if (setsContainer) setsContainer.style.display = 'block';
-            else this.displaySets(); // If sets container doesn't exist, create it
+            // Always create or update sets container when switching to sets tab
+            this.displaySets();
+            setsContainer = document.querySelector('.sets-container');
+            if (setsContainer) {
+                setsContainer.style.display = 'block';
+            }
         }
     }
 
     displaySets() {
-        const existingSets = document.querySelector('.sets-container');
-        if (existingSets) existingSets.remove();
-
-        const setsContainer = document.createElement('div');
-        setsContainer.className = 'sets-container';
+        let setsContainer = document.querySelector('.sets-container');
+        if (!setsContainer) {
+            setsContainer = document.createElement('div');
+            setsContainer.className = 'sets-container';
+            // Insert after the inventory display
+            const inventoryDisplay = document.querySelector('.inventory-display');
+            inventoryDisplay.parentNode.insertBefore(setsContainer, inventoryDisplay.nextSibling);
+        }
+        
+        // Clear existing content
+        setsContainer.innerHTML = '';
+        
+        // Make sure sets container is visible
+        setsContainer.style.display = 'block';
         
         Object.entries(window.ItemSystem.ITEM_SETS).forEach(([setId, setInfo]) => {
             const setElement = document.createElement('div');
@@ -335,10 +350,6 @@ class Inventory {
             
             setsContainer.appendChild(setElement);
         });
-        
-        // Insert after the inventory display
-        const inventoryDisplay = document.querySelector('.inventory-display');
-        inventoryDisplay.parentNode.insertBefore(setsContainer, inventoryDisplay.nextSibling);
     }
 }
 

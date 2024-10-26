@@ -224,8 +224,16 @@
     border-radius: 10px;
     padding: 20px;
     border: 1px solid rgba(138, 43, 226, 0.4);
-    max-height: 600px; /* Increased height since it's now full page */
+    max-height: 600px;
     overflow-y: auto;
+    width: 100%; /* Ensure it takes full width */
+    box-sizing: border-box; /* Include padding in width calculation */
+    margin-bottom: 20px;
+}
+
+/* When visible, make sure it's actually displayed */
+.sets-container[style*="display: block"] {
+    display: block !important;
 }
 
 .set-info {
