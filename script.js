@@ -14,7 +14,7 @@ const BASE_COLS = 17;  // Match COLS
 const SLOT_WIDTH = canvas.width / COLS;
 const VERTICAL_SPACING = canvas.height / (ROWS + 2);
 const CHIP_COST = 50;
-const SLOT_REWARDS = [25, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 25].map(x => x * CHIP_COST);
+const SLOT_REWARDS = [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * CHIP_COST);
 let balance = parseInt(localStorage.getItem('balance')) || 1000;  // Changed from 10000000 to 1000
 
 // Game state
@@ -80,13 +80,13 @@ for (let row = 0; row < ROWS; row++) {
 const DIVIDER_HEIGHT = 30;
 
 // Update these constants for more realistic physics
-const GRAVITY = 0.35;           // Increased from 0.3
-const BOUNCE_DAMPING = 0.65;    // Reduced from 0.7 - more energy loss
-const AIR_RESISTANCE = 0.985;   // Reduced from 0.99 - more air resistance
-const COLLISION_ELASTICITY = 0.75; // Reduced from 0.8
-const FRICTION = 0.97;          // Increased friction from 0.98
-const SPIN_FACTOR = 0.2;        // Increased from 0.15 - more spin effect
-const MAX_VELOCITY = 22;        // Increased from 20 - allows for more chaotic movement
+const GRAVITY = 0.3;  // Increased from 0.1
+const BOUNCE_DAMPING = 0.7;  // Changed from 0.6 - less energy loss
+const AIR_RESISTANCE = 0.99;  // New constant for air resistance
+const COLLISION_ELASTICITY = 0.8;  // New constant for collision elasticity
+const FRICTION = 0.98;  // New constant for horizontal friction
+const SPIN_FACTOR = 0.15;  // New constant for spin effect
+const MAX_VELOCITY = 20;  // New constant to prevent excessive speeds
 
 // Add these constants at the top with other game constants
 const DIVIDER_WIDTH = 4;  // Width of divider in pixels
@@ -95,6 +95,10 @@ const DIVIDER_FRICTION = 0.95;  // Friction when hitting dividers
 
 // Add this constant near the top with other game constants
 const MAX_BALLS_IN_PLAY = 5;
+
+// Add these constants near the top with other physics constants
+const CENTER_FORCE = 0.05;  // Strength of the force pulling towards center
+const CENTER_RANGE = 300;   // How far from center the force starts acting
 
 // Chip class
 class Chip {
@@ -115,7 +119,6 @@ class Chip {
 
     update() {
         if (this.landed) {
-            // Remove this chip from the array
             const index = chips.indexOf(this);
             if (index > -1) {
                 chips.splice(index, 1);
@@ -123,17 +126,22 @@ class Chip {
             return;
         }
 
-        // Apply gravity with slight randomness
-        this.velocity.y += GRAVITY * (1 + (Math.random() - 0.5) * 0.1);
+        // Apply gravity
+        this.velocity.y += GRAVITY;
 
-        // Apply air resistance
+        // Add center-seeking force
+        const distanceFromCenter = this.x - canvas.width / 2;
+        if (Math.abs(distanceFromCenter) < CENTER_RANGE) {
+            // Calculate force based on distance from center (stronger when further)
+            const forceMagnitude = (distanceFromCenter / CENTER_RANGE) * CENTER_FORCE;
+            // Apply opposite force to pull towards center
+            this.velocity.x -= forceMagnitude;
+        }
+
+        // Rest of the physics remain the same
         this.velocity.x *= AIR_RESISTANCE;
         this.velocity.y *= AIR_RESISTANCE;
-
-        // Apply horizontal friction
         this.velocity.x *= FRICTION;
-
-        // Apply spin effect
         this.velocity.x += this.spin * SPIN_FACTOR;
 
         // Limit maximum velocity
@@ -160,23 +168,43 @@ class Chip {
             const distance = Math.sqrt(dx * dx + dy * dy);
 
             if (distance < CHIP_RADIUS + PEG_RADIUS) {
+                // Collision response with improved physics
                 const angle = Math.atan2(dy, dx);
+                const relativeVelocityX = this.velocity.x;
+                const relativeVelocityY = this.velocity.y;
+                
+                // Calculate collision normal
                 const normalX = dx / distance;
                 const normalY = dy / distance;
-                const normalVelocity = this.velocity.x * normalX + this.velocity.y * normalY;
                 
+                // Calculate relative velocity along normal
+                const normalVelocity = relativeVelocityX * normalX + relativeVelocityY * normalY;
+                
+                // Only bounce if moving towards the peg
                 if (normalVelocity < 0) {
-                    // Add more randomness to bounce
-                    const randomFactor = 0.15; // Increased from 0.1
+                    // Calculate impulse
+                    const impulse = -(1 + COLLISION_ELASTICITY) * normalVelocity;
+                    
+                    // Apply impulse
+                    this.velocity.x += impulse * normalX;
+                    this.velocity.y += impulse * normalY;
+                    
+                    // Add spin based on collision point
+                    const tangentialVelocity = -relativeVelocityX * normalY + relativeVelocityY * normalX;
+                    this.spin = tangentialVelocity * SPIN_FACTOR;
+                    
+                    // Update angular velocity
+                    this.angularVelocity += this.spin;
+                    
+                    // Position correction to prevent sticking
+                    const overlap = (CHIP_RADIUS + PEG_RADIUS) - distance;
+                    this.x += overlap * normalX;
+                    this.y += overlap * normalY;
+                    
+                    // Add slight randomness to prevent predictable paths
+                    const randomFactor = 0.1;
                     this.velocity.x += (Math.random() - 0.5) * randomFactor;
                     this.velocity.y += (Math.random() - 0.5) * randomFactor;
-                    
-                    // Add random spin on collision
-                    this.spin += (Math.random() - 0.5) * 0.3; // Increased random spin
-                    
-                    // Add slight random offset to position after collision
-                    this.x += (Math.random() - 0.5) * 0.5;
-                    this.y += (Math.random() - 0.5) * 0.5;
                 }
             }
         });
@@ -461,9 +489,9 @@ document.addEventListener('keydown', (e) => {
     }
 });
 
-// Update the slot rewards to match new multipliers
+// Update the slot rewards to be based on current wager
 function calculateSlotRewards() {
-    return [25, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0, 0.1, 0.2, 0.5, 1, 2, 5, 10, 25].map(x => x * currentWager);
+    return [50, 25, 10, 5, 2, 1, 0.5, 0.25, 0, 0.25, 0.5, 1, 2, 5, 10, 25, 50].map(x => x * currentWager);
 }
 
 // Add this function to calculate trajectory points
