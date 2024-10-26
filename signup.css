@@ -1,0 +1,111 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(180deg, #000000 0%, #1a0033 50%, #330066 100%);
+    font-family: Arial, sans-serif;
+    position: relative;
+    overflow: hidden;
+}
+
+.container {
+    position: relative;
+    z-index: 5;
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.signup-container {
+    position: relative;
+    z-index: 10;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 2rem;
+    border-radius: 10px;
+    border: 1px solid rgba(138, 43, 226, 0.4);
+    box-shadow: 0 0 20px rgba(138, 43, 226, 0.2);
+}
+
+.signup-title {
+    color: white;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.signup-form input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #444;
+    border-radius: 5px;
+    background: #fff;
+    font-size: 16px;
+    box-sizing: border-box;
+}
+
+.signup-button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 20px;
+    background: linear-gradient(45deg, #4a3f00, #806c00);
+    color: white;
+    border: 1px solid #ffd700;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+.signup-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+/* Shooting stars */
+.shooting-star {
+    position: fixed;
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+    animation: shootingStars 2s linear infinite;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes shootingStars {
+    0% {
+        transform: translateX(0) translateY(0) rotate(-45deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateX(-500px) translateY(500px) rotate(-45deg);
+        opacity: 0;
+    }
+}
+
+.shooting-star:nth-child(1) { top: 10%; right: 0; animation-delay: 0s; }
+.shooting-star:nth-child(2) { top: 30%; right: 20%; animation-delay: 0.6s; }
+.shooting-star:nth-child(3) { top: 50%; right: 10%; animation-delay: 1.2s; }
+.shooting-star:nth-child(4) { top: 70%; right: 30%; animation-delay: 1.8s; }
+
+/* iOS-specific fixes */
+* {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+}
+
+input {
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+@supports (-webkit-touch-callout: none) {
+    input[type="text"] {
+        font-size: 16px;
+    }
+}
