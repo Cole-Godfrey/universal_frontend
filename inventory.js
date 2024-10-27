@@ -21,7 +21,7 @@ class Inventory {
             }
             const userData = await response.json();
             this.items = userData.inventory || [];
-            this.updateBalance(userData.balance);
+            // Remove the call to updateBalance
             this.displayInventory();
         } catch (error) {
             console.error('Error loading inventory:', error);
