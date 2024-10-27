@@ -142,16 +142,30 @@ class Inventory {
     }
 
     calculateItemWorth(item) {
-        // Make the worth value the same as the sell value
-        return this.calculateItemValue(item);
-    }
-
-    updateBalance(amount) {
-        const balanceDisplay = document.getElementById('balanceDisplay');
-        const currentBalance = parseInt(balanceDisplay.textContent.replace(/[^0-9]/g, ''));
-        const newBalance = currentBalance + amount;
-        balanceDisplay.textContent = `Balance: $${newBalance.toLocaleString()}`;
-        localStorage.setItem('balance', newBalance); // Update local storage
+        // Define the worth of items based on their rarity
+        const rarityValues = {
+            COMMON: 5,
+            UNCOMMON: 15,
+            RARE: 40,
+            VERY_RARE: 80,
+            EPIC: 150,
+            LEGENDARY: 300,
+            MYTHICAL: 600,
+            DIVINE: 1200,
+            CELESTIAL: 2500,
+            COSMIC: 5000,
+            TRANSCENDENT: 10000,
+            ETHEREAL: 20000,
+            ANCIENT: 40000,
+            PRIMORDIAL: 80000,
+            GODLY: 160000,
+            OMNIPOTENT: 320000,
+            INFINITE: 640000,
+            ETERNAL: 1280000,
+            IMMORTAL: 2560000,
+            ABSOLUTE: 5120000
+        };
+        return rarityValues[item.rarity] || 0;
     }
 }
 
