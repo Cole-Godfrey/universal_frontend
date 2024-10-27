@@ -1448,7 +1448,7 @@ async function addItemToInventory(item) {
 // Add after your existing code
 
 // Initialize Stripe
-const stripe = Stripe('pk_live_51QEJc4Lgvs2Le5SQEf1pppmR3d645ZHopkU5rn1VxfdqTgiHOvm8byICAf4NrGxM98vvmJmrqscJJOkl6NBk5QYt00W6obieuY'); // Replace with your actual Stripe publishable key
+const stripe = Stripe('your_publishable_key'); // Replace with your actual Stripe publishable key
 
 // Modal functionality
 const modal = document.getElementById('currencyModal');
