@@ -122,8 +122,7 @@ class Inventory {
             const itemElement = document.createElement('div');
             itemElement.className = 'inventory-item';
             itemElement.setAttribute('data-rarity', item.rarity);
-            
-            const itemValue = this.calculateItemValue(item);
+
             const itemWorth = this.calculateItemWorth(item);
 
             itemElement.innerHTML = `
@@ -131,10 +130,8 @@ class Inventory {
                 <div class="item-name">${item.name}</div>
                 <div class="item-rarity" style="color: ${item.color}">${item.rarity}</div>
                 <div class="item-worth" style="color: #00d4ff;">Worth: $${itemWorth.toLocaleString()}</div>
-                <button class="sell-item-button">Sell</button>
             `;
 
-            itemElement.querySelector('.sell-item-button').addEventListener('click', () => this.sellItem(item, itemValue));
             grid.appendChild(itemElement);
         });
 
@@ -142,87 +139,6 @@ class Inventory {
         document.querySelector('.page-info').textContent = `Page ${this.currentPage} of ${maxPages}`;
         document.querySelector('.prev-page').disabled = this.currentPage === 1;
         document.querySelector('.next-page').disabled = this.currentPage === maxPages;
-    }
-
-    async sellItem(item, itemValue) {
-        const username = localStorage.getItem('playerName');
-        try {
-            // Call the server to update the inventory
-            const response = await fetch('https://universal-backend-7wn9.onrender.com/api/sell-item', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username,
-                    itemName: item.name
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update inventory on server');
-            }
-
-            // Fetch the current balance from the server
-            const userResponse = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
-            if (!userResponse.ok) {
-                throw new Error('Failed to fetch user data from server');
-            }
-            const userData = await userResponse.json();
-            const newBalance = userData.balance + itemValue;
-
-            // Update balance on the server
-            const balanceResponse = await fetch('https://universal-backend-7wn9.onrender.com/api/update-balance', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    username,
-                    balance: newBalance
-                })
-            });
-
-            if (!balanceResponse.ok) {
-                throw new Error('Failed to update balance on server');
-            }
-
-            // Remove sold item from local inventory
-            this.items = this.items.filter(i => i !== item);
-            this.displayInventory();
-            this.updateBalance(itemValue);
-            alert(`Sold ${item.name} for $${itemValue.toLocaleString()}`);
-        } catch (error) {
-            console.error('Error selling item:', error);
-            alert('Failed to sell item. Please try again later.');
-        }
-    }
-
-    calculateItemValue(item) {
-        // Adjusted sell value calculation based on rarity
-        const rarityValues = {
-            COMMON: 5,
-            UNCOMMON: 15,
-            RARE: 40,
-            VERY_RARE: 80,
-            EPIC: 150,
-            LEGENDARY: 300,
-            MYTHICAL: 600,
-            DIVINE: 1200,
-            CELESTIAL: 2500,
-            COSMIC: 5000,
-            TRANSCENDENT: 10000,
-            ETHEREAL: 20000,
-            ANCIENT: 40000,
-            PRIMORDIAL: 80000,
-            GODLY: 160000,
-            OMNIPOTENT: 320000,
-            INFINITE: 640000,
-            ETERNAL: 1280000,
-            IMMORTAL: 2560000,
-            ABSOLUTE: 5120000
-        };
-        return rarityValues[item.rarity] || 0;
     }
 
     calculateItemWorth(item) {
