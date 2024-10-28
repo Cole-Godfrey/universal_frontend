@@ -541,3 +541,65 @@ canvas {
     */
 }
 
+/* Add viewport meta tag styles */
+@viewport {
+    width: device-width;
+    initial-scale: 1;
+    maximum-scale: 1;
+    user-scalable: no;
+}
+
+/* Update container for mobile */
+.container {
+    width: 100%;
+    max-width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    margin: 0;
+    height: 100vh;
+    height: calc(var(--vh, 1vh) * 100); /* Fix for mobile vh */
+}
+
+/* Make menu responsive */
+.menu {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 buttons per row on mobile */
+    gap: 10px;
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Adjust menu buttons for mobile */
+.menu-button {
+    padding: 12px 15px; /* Larger touch targets */
+    min-width: unset; /* Remove fixed width */
+    width: 100%;
+    font-size: 14px;
+}
+
+/* Make canvas responsive */
+canvas {
+    width: 100% !important; /* Force canvas width */
+    height: auto !important; /* Maintain aspect ratio */
+    max-width: 100%;
+    touch-action: none; /* Prevent default touch actions */
+}
+
+/* Add media queries for different screen sizes */
+@media (max-width: 768px) {
+    .container {
+        padding: 5px;
+    }
+    
+    .menu-button {
+        font-size: 12px;
+        padding: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu {
+        grid-template-columns: 1fr 1fr; /* Keep 2 columns on very small screens */
+    }
+}

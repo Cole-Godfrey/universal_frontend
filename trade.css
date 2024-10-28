@@ -434,3 +434,20 @@
     border-radius: 5px;
     font-size: 16px; /* Prevent zoom on iOS */
 }
+
+/* Add responsive trade layout */
+@media (max-width: 768px) {
+    .trade-container {
+        flex-direction: column;
+        padding: 10px;
+    }
+
+    .trade-section {
+        width: 100%;
+        margin: 10px 0;
+    }
+
+    .items-grid {
+        grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    }
+}
