@@ -1252,6 +1252,29 @@ canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
 canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
 canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
 
+// Add function to shoot chip
+function shootChip() {
+    if (chips.length >= MAX_BALLS_IN_PLAY) {
+        showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed!`);
+        return;
+    }
+
+    if (balance < currentWager) {
+        showWarningMessage("Insufficient balance!");
+        return;
+    }
+
+    balance -= currentWager;
+    const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
+    const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+    const chip = new Chip(cannonTipX, cannonTipY);
+    chips.push(chip);
+
+    // Update local storage and server
+    localStorage.setItem('balance', balance);
+    updatePlayerBalance(-currentWager);
+}
+
 // Handle touch start
 function handleTouchStart(e) {
     e.preventDefault();
@@ -1265,6 +1288,7 @@ function handleTouchStart(e) {
 
     // Update cannon angle immediately on touch
     updateCannonAngle(touchStartX, touchStartY);
+    updateTouchIndicator(touchStartX, touchStartY);
 }
 
 // Handle touch move
@@ -1281,16 +1305,19 @@ function handleTouchMove(e) {
 
     // Update cannon angle while dragging
     updateCannonAngle(x, y);
+    updateTouchIndicator(x, y);
 }
 
 // Handle touch end
 function handleTouchEnd(e) {
     e.preventDefault();
     if (!isDragging) return;
+    
     isDragging = false;
+    hideTouchIndicator();
 
-    // Shoot the chip when touch ends
-    if (chips.length < MAX_BALLS_IN_PLAY && balance >= currentWager) {
+    // Only shoot if we have enough balance and aren't at max balls
+    if (balance >= currentWager && chips.length < MAX_BALLS_IN_PLAY) {
         shootChip();
     } else if (chips.length >= MAX_BALLS_IN_PLAY) {
         showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed!`);
@@ -1331,7 +1358,19 @@ let touchIndicator = {
     alpha: 0.5
 };
 
-// Update draw function to include touch indicator
+// Update touch indicator position
+function updateTouchIndicator(x, y) {
+    touchIndicator.visible = true;
+    touchIndicator.x = x;
+    touchIndicator.y = y;
+}
+
+// Hide touch indicator when touch ends
+function hideTouchIndicator() {
+    touchIndicator.visible = false;
+}
+
+// Update the draw function to include touch indicator
 const originalDraw = draw;
 draw = function() {
     originalDraw();
@@ -1355,6 +1394,15 @@ draw = function() {
     }
 };
 
+// Add visual feedback for touch
+let touchIndicator = {
+    visible: false,
+    x: 0,
+    y: 0,
+    radius: 20,
+    alpha: 0.5
+};
+
 // Update touch indicator position
 function updateTouchIndicator(x, y) {
     touchIndicator.visible = true;
@@ -1367,52 +1415,27 @@ function hideTouchIndicator() {
     touchIndicator.visible = false;
 }
 
-// Update the existing touch handlers to include visual feedback
-function handleTouchStart(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    if (!touch) return;
+// Update the draw function to include touch indicator
+const originalDraw = draw;
+draw = function() {
+    originalDraw();
 
-    const rect = canvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-
-    touchStartX = x;
-    touchStartY = y;
-    isDragging = true;
-
-    updateCannonAngle(x, y);
-    updateTouchIndicator(x, y);
-}
-
-function handleTouchMove(e) {
-    e.preventDefault();
-    if (!isDragging) return;
-
-    const touch = e.touches[0];
-    if (!touch) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-
-    updateCannonAngle(x, y);
-    updateTouchIndicator(x, y);
-}
-
-function handleTouchEnd(e) {
-    e.preventDefault();
-    if (!isDragging) return;
-    
-    isDragging = false;
-    hideTouchIndicator();
-
-    if (chips.length < MAX_BALLS_IN_PLAY && balance >= currentWager) {
-        shootChip();
-    } else if (chips.length >= MAX_BALLS_IN_PLAY) {
-        showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed!`);
-    } else if (balance < currentWager) {
-        showWarningMessage("Insufficient balance!");
+    // Draw touch indicator if visible
+    if (touchIndicator.visible && isDragging) {
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(touchIndicator.x, touchIndicator.y, touchIndicator.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(138, 43, 226, ${touchIndicator.alpha})`;
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        
+        // Draw aiming line
+        ctx.beginPath();
+        ctx.moveTo(canvas.width/2, 50);
+        ctx.lineTo(touchIndicator.x, touchIndicator.y);
+        ctx.strokeStyle = `rgba(138, 43, 226, ${touchIndicator.alpha * 0.5})`;
+        ctx.stroke();
+        ctx.restore();
     }
-}
+};
 
