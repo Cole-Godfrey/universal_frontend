@@ -101,6 +101,47 @@ const MAX_BALLS_IN_PLAY = 5;
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
+// Add these constants at the top with other game constants
+const MAX_CANVAS_WIDTH = 800;  // Maximum width for desktop
+const MAX_CANVAS_HEIGHT = 600; // Maximum height for desktop
+const ASPECT_RATIO = 1.5;      // Maintain 3:2 aspect ratio (800:600)
+
+// Add this function to handle canvas sizing
+function resizeCanvas() {
+    const container = canvas.parentElement;
+    let containerWidth = container.clientWidth;
+    let containerHeight = container.clientHeight;
+
+    // Limit maximum size on desktop
+    containerWidth = Math.min(containerWidth, MAX_CANVAS_WIDTH);
+    containerHeight = Math.min(containerHeight, MAX_CANVAS_HEIGHT);
+
+    // Calculate dimensions maintaining aspect ratio
+    let newWidth = containerWidth;
+    let newHeight = containerWidth / ASPECT_RATIO;
+
+    // If height is too big, scale based on height instead
+    if (newHeight > containerHeight) {
+        newHeight = containerHeight;
+        newWidth = containerHeight * ASPECT_RATIO;
+    }
+
+    // Update canvas size
+    canvas.style.width = `${newWidth}px`;
+    canvas.style.height = `${newHeight}px`;
+    
+    // Set internal canvas dimensions
+    canvas.width = newWidth;
+    canvas.height = newHeight;
+
+    // Update game constants based on new size
+    SLOT_WIDTH = canvas.width / COLS;
+    VERTICAL_SPACING = canvas.height / (ROWS + 2);
+    
+    // Recalculate peg positions
+    initializePegs();
+}
+
 // Update the Chip class
 class Chip {
     constructor(x, y) {
@@ -1241,201 +1282,4 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = 'signup.html';
     }
 });
-
-// Add touch handling variables
-let touchStartX = 0;
-let touchStartY = 0;
-let isDragging = false;
-
-// Add touch event listeners
-canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
-canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
-canvas.addEventListener('touchend', handleTouchEnd, { passive: false });
-
-// Add function to shoot chip
-function shootChip() {
-    if (chips.length >= MAX_BALLS_IN_PLAY) {
-        showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed!`);
-        return;
-    }
-
-    if (balance < currentWager) {
-        showWarningMessage("Insufficient balance!");
-        return;
-    }
-
-    balance -= currentWager;
-    const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-    const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
-    const chip = new Chip(cannonTipX, cannonTipY);
-    chips.push(chip);
-
-    // Update local storage and server
-    localStorage.setItem('balance', balance);
-    updatePlayerBalance(-currentWager);
-}
-
-// Handle touch start
-function handleTouchStart(e) {
-    e.preventDefault();
-    const touch = e.touches[0];
-    if (!touch) return;
-
-    const rect = canvas.getBoundingClientRect();
-    touchStartX = touch.clientX - rect.left;
-    touchStartY = touch.clientY - rect.top;
-    isDragging = true;
-
-    // Update cannon angle immediately on touch
-    updateCannonAngle(touchStartX, touchStartY);
-    updateTouchIndicator(touchStartX, touchStartY);
-}
-
-// Handle touch move
-function handleTouchMove(e) {
-    e.preventDefault();
-    if (!isDragging) return;
-
-    const touch = e.touches[0];
-    if (!touch) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = touch.clientX - rect.left;
-    const y = touch.clientY - rect.top;
-
-    // Update cannon angle while dragging
-    updateCannonAngle(x, y);
-    updateTouchIndicator(x, y);
-}
-
-// Handle touch end
-function handleTouchEnd(e) {
-    e.preventDefault();
-    if (!isDragging) return;
-    
-    isDragging = false;
-    hideTouchIndicator();
-
-    // Only shoot if we have enough balance and aren't at max balls
-    if (balance >= currentWager && chips.length < MAX_BALLS_IN_PLAY) {
-        shootChip();
-    } else if (chips.length >= MAX_BALLS_IN_PLAY) {
-        showWarningMessage(`Maximum of ${MAX_BALLS_IN_PLAY} balls allowed!`);
-    } else if (balance < currentWager) {
-        showWarningMessage("Insufficient balance!");
-    }
-}
-
-// Update cannon angle based on touch position
-function updateCannonAngle(x, y) {
-    const cannonBaseX = canvas.width/2;
-    const cannonBaseY = 50;  // Cannon Y position
-
-    // Calculate angle between cannon base and touch position
-    const dx = x - cannonBaseX;
-    const dy = y - cannonBaseY;
-    let angle = Math.atan2(dy, dx);
-
-    // Limit the angle between 60 and 120 degrees
-    const minAngle = Math.PI/3;  // 60 degrees
-    const maxAngle = 2*Math.PI/3;  // 120 degrees
-    angle = Math.max(minAngle, Math.min(angle, maxAngle));
-
-    // Update cannon angle
-    cannonAngle = angle;
-
-    // Update mouse position for drawing
-    mouseX = x;
-    mouseY = y;
-}
-
-// Add visual feedback for touch
-let touchIndicator = {
-    visible: false,
-    x: 0,
-    y: 0,
-    radius: 20,
-    alpha: 0.5
-};
-
-// Update touch indicator position
-function updateTouchIndicator(x, y) {
-    touchIndicator.visible = true;
-    touchIndicator.x = x;
-    touchIndicator.y = y;
-}
-
-// Hide touch indicator when touch ends
-function hideTouchIndicator() {
-    touchIndicator.visible = false;
-}
-
-// Update the draw function to include touch indicator
-const originalDraw = draw;
-draw = function() {
-    originalDraw();
-
-    // Draw touch indicator if visible
-    if (touchIndicator.visible && isDragging) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(touchIndicator.x, touchIndicator.y, touchIndicator.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(138, 43, 226, ${touchIndicator.alpha})`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        // Draw aiming line
-        ctx.beginPath();
-        ctx.moveTo(canvas.width/2, 50);
-        ctx.lineTo(touchIndicator.x, touchIndicator.y);
-        ctx.strokeStyle = `rgba(138, 43, 226, ${touchIndicator.alpha * 0.5})`;
-        ctx.stroke();
-        ctx.restore();
-    }
-};
-
-// Add visual feedback for touch
-let touchIndicator = {
-    visible: false,
-    x: 0,
-    y: 0,
-    radius: 20,
-    alpha: 0.5
-};
-
-// Update touch indicator position
-function updateTouchIndicator(x, y) {
-    touchIndicator.visible = true;
-    touchIndicator.x = x;
-    touchIndicator.y = y;
-}
-
-// Hide touch indicator when touch ends
-function hideTouchIndicator() {
-    touchIndicator.visible = false;
-}
-
-// Update the draw function to include touch indicator
-const originalDraw = draw;
-draw = function() {
-    originalDraw();
-
-    // Draw touch indicator if visible
-    if (touchIndicator.visible && isDragging) {
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(touchIndicator.x, touchIndicator.y, touchIndicator.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(138, 43, 226, ${touchIndicator.alpha})`;
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        
-        // Draw aiming line
-        ctx.beginPath();
-        ctx.moveTo(canvas.width/2, 50);
-        ctx.lineTo(touchIndicator.x, touchIndicator.y);
-        ctx.strokeStyle = `rgba(138, 43, 226, ${touchIndicator.alpha * 0.5})`;
-        ctx.stroke();
-        ctx.restore();
-    }
-};
 

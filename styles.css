@@ -494,11 +494,10 @@ button:hover {
 /* Add these styles and update the container styles */
 .game-container {
     width: 100%;
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding-top: 20px; /* Add some top padding */
+    max-width: 1200px; /* Limit maximum width */
+    margin: 0 auto;
+    padding: 20px;
+    box-sizing: border-box;
 }
 
 .container {
@@ -527,8 +526,11 @@ canvas {
         0 0 30px rgba(138, 43, 226, 0.2),
         inset 0 0 50px rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(5px);
-    max-width: 100%;  /* Make sure canvas doesn't overflow container */
+    max-width: 800px; /* Match MAX_CANVAS_WIDTH */
+    width: 100%;
     height: auto;
+    margin: 0 auto;
+    display: block;
 }
 
 /* Remove these properties from the existing .container styles */
@@ -603,3 +605,4 @@ canvas {
         grid-template-columns: 1fr 1fr; /* Keep 2 columns on very small screens */
     }
 }
+
