@@ -494,34 +494,41 @@ button:hover {
 /* Add these styles and update the container styles */
 .game-container {
     width: 100%;
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    box-sizing: border-box;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
+    padding-top: 20px; /* Add some top padding */
 }
 
 .container {
-    width: 100%;
-    max-width: 800px;
+    text-align: center;
+    width: 95%;
+    max-width: 1800px;
+    padding: 20px 10px 0 10px;
     margin: 0 auto;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center;    /* Center children horizontally */
 }
 
 /* Update canvas styles */
 canvas {
-    max-width: 800px;
-    max-height: 500px;
-    width: 100%;
-    height: auto;
-    margin: 0 auto;
+    background: linear-gradient(180deg, 
+        rgba(0, 0, 0, 0.95), 
+        rgba(26, 0, 51, 0.95),
+        rgba(51, 0, 102, 0.95)
+    );
+    border: 2px solid rgba(138, 43, 226, 0.4);
+    border-radius: 8px;
     display: block;
+    margin: 0 auto;  /* This centers the canvas horizontally */
+    box-shadow: 
+        0 0 30px rgba(138, 43, 226, 0.2),
+        inset 0 0 50px rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    max-width: 100%;  /* Make sure canvas doesn't overflow container */
+    height: auto;
 }
 
 /* Remove these properties from the existing .container styles */
@@ -534,71 +541,3 @@ canvas {
     */
 }
 
-/* Add viewport meta tag styles */
-@viewport {
-    width: device-width;
-    initial-scale: 1;
-    maximum-scale: 1;
-    user-scalable: no;
-}
-
-/* Update container for mobile */
-.container {
-    width: 100%;
-    max-width: 100%;
-    padding: 10px;
-    box-sizing: border-box;
-    margin: 0;
-    height: 100vh;
-    height: calc(var(--vh, 1vh) * 100); /* Fix for mobile vh */
-}
-
-/* Make menu responsive */
-.menu {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 buttons per row on mobile */
-    gap: 10px;
-    padding: 10px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-/* Adjust menu buttons for mobile */
-.menu-button {
-    padding: 12px 15px; /* Larger touch targets */
-    min-width: unset; /* Remove fixed width */
-    width: 100%;
-    font-size: 14px;
-}
-
-/* Make canvas responsive */
-canvas {
-    width: 100% !important; /* Force canvas width */
-    height: auto !important; /* Maintain aspect ratio */
-    max-width: 100%;
-    touch-action: none; /* Prevent default touch actions */
-}
-
-/* Add media queries for different screen sizes */
-@media (max-width: 768px) {
-    .container {
-        padding: 5px;
-    }
-    
-    .menu-button {
-        font-size: 12px;
-        padding: 10px;
-    }
-}
-
-@media (max-width: 480px) {
-    .menu {
-        grid-template-columns: 1fr 1fr; /* Keep 2 columns on very small screens */
-    }
-}
-
-/* Update menu styles to take less vertical space */
-.menu {
-    padding: 10px;
-    margin-bottom: 10px;
-}

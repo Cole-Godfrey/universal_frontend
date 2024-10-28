@@ -46,7 +46,7 @@ canvas.addEventListener('mousemove', (e) => {
     
     // Calculate angle between cannon and mouse
     const dx = mouseX - canvas.width/2;
-    const dy = mouseY - 50;  // Cannon Y position
+    const dy = mouseY - 70;  // Changed from 50 to 70
     cannonAngle = Math.atan2(dy, dx);
     
     // Limit the angle between 60 and 120 degrees (more restricted range)
@@ -100,47 +100,6 @@ const MAX_BALLS_IN_PLAY = 5;
 // Add these constants near the top with other game constants
 const TRAIL_LENGTH = 10;  // Number of positions to store for trail
 const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
-
-// Add these constants at the top with other game constants
-const MAX_CANVAS_WIDTH = 800;  // Maximum width for desktop
-const MAX_CANVAS_HEIGHT = 500; // Reduced from 600 to 500
-const ASPECT_RATIO = 1.6;      // Maintain 8:5 aspect ratio (800:500)
-
-// Add this function to handle canvas sizing
-function resizeCanvas() {
-    const container = canvas.parentElement;
-    let containerWidth = container.clientWidth;
-    let containerHeight = window.innerHeight * 0.7; // Use 70% of viewport height
-
-    // Calculate dimensions maintaining aspect ratio
-    let newWidth = containerWidth;
-    let newHeight = newWidth / ASPECT_RATIO;
-
-    // If height is too big, scale based on height instead
-    if (newHeight > containerHeight) {
-        newHeight = containerHeight;
-        newWidth = newHeight * ASPECT_RATIO;
-    }
-
-    // Limit maximum size
-    newWidth = Math.min(newWidth, MAX_CANVAS_WIDTH);
-    newHeight = Math.min(newHeight, MAX_CANVAS_HEIGHT);
-
-    // Update canvas size
-    canvas.style.width = `${newWidth}px`;
-    canvas.style.height = `${newHeight}px`;
-    
-    // Set internal canvas dimensions
-    canvas.width = newWidth;
-    canvas.height = newHeight;
-
-    // Update game constants based on new size
-    SLOT_WIDTH = canvas.width / COLS;
-    VERTICAL_SPACING = canvas.height / (ROWS + 2);
-    
-    // Recalculate peg positions
-    initializePegs();
-}
 
 // Update the Chip class
 class Chip {
@@ -557,7 +516,7 @@ canvas.addEventListener('click', (e) => {
                 // Valid shot - proceed with chip creation
                 balance -= currentWager;
                 const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-                const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+                const cannonTipY = 70 + Math.sin(cannonAngle) * CANNON_LENGTH;  // Changed from 50 to 70
                 const chip = new Chip(cannonTipX, cannonTipY);
                 chips.push(chip);
             }
@@ -635,7 +594,7 @@ function draw() {
     
     // Calculate trajectory points
     const cannonTipX = canvas.width/2 + Math.cos(cannonAngle) * CANNON_LENGTH;
-    const cannonTipY = 50 + Math.sin(cannonAngle) * CANNON_LENGTH;
+    const cannonTipY = 70 + Math.sin(cannonAngle) * CANNON_LENGTH;  // Changed from 50 to 70
     const trajectoryPoints = calculateTrajectoryPoints(cannonTipX, cannonTipY, initialVelX, initialVelY);
     
     // Draw trajectory line
@@ -668,7 +627,7 @@ function draw() {
     
     // Draw cannon with space theme
     ctx.save();
-    ctx.translate(canvas.width/2, 50);
+    ctx.translate(canvas.width/2, 70);  // Changed from 50 to 70
     ctx.rotate(cannonAngle);
     
     // Draw energy core glow
@@ -780,12 +739,12 @@ function draw() {
     ctx.shadowBlur = 10;
     ctx.fillStyle = '#fff';
     ctx.font = 'bold 18px Arial';
-    ctx.fillText('Wager:', canvas.width/2, 10);  // Adjusted to be above the cannon
+    ctx.fillText('Wager:', canvas.width/2, 30);  // Changed from 10 to 30
     
     // Draw wager input box with animated border
     const borderGlow = Math.sin(animationTime * 3) * 0.2 + 0.8;
     ctx.fillStyle = isEditingWager ? 'rgba(138, 43, 226, 0.3)' : 'rgba(0, 0, 0, 0.5)';
-    wagerInputPosition = { x: canvas.width/2, y: 25 };  // Adjusted to be above the cannon
+    wagerInputPosition = { x: canvas.width/2, y: 45 };  // Changed from 25 to 45
     ctx.fillRect(wagerInputPosition.x - 50, wagerInputPosition.y - 12, 100, 24);
     
     // Draw wager input border with glow
@@ -1251,14 +1210,6 @@ async function updatePlayerBalance(amount) {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM loaded, checking config:', window.config);
     
-    // Initial canvas sizing
-    resizeCanvas();
-    
-    // Add resize listener
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-    });
-
     const playerName = localStorage.getItem('playerName');
     if (!playerName) {
         window.location.href = 'signup.html';
