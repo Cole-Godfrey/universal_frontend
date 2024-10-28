@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 async function loadPlayerInventory() {
     const username = localStorage.getItem('playerName');
     try {
-        const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
+        const response = await window.api.makeRequest(`${window.config.API_URL}/api/user/${username}`);
         if (!response.ok) {
             throw new Error('Failed to fetch your inventory from server');
         }
@@ -33,7 +33,7 @@ async function loadPlayerInventory() {
 async function loadPendingTrades() {
     const username = localStorage.getItem('playerName');
     try {
-        const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/trade/pending/${username}`);
+        const response = await window.api.makeRequest(`${window.config.API_URL}/api/trade/pending/${username}`);
         
         if (!response.ok) {
             throw new Error('Failed to fetch pending trades');
@@ -96,11 +96,8 @@ function displayPendingTrades(trades) {
 async function respondToTrade(tradeId, response) {
     try {
         const username = localStorage.getItem('playerName');
-        const result = await fetch('https://universal-backend-7wn9.onrender.com/api/trade/respond', {
+        const result = await window.api.makeRequest(`${window.config.API_URL}/api/trade/respond`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
             body: JSON.stringify({
                 tradeId,
                 response,
@@ -112,7 +109,7 @@ async function respondToTrade(tradeId, response) {
             const data = await result.json();
             if (response === 'accept') {
                 // Fetch updated inventory from the server
-                const updatedUser = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${username}`);
+                const updatedUser = await window.api.makeRequest(`${window.config.API_URL}/api/user/${username}`);
                 const userData = await updatedUser.json();
 
                 // Update the inventory display with the fetched data
@@ -246,7 +243,7 @@ async function findPlayer() {
     partnerItems.innerHTML = ''; // Clear previous items
 
     try {
-        const response = await fetch(`https://universal-backend-7wn9.onrender.com/api/user/${partnerName}`);
+        const response = await window.api.makeRequest(`${window.config.API_URL}/api/user/${partnerName}`);
         if (!response.ok) {
             throw new Error('Player not found');
         }
@@ -280,7 +277,7 @@ function loadPartnerInventory() {
         .catch(error => console.error('Error loading partner inventory:', error));
 }
 
-function proposeTrade() {
+async function proposeTrade() {
     const partnerName = document.getElementById('tradePartner').value;
     if (!partnerName) {
         alert('Please enter a trade partner name');
@@ -294,31 +291,28 @@ function proposeTrade() {
         receiverItems: Array.from(selectedItems.partner)
     };
     
-    fetch('https://universal-backend-7wn9.onrender.com/api/trade/propose', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(tradeData)
-    })
-    .then(response => {
+    try {
+        const response = await window.api.makeRequest(`${window.config.API_URL}/api/trade/propose`, {
+            method: 'POST',
+            body: JSON.stringify(tradeData)
+        });
+
         if (!response.ok) {
-            return response.json().then(err => { throw new Error(err.error || 'Failed to propose trade'); });
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to propose trade');
         }
-        return response.json();
-    })
-    .then(result => {
+
+        const result = await response.json();
         if (result.success) {
             alert('Trade proposal sent!');
             window.location.href = 'index.html';
         } else {
             throw new Error(result.error || 'Failed to propose trade');
         }
-    })
-    .catch(error => {
+    } catch (error) {
         console.error('Error proposing trade:', error);
         alert('Failed to propose trade');
-    });
+    }
 }
 
 // Add function to update trade button state
