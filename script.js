@@ -103,28 +103,28 @@ const TRAIL_OPACITY = 0.6;  // Starting opacity of trail
 
 // Add these constants at the top with other game constants
 const MAX_CANVAS_WIDTH = 800;  // Maximum width for desktop
-const MAX_CANVAS_HEIGHT = 600; // Maximum height for desktop
-const ASPECT_RATIO = 1.5;      // Maintain 3:2 aspect ratio (800:600)
+const MAX_CANVAS_HEIGHT = 500; // Reduced from 600 to 500
+const ASPECT_RATIO = 1.6;      // Maintain 8:5 aspect ratio (800:500)
 
 // Add this function to handle canvas sizing
 function resizeCanvas() {
     const container = canvas.parentElement;
     let containerWidth = container.clientWidth;
-    let containerHeight = container.clientHeight;
-
-    // Limit maximum size on desktop
-    containerWidth = Math.min(containerWidth, MAX_CANVAS_WIDTH);
-    containerHeight = Math.min(containerHeight, MAX_CANVAS_HEIGHT);
+    let containerHeight = window.innerHeight * 0.7; // Use 70% of viewport height
 
     // Calculate dimensions maintaining aspect ratio
     let newWidth = containerWidth;
-    let newHeight = containerWidth / ASPECT_RATIO;
+    let newHeight = newWidth / ASPECT_RATIO;
 
     // If height is too big, scale based on height instead
     if (newHeight > containerHeight) {
         newHeight = containerHeight;
-        newWidth = containerHeight * ASPECT_RATIO;
+        newWidth = newHeight * ASPECT_RATIO;
     }
+
+    // Limit maximum size
+    newWidth = Math.min(newWidth, MAX_CANVAS_WIDTH);
+    newHeight = Math.min(newHeight, MAX_CANVAS_HEIGHT);
 
     // Update canvas size
     canvas.style.width = `${newWidth}px`;
@@ -1251,6 +1251,14 @@ async function updatePlayerBalance(amount) {
 document.addEventListener('DOMContentLoaded', async () => {
     console.log('DOM loaded, checking config:', window.config);
     
+    // Initial canvas sizing
+    resizeCanvas();
+    
+    // Add resize listener
+    window.addEventListener('resize', () => {
+        resizeCanvas();
+    });
+
     const playerName = localStorage.getItem('playerName');
     if (!playerName) {
         window.location.href = 'signup.html';

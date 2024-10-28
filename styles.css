@@ -494,39 +494,30 @@ button:hover {
 /* Add these styles and update the container styles */
 .game-container {
     width: 100%;
-    max-width: 1200px; /* Limit maximum width */
+    max-width: 1000px;
     margin: 0 auto;
     padding: 20px;
     box-sizing: border-box;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .container {
-    text-align: center;
-    width: 95%;
-    max-width: 1800px;
-    padding: 20px 10px 0 10px;
+    width: 100%;
+    max-width: 800px;
     margin: 0 auto;
     display: flex;
-    flex-direction: column; /* Stack children vertically */
-    align-items: center;    /* Center children horizontally */
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
 }
 
 /* Update canvas styles */
 canvas {
-    background: linear-gradient(180deg, 
-        rgba(0, 0, 0, 0.95), 
-        rgba(26, 0, 51, 0.95),
-        rgba(51, 0, 102, 0.95)
-    );
-    border: 2px solid rgba(138, 43, 226, 0.4);
-    border-radius: 8px;
-    display: block;
-    margin: 0 auto;  /* This centers the canvas horizontally */
-    box-shadow: 
-        0 0 30px rgba(138, 43, 226, 0.2),
-        inset 0 0 50px rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(5px);
-    max-width: 800px; /* Match MAX_CANVAS_WIDTH */
+    max-width: 800px;
+    max-height: 500px;
     width: 100%;
     height: auto;
     margin: 0 auto;
@@ -606,3 +597,8 @@ canvas {
     }
 }
 
+/* Update menu styles to take less vertical space */
+.menu {
+    padding: 10px;
+    margin-bottom: 10px;
+}
